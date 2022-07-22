@@ -35,4 +35,4 @@ repos:
     hooks:
       - id: mypy
         args: []
-        additional_dependencies: [] #REMEMBER TO ADD THE MODULE WE ARE USING
+        additional_dependencies: [types-emoji] #REMEMBER TO ADD THE MODULE WE ARE USING
