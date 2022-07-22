@@ -1,7 +1,7 @@
 import uvicorn  # type: ignore
 from fastapi import FastAPI
 
-from .socket import router
+from .socket_router import router
 
 app = FastAPI()
 
