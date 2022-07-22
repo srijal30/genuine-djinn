@@ -1,4 +1,5 @@
 from contextlib import suppress
+from dataclasses import dataclass
 from typing import Awaitable, Callable, Dict
 
 from argon2 import PasswordHasher
@@ -6,6 +7,8 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from .db import db
 from .ws import Socket, SocketHandshake
+
+OperationFunc = Callable[[SocketHandshake], Awaitable[None]]
 
 ROOMS: Dict[str, str] = {}
 
@@ -35,9 +38,13 @@ async def _register(ws: SocketHandshake):
     await ws.finalize(success=True, payload={"tag": tag})
 
 
-OPERATIONS: Dict[str, Callable[[SocketHandshake], Awaitable[None]]] = {
-    "register": _register,
-}
+@dataclass
+class Operation:
+    """Dataclass for holding session operation information."""
+
+    fn: OperationFunc
+    count: int
+    limit: int
 
 
 @router.websocket("/")
@@ -46,12 +53,20 @@ async def socket(raw_socket: WebSocket):
     ws = Socket(raw_socket)
     await ws.connect()
 
+    operations: Dict[str, Operation] = {
+        "register": Operation(_register, 0, 1),
+    }
+
     with suppress(WebSocketDisconnect):
         while True:
             handshake = await ws.accept()
-            fn = OPERATIONS.get(handshake.handshake_type)
+            operation = operations.get(handshake.handshake_type)
 
-            if not fn:
+            if not operation:
                 await handshake.error("Invalid type was passed.")
 
-            await fn(handshake)
+            if operation.limit == operation.count:
+                await handshake.error("Limit exceeded for operation.")
+
+            await operation.fn(handshake)
+            operation.count += 1

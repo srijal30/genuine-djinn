@@ -50,7 +50,7 @@ class SocketHandshake:
     async def reply(
         self,
         *,
-        success: Optional[bool] = None,
+        success: bool = True,
         done: bool = False,
         payload: Optional[dict] = None,
         message: Optional[str] = None,
@@ -59,16 +59,10 @@ class SocketHandshake:
         res = {
             "type": self._type,
             "done": done,
+            "message": message,
+            "success": success,
+            **(payload or {}),
         }
-
-        if success is not None:
-            res["success"] = success
-
-        if payload is not None:
-            res = {**res, **payload}
-
-        if message is not None:
-            res["message"] = message
 
         await self._ws.send_json(res)
 
