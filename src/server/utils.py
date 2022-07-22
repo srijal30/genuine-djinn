@@ -47,7 +47,8 @@ async def verify(
 
         if not isinstance(value, ntype):
             await err(
-                socket, f'"{key}" got wrong type: expected {ntype}, got {type(value)}'
+                socket,
+                f'"{key}" got wrong type: expected {ntype}, got {type(value)}',
             )
 
     return [origin[i] for i in data]

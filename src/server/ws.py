@@ -81,6 +81,10 @@ class SocketHandshake:
             done=True,
         )
 
+    async def verify_current(self, schema: Dict[str, type]) -> List[Any]:
+        """Validate the current payload."""
+        return await verify(self._ws, self._payload, schema)
+
 
 class Socket:
     """Class for wrapping around a WebSocket."""

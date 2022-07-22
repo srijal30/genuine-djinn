@@ -54,6 +54,7 @@ Once again, every message should contain the `type` key. Responses will follow t
 #### Schema
 
 **Limit:** `1`
+
 **Type Name:** `"register"`
 
 | Key        | Type     | Description                      |

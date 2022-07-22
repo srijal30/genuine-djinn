@@ -12,12 +12,12 @@ OperationFunc = Callable[[SocketHandshake], Awaitable[None]]
 
 ROOMS: Dict[str, str] = {}
 
-router = APIRouter(prefix="/ws")
+router = APIRouter()
 hasher = PasswordHasher()
 
 
 async def _register(ws: SocketHandshake):
-    username, password = await ws.receive_next(
+    username, password = await ws.verify_current(
         {
             "username": str,
             "password": str,
@@ -38,23 +38,33 @@ async def _register(ws: SocketHandshake):
     await ws.finalize(success=True, payload={"tag": tag})
 
 
+async def _login(ws: SocketHandshake):
+    username, password = await ws.receive_next(
+        {"username": str, "password": str, "tag": int}
+    )
+
+    ...
+
+
 @dataclass
 class Operation:
     """Dataclass for holding session operation information."""
 
     fn: OperationFunc
-    count: int
-    limit: int
+    limit: int = -1
+    count: int = 0
 
 
-@router.websocket("/")
+@router.websocket("/ws")
 async def socket(raw_socket: WebSocket):
     """Main socket for handling client-server communication."""
     ws = Socket(raw_socket)
     await ws.connect()
 
+    # the key here is the type sent by the client
     operations: Dict[str, Operation] = {
-        "register": Operation(_register, 0, 1),
+        "register": Operation(_register, 1),
+        "login": Operation(_login, 1),
     }
 
     with suppress(WebSocketDisconnect):
