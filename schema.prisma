@@ -10,7 +10,7 @@ datasource db {
 
 model User {
   name     String @db.VarChar(50)
-  tag      Int @unique
+  tag      Int    @unique
   password String
   id       Int    @id @default(autoincrement())
 }
