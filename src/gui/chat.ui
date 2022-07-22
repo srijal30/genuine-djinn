@@ -65,4 +65,68 @@
       </object>
     </child>
   </object>
+  <object class="tk.Menu" id="mainmenu">
+    <property name="tearoff">false</property>
+    <child>
+      <object class="tk.Menuitem.Submenu" id="menufile">
+        <property name="label" translatable="yes">File</property>
+        <property name="tearoff">false</property>
+        <child>
+          <object class="tk.Menuitem.Command" id="menunew">
+            <property name="command" type="command" cbtype="with_wid">on_new</property>
+            <property name="label" translatable="yes">New</property>
+          </object>
+        </child>
+        <child>
+          <object class="tk.Menuitem.Separator" id="separator1" />
+        </child>
+        <child>
+          <object class="tk.Menuitem.Command" id="menuquit">
+            <property name="command" type="command" cbtype="with_wid">on_quit</property>
+            <property name="label" translatable="yes">Quit</property>
+            <property name="state">normal</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="tk.Menuitem.Submenu" id="menuedit">
+        <property name="label" translatable="yes">Edit</property>
+        <property name="tearoff">false</property>
+        <child>
+          <object class="tk.Menuitem.Submenu" id="menutextsize">
+            <property name="label" translatable="yes">Text Size</property>
+            <property name="tearoff">false</property>
+            <child>
+              <object class="tk.Menuitem.Radiobutton" id="radiobutton1">
+                <property name="label" translatable="yes">Small</property>
+              </object>
+            </child>
+            <child>
+              <object class="tk.Menuitem.Radiobutton" id="radiobutton2">
+                <property name="label" translatable="yes">Medium</property>
+              </object>
+            </child>
+            <child>
+              <object class="tk.Menuitem.Radiobutton" id="radiobutton3">
+                <property name="label" translatable="yes">Large</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="tk.Menuitem.Submenu" id="menuhelp">
+        <property name="label" translatable="yes">Help</property>
+        <property name="tearoff">false</property>
+        <child>
+          <object class="tk.Menuitem.Command" id="menuabout">
+            <property name="command" type="command" cbtype="with_wid">on_about</property>
+            <property name="label" translatable="yes">About</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
 </interface>

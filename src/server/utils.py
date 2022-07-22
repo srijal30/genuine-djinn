@@ -25,7 +25,7 @@ async def err(
             "success": False,
         }
     )
-    await socket.close()
+    # await socket.close()
     raise WebSocketDisconnect
 
 
