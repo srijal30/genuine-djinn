@@ -1,10 +1,12 @@
-from fastapi import WebSocket, WebSocketDisconnect
 import json
-from typing import Optional, NoReturn, List, Dict
+from typing import Any, Dict, List, NoReturn, Optional
+
+from fastapi import WebSocket, WebSocketDisconnect
 
 __all__ = (
     "err",
     "recv",
+    "verify",
 )
 
 
@@ -12,12 +14,15 @@ async def err(
     socket: WebSocket,
     message: str,
     data: Optional[dict] = None,
+    done: bool = True,
 ) -> NoReturn:
     """Send an error back to the user."""
     await socket.send_json(
         {
             "type": (data or {}).get("type") or "unknown",
-            "error": message,
+            "message": message,
+            "done": done,
+            "success": False,
         }
     )
     await socket.close()
@@ -28,7 +33,7 @@ async def verify(
     socket: WebSocket,
     origin: dict,
     data: Dict[str, type],
-) -> None:
+) -> List[Any]:
     """Validate a received object."""
     keys = [*data.keys(), "type"]
     success: bool = all([origin.get(i) for i in keys])
@@ -45,11 +50,13 @@ async def verify(
                 socket, f'"{key}" got wrong type: expected {ntype}, got {type(value)}'
             )
 
+    return [origin[i] for i in data]
+
 
 async def recv(
     socket: WebSocket,
     schema_data: Optional[Dict[str, type]] = None,
-) -> Dict[str, str]:
+) -> Dict[str, Any]:
     """Receive, parse, and validate an object received through the WebSocket connection."""
     schema = schema_data or {}
     schema["type"] = str

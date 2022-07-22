@@ -1,2 +1,5 @@
 fastapi>=0.79.0
 uvicorn>=0.18.2
+prisma>=0.6.6
+argon2-cffi>=21.3.0
+aiohttp>=3.8.1
