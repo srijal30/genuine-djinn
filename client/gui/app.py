@@ -1,7 +1,11 @@
 import tkinter as tk
 import tkinter.ttk as ttk
-from tkinter import Event
+from tkinter import Event, IntVar, Menu
 from tkinter.scrolledtext import ScrolledText
+
+import ttkbootstrap as tkb
+
+# from ttkbootstrap.constants import DARK
 
 __all__ = (
     "ChatApp"
@@ -13,7 +17,7 @@ class ChatApp:
 
     def __init__(self, master=None):
         # build ui
-        self.main_window = tk.Tk() if master is None else tk.Toplevel(master)
+        self.main_window = tkb.Window(themename="darkly")  # darkly/flatly
         self.main_window.configure(height=200, width=200)
         self.main_window.geometry("800x600")
         self.main_window.minsize(400, 300)
@@ -30,7 +34,7 @@ class ChatApp:
         self.messagebox.configure(textvariable=self.message_box)
         self.messagebox.grid(column=0, padx=3, pady=5, row=1, sticky="nsew")
         self.messagebox.bind("<Key>", self.on_enter, add="")
-        self.sendbutton = ttk.Button(self.chat_frame)
+        self.sendbutton = tkb.Button(self.chat_frame)
         self.sendbutton.configure(text="Send")
         self.sendbutton.grid(column=1, padx=3, pady=5, row=1, sticky="nsew")
         self.sendbutton.configure(command=self.on_send)
@@ -39,6 +43,41 @@ class ChatApp:
         self.chat_frame.grid_anchor("center")
         self.chat_frame.rowconfigure(0, weight=1)
         self.chat_frame.columnconfigure(0, uniform=0, weight=1)
+
+        # menu bar
+        self.menubar = Menu(self.main_window)
+
+        # file menu
+        filemenu = Menu(self.menubar, tearoff=False)
+        filemenu.add_command(label="Leave Room", command=None)
+        filemenu.add_command(label="Log Out", command=None)
+        filemenu.add_separator()
+        filemenu.add_command(label="Quit", command=self.main_window.quit)
+        self.menubar.add_cascade(label="File", menu=filemenu)
+
+        # edit menu
+        editmenu = Menu(self.menubar, tearoff=False)
+
+        sizemenu = Menu(editmenu, tearoff=False)
+        sizemenu.add_radiobutton(label="Small", value=1, variable=IntVar)
+        sizemenu.add_radiobutton(label="Medium", value=1, variable=IntVar)
+        sizemenu.add_radiobutton(label="Large", value=1, variable=IntVar)
+        editmenu.add_cascade(label="Text Size", menu=sizemenu)
+
+        thememenu = Menu(editmenu, tearoff=False)
+        thememenu.add_radiobutton(label="Light", value=1, variable=IntVar)
+        thememenu.add_radiobutton(label="Dark", value=1, variable=IntVar)
+        editmenu.add_cascade(label="Theme", menu=thememenu)
+
+        self.menubar.add_cascade(label="Edit", menu=editmenu)
+
+        # help menu
+        helpmenu = Menu(self.menubar, tearoff=False)
+        helpmenu.add_command(label="About", command=None)
+        self.menubar.add_cascade(label="Help", menu=helpmenu)
+
+        # add menu to frame
+        self.main_window.config(menu=self.menubar)
 
     def run(self) -> None:
         """Start GUI window loop."""
