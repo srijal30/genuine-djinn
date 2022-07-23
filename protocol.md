@@ -181,3 +181,25 @@ _This operation cannot fail._
 | Message                | Reason            |
 | ---------------------- | ----------------- |
 | `"Invalid room code."` | Self-explanatory. |
+
+### Listing Rooms
+
+#### Schema
+
+**Limit:** No limit
+
+**Type Name:** `"listrooms"`
+
+**Authentication is required to perform this operation.**
+
+_No other keys needed._
+
+#### Response
+
+| Key       | Type            | Description                           |
+| --------- | --------------- | ------------------------------------- |
+| `servers` | `Array<Server>` | Array of servers the user has joined. |
+
+#### Errors
+
+_This operation cannot fail._

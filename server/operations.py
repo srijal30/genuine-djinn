@@ -53,7 +53,7 @@ async def register(ws: SocketHandshake):
     await ws.success(payload={"tag": tag})
 
 
-async def login(ws: SocketHandshake):
+async def login(ws: SocketHandshake) -> None:
     """Log in to an account."""
     username, password, tag = await ws.expect(
         {"username": str, "password": str, "tag": int}
@@ -75,18 +75,14 @@ async def login(ws: SocketHandshake):
     await ws.success()
 
 
-async def create_room(ws: SocketHandshake):
+async def create_room(ws: SocketHandshake) -> None:
     """Create a new room."""
     name: str = await ws.expect_only(
         {"name": str},
         ensure_logged=True,
     )
 
-    uid: int = await ws.get_user()
-
-    user = await db.user.find_unique({"id": uid})
-    assert user
-
+    user = await ws.get_user()
     record = await db.room.create(
         {
             "name": name,
@@ -98,22 +94,26 @@ async def create_room(ws: SocketHandshake):
 
     await db.user.update(
         {
-            "servers": {"connect": [{"id": rid}]},
+            "servers": {
+                "connect": [
+                    {"id": rid},
+                ]
+            },
         },
-        where={"id": uid},
+        where={"id": user.id},
     )
 
     await ws.success(payload={"id": rid})
 
 
-async def join(ws: SocketHandshake):
+async def join(ws: SocketHandshake) -> None:
     """Join a new room."""
     code: str = await ws.expect_only(
         {"code": str},
         ensure_logged=True,
     )
 
-    uid: int = await ws.get_user()
+    uid: int = await ws.get_user_id()
     room = await db.room.update(
         {
             "users": {
@@ -142,10 +142,26 @@ async def join(ws: SocketHandshake):
     await ws.success(payload={"id": room.id})
 
 
+async def list_rooms(ws: SocketHandshake) -> None:
+    """List rooms of the current user."""
+    user = await ws.get_user(
+        include={
+            "servers": True,
+        }
+    )
+
+    await ws.success(
+        payload={
+            "servers": [i.__dict__ for i in (user.servers or [])],
+        }
+    )
+
+
 # the key here is the type sent by the client
 operations: Dict[str, Operation] = {
     "register": Operation(register, 1),
     "login": Operation(login, 1),
     "createroom": Operation(create_room),
     "joinroom": Operation(join),
+    "listrooms": Operation(list_rooms),
 }

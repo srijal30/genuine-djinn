@@ -1,3 +1,4 @@
+import copy
 from contextlib import suppress
 
 from argon2 import PasswordHasher
@@ -16,7 +17,7 @@ async def socket(raw_socket: WebSocket):
     ws = Socket(raw_socket)
     await ws.connect()
 
-    ops = operations.copy()
+    ops = copy.deepcopy(operations)
 
     with suppress(WebSocketDisconnect):
         while True:

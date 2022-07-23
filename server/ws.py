@@ -1,7 +1,10 @@
 from typing import Any, Dict, List, NoReturn, Optional
 
 from fastapi import WebSocket
+from prisma.models import User
+from prisma.types import UserInclude
 
+from .db import db
 from .utils import err, recv, verify
 
 __all__ = (
@@ -129,13 +132,29 @@ class SocketHandshake:
             payload=payload,
         )
 
-    async def get_user(self) -> int:
-        """Get the current authenticated user."""
+    async def get_user_id(self) -> int:
+        """Get the current authenticated user ID."""
         await self._ensure_logged()
         uid = self.socket.user_id
         assert uid is not None  # just to make mypy happy
 
         return uid
+
+    async def get_user(
+        self,
+        *,
+        include: Optional[UserInclude] = None,
+    ) -> User:
+        """Get the current authenticated user ID."""
+        user = await db.user.find_unique(
+            {
+                "id": await self.get_user_id(),
+            },
+            include,
+        )
+        assert user  # again, just making mypy happy
+
+        return user
 
 
 class Socket:
