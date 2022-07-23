@@ -1,5 +1,7 @@
 import random
 import string
+from dataclasses import dataclass
+from typing import Awaitable, Callable, Dict
 
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
@@ -9,11 +11,18 @@ from .ws import SocketHandshake
 
 hasher = PasswordHasher()
 
-__all__ = (
-    "register",
-    "login",
-    "create_room",
-)
+__all__ = ("operations",)
+
+OperationFunc = Callable[[SocketHandshake], Awaitable[None]]
+
+
+@dataclass
+class Operation:
+    """Dataclass for holding session operation information."""
+
+    fn: OperationFunc
+    limit: int = -1
+    count: int = 0
 
 
 def _create_string(length: int = 8) -> str:
@@ -68,8 +77,7 @@ async def login(ws: SocketHandshake):
 
 async def create_room(ws: SocketHandshake):
     """Create a new room."""
-    name: str
-    (name,) = await ws.expect(
+    name: str = await ws.expect_only(
         {"name": str},
         ensure_logged=True,
     )
@@ -79,7 +87,7 @@ async def create_room(ws: SocketHandshake):
     user = await db.user.find_unique({"id": uid})
     assert user
 
-    record = await db.server.create(
+    record = await db.room.create(
         {
             "name": name,
             "code": _create_string(),
@@ -96,3 +104,48 @@ async def create_room(ws: SocketHandshake):
     )
 
     await ws.success(payload={"id": rid})
+
+
+async def join(ws: SocketHandshake):
+    """Join a new room."""
+    code: str = await ws.expect_only(
+        {"code": str},
+        ensure_logged=True,
+    )
+
+    uid: int = await ws.get_user()
+    room = await db.room.update(
+        {
+            "users": {
+                "connect": [
+                    {"id": uid},
+                ]
+            }
+        },
+        where={"code": code},
+    )
+
+    if not room:
+        await ws.error("Invalid room code.")
+
+    await db.user.update(
+        {
+            "servers": {
+                "connect": [
+                    {"id": room.id},
+                ]
+            }
+        },
+        where={"id": uid},
+    )
+
+    await ws.success(payload={"id": room.id})
+
+
+# the key here is the type sent by the client
+operations: Dict[str, Operation] = {
+    "register": Operation(register, 1),
+    "login": Operation(login, 1),
+    "createroom": Operation(create_room),
+    "joinroom": Operation(join),
+}

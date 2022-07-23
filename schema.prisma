@@ -14,7 +14,7 @@ model User {
   id       Int       @id @default(autoincrement())
   tag      Int       @unique
   messages Message[]
-  servers  Server[]
+  servers  Room[]
 }
 
 model Message {
@@ -24,7 +24,7 @@ model Message {
   user    User   @relation(fields: [user_id], references: [id])
 }
 
-model Server {
+model Room {
   id    Int    @id @default(autoincrement())
   code  String @unique
   name  String

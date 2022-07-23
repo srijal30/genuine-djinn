@@ -64,10 +64,13 @@ Once again, every message should contain the `type` key. Responses will follow t
 
 #### Response
 
-| Key       | Type     | Description               |
-| --------- | -------- | ------------------------- |
-| `tag`     | `number` | Tag assigned to the user. |
-| `message` | `null`   | N/A                       |
+| Key   | Type     | Description               |
+| ----- | -------- | ------------------------- |
+| `tag` | `number` | Tag assigned to the user. |
+
+#### Errors
+
+_This operation cannot fail._
 
 #### Example
 
@@ -103,25 +106,78 @@ Once again, every message should contain the `type` key. Responses will follow t
 
 #### Response
 
-| Key       | Type   | Description |
-| --------- | ------ | ----------- |
-| `message` | `null` | N/A         |
+_No special values returned._
+
+#### Errors
+
+| Message                           | Reason            |
+| --------------------------------- | ----------------- |
+| `"Invalid username or password."` | Self-explanatory. |
+
+### Creating Rooms
+
+#### Schema
+
+**Limit:** No limit
+
+**Type Name:** `"createroom"`
+
+**Authentication is required to perform this operation.**
+
+| Key    | Type     | Description                 |
+| ------ | -------- | --------------------------- |
+| `name` | `string` | What to name the room with. |
+
+#### Response
+
+| Key  | Type     | Description            |
+| ---- | -------- | ---------------------- |
+| `id` | `number` | ID of the created room |
+
+#### Errors
+
+_This operation cannot fail._
 
 #### Example
 
 ```json
 // SENT BY CLIENT
 {
-    "type": "login",
-    "username": "test",
-    "tag": 1,
-    "password": "test"
+    "type": "createroom",
+    "name": "test",
 }
 // SENT BY SERVER
 {
-    "type": "login",
+    "type": "register",
     "message": null,
     "done": true,
-    "success": true
+    "success": true,
+    "id": "roomid",
 }
 ```
+
+### Joining Rooms
+
+#### Schema
+
+**Limit:** No limit
+
+**Type Name:** `"createroom"`
+
+**Authentication is required to perform this operation.**
+
+| Key    | Type     | Description              |
+| ------ | -------- | ------------------------ |
+| `code` | `string` | Code of the target room. |
+
+#### Response
+
+| Key  | Type     | Description            |
+| ---- | -------- | ---------------------- |
+| `id` | `number` | ID of the joined room. |
+
+#### Errors
+
+| Message                | Reason            |
+| ---------------------- | ----------------- |
+| `"Invalid room code."` | Self-explanatory. |

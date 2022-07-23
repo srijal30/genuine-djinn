@@ -51,6 +51,15 @@ class SocketHandshake:
 
         return await verify(self._ws, self._payload, schema)
 
+    async def expect_only(
+        self,
+        schema: Dict[str, type],
+        *,
+        ensure_logged: bool = False,
+    ) -> Any:
+        """Get a single JSON value from the socket handshake."""
+        return (await self.expect(schema, ensure_logged=ensure_logged))[0]
+
     async def error(self, message: str, done: bool = True) -> NoReturn:
         """Send an error back to the client."""
         await err(self._ws, message, self._payload, done=done)
