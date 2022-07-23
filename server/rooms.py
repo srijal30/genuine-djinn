@@ -6,7 +6,7 @@ from fastapi import WebSocketDisconnect
 from prisma.models import Room, User
 
 from .db import db
-from .utils import EndHandshake, user_dict
+from .utils import EndHandshake, references, user_dict
 
 if TYPE_CHECKING:
     from .ws import SocketHandshake
@@ -57,32 +57,16 @@ class RoomManager:
         record = await db.message.create(
             {
                 "content": message,
-                "author": {
-                    "connect": {"id": au.id},
-                },
-                "server": {
-                    "connect": {"id": self.id},
-                },
+                "author": references(au.id),
+                "server": references(self.id),
             }
         )
         await db.room.update(
-            {
-                "messages": {
-                    "connect": [
-                        {"id": record.id},
-                    ],
-                },
-            },
+            {"messages": references(record.id, array=True)},
             where={"id": self.id},
         )
         await db.user.update(
-            {
-                "messages": {
-                    "connect": [
-                        {"id": record.id},
-                    ]
-                }
-            },
+            {"messages": references(record.id)},
             where={"id": au.id},
         )
 

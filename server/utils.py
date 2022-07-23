@@ -17,6 +17,19 @@ class EndHandshake(Exception):
     """Exception to end the current handshake without killing the connection."""
 
 
+def references(
+    target: Any,
+    *,
+    name: str = "id",
+    array: bool = False,
+) -> Any:
+    """Create a Prisma relation dictionary."""
+    raw = {name: target}
+    return {
+        "connect": raw if not array else [raw],
+    }
+
+
 def create_string(length: int = 8) -> str:
     return "".join([random.choice(string.ascii_lowercase) for _ in range(length)])
 

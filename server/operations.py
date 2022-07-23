@@ -6,7 +6,7 @@ from argon2.exceptions import VerifyMismatchError
 
 from .db import db
 from .rooms import RoomManager
-from .utils import create_string, room_dict
+from .utils import create_string, references, room_dict
 from .ws import SocketHandshake
 
 hasher = PasswordHasher()
@@ -53,11 +53,18 @@ async def register(ws: SocketHandshake):
 async def login(ws: SocketHandshake) -> None:
     """Log in to an account."""
     username, password, tag = await ws.expect(
-        {"username": str, "password": str, "tag": int}
+        {
+            "username": str,
+            "password": str,
+            "tag": int,
+        }
     )
 
     user = await db.user.find_first(
-        where={"name": username, "tag": tag},
+        where={
+            "name": username,
+            "tag": tag,
+        },
     )
 
     if not user:
@@ -84,18 +91,14 @@ async def create_room(ws: SocketHandshake) -> None:
         {
             "name": name,
             "code": create_string(),
-            "users": {"connect": {"id": user.id}},
+            "users": references(user.id),
         }
     )
     rid: int = record.id
 
     await db.user.update(
         {
-            "servers": {
-                "connect": [
-                    {"id": rid},
-                ]
-            },
+            "servers": references(rid, array=True),
         },
         where={"id": user.id},
     )
@@ -112,13 +115,7 @@ async def join(ws: SocketHandshake) -> None:
 
     uid: int = await ws.get_user_id()
     room = await db.room.update(
-        {
-            "users": {
-                "connect": [
-                    {"id": uid},
-                ]
-            }
-        },
+        {"users": references(uid, array=True)},
         where={"code": code},
     )
 
