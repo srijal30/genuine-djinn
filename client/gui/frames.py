@@ -3,8 +3,8 @@ import tkinter.ttk as ttk
 from tkinter import Event
 from tkinter.scrolledtext import ScrolledText
 
+import menus as menu
 import ttkbootstrap as tkb  # type: ignore
-from menus import MainMenu
 
 # from ttkbootstrap.constants import DARK
 
@@ -43,7 +43,7 @@ class ChatFrame(tkb.Frame):
         master.grid_anchor("center")
         master.grid_rowconfigure(0, weight=1)
         master.grid_columnconfigure(0, uniform=0, weight=1)
-        master.config(menu=MainMenu(master))
+        master.config(menu=menu.MainMenu(master))
         master.configure(height=200, width=200)
         master.geometry("800x600")
         master.minsize(400, 300)
@@ -73,16 +73,16 @@ class LoginFrame(ttk.Frame):
 
         master.title("Chat App - Login")
 
-        self.username = tkb.Label(self)
-        self.username.configure(text="Username")
-        self.username.grid(column=0, padx=5, row=0, sticky="e")
-        self.entry2 = tkb.Entry(self)
-        self.entry2.grid(column=1, ipadx=10, pady=3, row=0, sticky="w")
-        self.label1 = tkb.Label(self)
-        self.label1.configure(text="Password")
-        self.label1.grid(column=0, padx=5, row=1, sticky="e")
-        self.entry3 = tkb.Entry(self)
-        self.entry3.grid(column=1, ipadx=10, pady=3, row=1, sticky="w")
+        self.username_label = tkb.Label(self)
+        self.username_label.configure(text="Username")
+        self.username_label.grid(column=0, padx=5, row=0, sticky="e")
+        self.username_box = tkb.Entry(self)
+        self.username_box.grid(column=1, ipadx=10, pady=3, row=0, sticky="w")
+        self.password_label = tkb.Label(self)
+        self.password_label.configure(text="Password")
+        self.password_label.grid(column=0, padx=5, row=1, sticky="e")
+        self.password_box = tkb.Entry(self, show="*")
+        self.password_box.grid(column=1, ipadx=10, pady=3, row=1, sticky="w")
         self.login_btn = tkb.Button(self)
         self.login_btn.configure(text="Login")
         self.login_btn.bind("<ButtonPress>", self.on_login)
@@ -93,7 +93,7 @@ class LoginFrame(ttk.Frame):
 
         # top level
         master.grid_anchor("center")
-        master.config(menu=MainMenu(master))
+        master.config(menu=menu.MainMenu(master))
         master.configure(height=200, width=200)
         master.geometry("800x600")
         master.minsize(400, 300)

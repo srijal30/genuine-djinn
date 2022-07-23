@@ -1,63 +1,32 @@
-import sys
 import tkinter as tk
-from tkinter import IntVar, Menu
 
+import submenus as submenu
 import ttkbootstrap as tkb  # type: ignore
 
 __app__ = (
-    "MainMenu"
+    "MainMenu",
+    "DebugMenu"
 )
 
 
 class MainMenu(tk.Menu):
-    """Main navigation menu."""
+    """Default navigation menu."""
 
     def __init__(self, master):
         tkb.Menu.__init__(self, master)
 
-        tkb.Style("darkly")  # flatly/darkly
+        self.add_cascade(label="File", menu=submenu.FileMenu(self))    # File menu
+        self.add_cascade(label="View", menu=submenu.ViewMenu(self))    # View menu
+        self.add_cascade(label="Help", menu=submenu.HelpMenu(self))    # Help menu
 
-        # file menu
-        file_menu = Menu(self, tearoff=False)
-        file_menu.add_command(label="Leave Room", command=self.on_leave)
-        file_menu.add_command(label="Log Out", command=self.on_logout)
-        file_menu.add_separator()
-        file_menu.add_command(label="Quit", command=self.on_quit)
-        self.add_cascade(label="File", menu=file_menu)
 
-        # view menu
-        view_menu = Menu(self, tearoff=False)
+class DebugMenu(tk.Menu):
+    """Menu for debugging."""
 
-        size_menu = Menu(view_menu, tearoff=False)
-        size_menu.add_radiobutton(label="Small", value=1, variable=IntVar)
-        size_menu.add_radiobutton(label="Medium", value=1, variable=IntVar)
-        size_menu.add_radiobutton(label="Large", value=1, variable=IntVar)
-        view_menu.add_cascade(label="Text Size", menu=size_menu)
+    def __init__(self, master):
+        tkb.Menu.__init__(self, master)
 
-        theme_menu = Menu(view_menu, tearoff=False)
-        theme_menu.add_radiobutton(label="Light", value=1, variable=IntVar)
-        theme_menu.add_radiobutton(label="Dark", value=1, variable=IntVar)
-        view_menu.add_cascade(label="Theme", menu=theme_menu)
-
-        self.add_cascade(label="View", menu=view_menu)
-
-        # help menu
-        help_menu = Menu(self, tearoff=False)
-        help_menu.add_command(label="About", command=self.on_about)
-        self.add_cascade(label="Help", menu=help_menu)
-
-    def on_leave(self) -> None:
-        """On Leave Room item press."""
-        pass
-
-    def on_logout(self) -> None:
-        """On Log Out item press."""
-        pass
-
-    def on_quit(self) -> None:
-        """On Quit item press."""
-        sys.exit(0)
-
-    def on_about(self) -> None:
-        """On About item press."""
-        pass
+        self.add_cascade(label="File", menu=submenu.FileMenu(self))    # File menu
+        self.add_cascade(label="View", menu=submenu.ViewMenu(self))    # View menu
+        self.add_cascade(label="Help", menu=submenu.HelpMenu(self))    # Help menu
+        self.add_cascade(label="Debug", menu=submenu.DebugMenu(self))  # Debug menu

@@ -1,7 +1,10 @@
 from typing import Any, Dict, List, NoReturn, Optional
 
 from fastapi import WebSocket
+from prisma.models import User
+from prisma.types import UserInclude
 
+from .db import db
 from .utils import err, recv, verify
 
 __all__ = (
@@ -51,6 +54,15 @@ class SocketHandshake:
 
         return await verify(self._ws, self._payload, schema)
 
+    async def expect_only(
+        self,
+        schema: Dict[str, type],
+        *,
+        ensure_logged: bool = False,
+    ) -> Any:
+        """Get a single JSON value from the socket handshake."""
+        return (await self.expect(schema, ensure_logged=ensure_logged))[0]
+
     async def error(self, message: str, done: bool = True) -> NoReturn:
         """Send an error back to the client."""
         await err(self._ws, message, self._payload, done=done)
@@ -67,7 +79,7 @@ class SocketHandshake:
 
         payload = await recv(self._ws, schema)
         self._reload(payload)
-        return [payload[i] for i in schema]
+        return [payload[i] for i in schema if i != "type"]
 
     def _reload(self, payload: dict) -> None:
         self._payload: dict = payload
@@ -120,13 +132,29 @@ class SocketHandshake:
             payload=payload,
         )
 
-    async def get_user(self) -> int:
-        """Get the current authenticated user."""
+    async def get_user_id(self) -> int:
+        """Get the current authenticated user ID."""
         await self._ensure_logged()
         uid = self.socket.user_id
         assert uid is not None  # just to make mypy happy
 
         return uid
+
+    async def get_user(
+        self,
+        *,
+        include: Optional[UserInclude] = None,
+    ) -> User:
+        """Get the current authenticated user ID."""
+        user = await db.user.find_unique(
+            {
+                "id": await self.get_user_id(),
+            },
+            include,
+        )
+        assert user  # again, just making mypy happy
+
+        return user
 
 
 class Socket:

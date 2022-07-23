@@ -1,13 +1,52 @@
 import json
+import random
+import string
 from typing import Any, Dict, List, NoReturn, Optional
 
-from fastapi import WebSocket, WebSocketDisconnect
+from fastapi import WebSocket
+from prisma.models import Room, User
 
 __all__ = (
     "err",
     "recv",
     "verify",
 )
+
+
+class EndHandshake(Exception):
+    """Exception to end the current handshake without killing the connection."""
+
+
+def references(
+    target: Any,
+    *,
+    name: str = "id",
+    array: bool = False,
+) -> Any:
+    """Create a Prisma relation dictionary."""
+    raw = {name: target}
+    return {
+        "connect": raw if not array else [raw],
+    }
+
+
+def create_string(length: int = 8) -> str:
+    return "".join([random.choice(string.ascii_lowercase) for _ in range(length)])
+
+
+def user_dict(user: User) -> dict:
+    """Make a public dictionary for a user object."""
+    return {
+        "name": user.name,
+        "tag": user.tag,
+    }
+
+
+def room_dict(room: Room) -> dict:
+    """Make a public dictionary for a room object."""
+    res = room.__dict__
+    res["users"] = [user_dict(i) for i in res["users"]]
+    return res
 
 
 async def err(
@@ -26,7 +65,7 @@ async def err(
         }
     )
     # await socket.close()
-    raise WebSocketDisconnect
+    raise EndHandshake
 
 
 async def verify(
@@ -66,6 +105,9 @@ async def recv(
         data: dict = json.loads(await socket.receive_text())
     except json.JSONDecodeError:
         await err(socket, "Invalid JSON object.")
+
+    if data.get("end"):
+        raise EndHandshake
 
     await verify(socket, data, schema)
     return data

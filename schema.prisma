@@ -14,19 +14,22 @@ model User {
   id       Int       @id @default(autoincrement())
   tag      Int       @unique
   messages Message[]
-  servers  Server[]
+  servers  Room[]
 }
 
 model Message {
-  user_id Int
-  id      Int    @id @default(autoincrement())
-  content String
-  user    User   @relation(fields: [user_id], references: [id])
+  id        Int    @id @default(autoincrement())
+  content   String
+  author_id Int
+  server_id Int
+  author    User   @relation(fields: [author_id], references: [id])
+  server    Room   @relation(fields: [server_id], references: [id])
 }
 
-model Server {
-  id    Int    @id @default(autoincrement())
-  code  String @unique
-  name  String
-  users User[]
+model Room {
+  id       Int       @id @default(autoincrement())
+  code     String    @unique
+  name     String
+  messages Message[]
+  users    User[]
 }

@@ -10,7 +10,7 @@ No initilization message is required.
 
 ### Handshakes
 
-A handshake is considered as a singular or multi message exchange between the server and client. After connecting, you should send a message looking something like this:
+A handshake is considered as a singular or multi message exchange between the server and client. To start a handshake, you should send a message looking something like this:
 
 ```json
 {
@@ -45,7 +45,99 @@ The client is free to continue using the socket if it encounters an error, but i
 
 _More will be added here as protocol is implemented_
 
-## Using the WebSocket
+## Connecting to rooms
+
+After logging in to an account through your WebSocket connection, you may connect to a room.
+
+Send a JSON message like this to server through the connection to start the handshake:
+
+```json
+{
+    "type": "roomconnect",
+    "id": 1234
+}
+```
+
+**Note:** `type` will stay as `"roomconnect"` throughout the entire connection.
+
+If the room doesn't exist or the user has not joined the target room, the server will return an error and end the handshake.
+
+If all goes well, the server will respond with this:
+
+```json
+{
+    "type": "roomconnect",
+    "done": false,
+    "message": "Connection established.",
+    "success": true
+}
+```
+
+### Receiving
+
+Now, at any point during this connection you may receive a message from the server that looks like this:
+
+```json
+{
+    "type": "roomconnect",
+    "done": false,
+    "message": "New message received.",
+    "new": {
+        "author": {
+            // User object here...
+        },
+        "content": "new message content here"
+    }
+}
+```
+
+This is the server telling you that a new message was received. It doesn't expect any reply from the client.
+
+### Sending
+
+Sending a message to the room after connection is simple. Send a JSON message that looks like this:
+
+```json
+{
+    "type": "roomconnect",
+    "content": "your message content"
+}
+```
+
+### Exiting
+
+Send the following to end the connection:
+
+```json
+{
+    "type": "roomconnect",
+    "end": true
+}
+```
+
+## Types
+
+### User
+
+```ts
+{
+    name: string,
+    tag: number
+}
+```
+
+### Server
+
+```ts
+{
+    id: number,
+    code: string,
+    name: string,
+    users: Array<User>
+}
+```
+
+## Reference
 
 Once again, every message should contain the `type` key. Responses will follow the format above (with other keys defined by the payload).
 
@@ -64,10 +156,13 @@ Once again, every message should contain the `type` key. Responses will follow t
 
 #### Response
 
-| Key       | Type     | Description               |
-| --------- | -------- | ------------------------- |
-| `tag`     | `number` | Tag assigned to the user. |
-| `message` | `null`   | N/A                       |
+| Key   | Type     | Description               |
+| ----- | -------- | ------------------------- |
+| `tag` | `number` | Tag assigned to the user. |
+
+#### Errors
+
+_This operation cannot fail._
 
 #### Example
 
@@ -103,25 +198,100 @@ Once again, every message should contain the `type` key. Responses will follow t
 
 #### Response
 
-| Key       | Type   | Description |
-| --------- | ------ | ----------- |
-| `message` | `null` | N/A         |
+_No special values returned._
+
+#### Errors
+
+| Message                           | Reason            |
+| --------------------------------- | ----------------- |
+| `"Invalid username or password."` | Self-explanatory. |
+
+### Creating Rooms
+
+#### Schema
+
+**Limit:** No limit
+
+**Type Name:** `"createroom"`
+
+**Authentication is required to perform this operation.**
+
+| Key    | Type     | Description                 |
+| ------ | -------- | --------------------------- |
+| `name` | `string` | What to name the room with. |
+
+#### Response
+
+| Key  | Type     | Description            |
+| ---- | -------- | ---------------------- |
+| `id` | `number` | ID of the created room |
+
+#### Errors
+
+_This operation cannot fail._
 
 #### Example
 
 ```json
 // SENT BY CLIENT
 {
-    "type": "login",
-    "username": "test",
-    "tag": 1,
-    "password": "test"
+    "type": "createroom",
+    "name": "test",
 }
 // SENT BY SERVER
 {
-    "type": "login",
+    "type": "register",
     "message": null,
     "done": true,
-    "success": true
+    "success": true,
+    "id": "roomid",
 }
 ```
+
+### Joining Rooms
+
+#### Schema
+
+**Limit:** No limit
+
+**Type Name:** `"createroom"`
+
+**Authentication is required to perform this operation.**
+
+| Key    | Type     | Description              |
+| ------ | -------- | ------------------------ |
+| `code` | `string` | Code of the target room. |
+
+#### Response
+
+| Key  | Type     | Description            |
+| ---- | -------- | ---------------------- |
+| `id` | `number` | ID of the joined room. |
+
+#### Errors
+
+| Message                | Reason            |
+| ---------------------- | ----------------- |
+| `"Invalid room code."` | Self-explanatory. |
+
+### Listing Rooms
+
+#### Schema
+
+**Limit:** No limit
+
+**Type Name:** `"listrooms"`
+
+**Authentication is required to perform this operation.**
+
+_No other keys needed._
+
+#### Response
+
+| Key       | Type            | Description                           |
+| --------- | --------------- | ------------------------------------- |
+| `servers` | `Array<Server>` | Array of servers the user has joined. |
+
+#### Errors
+
+_This operation cannot fail._

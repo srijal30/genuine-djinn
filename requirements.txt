@@ -2,6 +2,6 @@ fastapi~=0.79.0
 uvicorn~=0.18.2
 prisma~=0.6.6
 argon2-cffi~=21.3.0
-pygubu~=0.23.1
 websockets~=10.3
 emoji~=2.0.0
+ttkbootstrap~=1.9.0

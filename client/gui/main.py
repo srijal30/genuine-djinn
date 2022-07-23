@@ -1,5 +1,5 @@
-from app import ChatApp
+import app
 
 if __name__ == "__main__":
-    application = ChatApp()
+    application = app.ChatApp()
     application.mainloop()
