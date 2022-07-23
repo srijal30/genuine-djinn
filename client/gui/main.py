@@ -1,4 +1,5 @@
 import pathlib
+from tkinter import Event
 
 import pygubu  # type: ignore
 
@@ -14,29 +15,27 @@ class GUI:
         builder.add_resource_path(PROJECT_PATH)
         builder.add_from_file(PROJECT_UI)
 
-        # Main widget
         self.mainwindow = builder.get_object("mainwindow", master)
 
-        # Set main menu
         self.mainmenu = builder.get_object("mainmenu", self.mainwindow)
         self.mainwindow.configure(menu=self.mainmenu)
 
         builder.connect_callbacks(self)
 
-    def run(self):
+    def run(self) -> None:
         """Start GUI window loop."""
         self.mainwindow.mainloop()
 
-    def on_enter(self, callback):
+    def on_enter(self, event: Event) -> None:
         """Clicking enter in messagebox."""
-        if callback.keysym == "Return":
+        if event.keysym == "Return":
             self.is_valid()
 
-    def on_send(self):
+    def on_send(self) -> None:
         """Clicking send button."""
         self.is_valid()
 
-    def is_valid(self):
+    def is_valid(self) -> None:
         """Is the message valid to send?"""
         messagebox = self.builder.get_object("messagebox")
         message = messagebox.get().strip()
@@ -44,7 +43,7 @@ class GUI:
         if len(message) > 0:
             self.send(message)
 
-    def send(self, message):
+    def send(self, message: str) -> None:
         """Sends chat message."""
         print(message)
 
@@ -53,7 +52,7 @@ class GUI:
 
         self.display(message)
 
-    def display(self, message):
+    def display(self, message: str) -> None:
         """Displays chat message."""
         chatcontent = self.builder.get_object("chatbox")
         chatcontent.configure(state="normal")
@@ -61,16 +60,16 @@ class GUI:
         chatcontent.configure(state="disable")
         chatcontent.yview_moveto(1)
 
-    def on_quit(self, payload):
+    def on_quit(self, payload: str) -> None:
         """Quit menu button."""
         print("quit")
         self.mainwindow.quit()
 
-    def on_about(self, payload):
+    def on_about(self, payload: str) -> None:
         """About menu button."""
         print("about")
 
-    def on_new(self, payload):
+    def on_new(self, payload: str) -> None:
         """New menu button."""
         print("new")
 
