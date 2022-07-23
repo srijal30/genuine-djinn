@@ -61,7 +61,12 @@ class SocketHandshake:
         ensure_logged: bool = False,
     ) -> Any:
         """Get a single JSON value from the socket handshake."""
-        return (await self.expect(schema, ensure_logged=ensure_logged))[0]
+        return (
+            await self.expect(
+                schema,
+                ensure_logged=ensure_logged,
+            )
+        )[0]
 
     async def error(self, message: str, done: bool = True) -> NoReturn:
         """Send an error back to the client."""
@@ -170,7 +175,7 @@ class Socket:
         return self._user_id
 
     @user_id.setter
-    def user_id(self, id: int) -> None:
+    def user_id(self, id: Optional[int]) -> None:
         self._user_id = id
 
     async def accept(self) -> SocketHandshake:

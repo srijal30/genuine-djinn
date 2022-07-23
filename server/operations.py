@@ -52,6 +52,8 @@ async def register(ws: SocketHandshake):
 
 async def login(ws: SocketHandshake) -> None:
     """Log in to an account."""
+    if ws.socket.user_id:
+        await ws.error("Already logged in.")
     username, password, tag = await ws.expect(
         {
             "username": str,
@@ -188,6 +190,12 @@ async def room_connect(ws: SocketHandshake) -> None:
     await manager.register_handshake(ws)
 
 
+async def logout(ws: SocketHandshake) -> None:
+    await ws.get_user_id()  # to ensure that they are authenticated already
+    ws.socket.user_id = None
+    await ws.success()
+
+
 # the key here is the type sent by the client
 operations: Dict[str, Operation] = {
     "register": Operation(register, 1),
@@ -196,4 +204,6 @@ operations: Dict[str, Operation] = {
     "joinroom": Operation(join),
     "listrooms": Operation(list_rooms),
     "roomconnect": Operation(room_connect),
+    "logout": Operation(logout),
 }
+"""Dictionary containing resolvers for type headers."""

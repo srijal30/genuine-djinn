@@ -205,6 +205,7 @@ _No special values returned._
 | Message                           | Reason            |
 | --------------------------------- | ----------------- |
 | `"Invalid username or password."` | Self-explanatory. |
+| `"Already logged in."`            | Self-explanatory. |
 
 ### Creating Rooms
 
