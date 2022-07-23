@@ -29,7 +29,7 @@ class ChatApp(tk.Tk):
             "Connect": None
         }
 
-        self.chat_frame()  # starting frame
+        self.login_frame()  # starting frame
 
     def switch_frame(
         self,
