@@ -15,6 +15,8 @@ class MainMenu(tk.Menu):
     def __init__(self, master):
         tkb.Menu.__init__(self, master)
 
+        tkb.Style("darkly")  # flatly/darkly
+
         # file menu
         file_menu = Menu(self, tearoff=False)
         file_menu.add_command(label="Leave Room", command=self.on_leave)
@@ -23,7 +25,7 @@ class MainMenu(tk.Menu):
         file_menu.add_command(label="Quit", command=self.on_quit)
         self.add_cascade(label="File", menu=file_menu)
 
-        # edit menu
+        # view menu
         view_menu = Menu(self, tearoff=False)
 
         size_menu = Menu(view_menu, tearoff=False)
@@ -40,9 +42,9 @@ class MainMenu(tk.Menu):
         self.add_cascade(label="View", menu=view_menu)
 
         # help menu
-        helpmenu = Menu(self, tearoff=False)
-        helpmenu.add_command(label="About", command=self.on_about)
-        self.add_cascade(label="Help", menu=helpmenu)
+        help_menu = Menu(self, tearoff=False)
+        help_menu.add_command(label="About", command=self.on_about)
+        self.add_cascade(label="Help", menu=help_menu)
 
     def on_leave(self) -> None:
         """On Leave Room item press."""

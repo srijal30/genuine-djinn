@@ -4,6 +4,7 @@ from tkinter import Event
 from tkinter.scrolledtext import ScrolledText
 
 import ttkbootstrap as tkb  # type: ignore
+from menus import MainMenu
 
 # from ttkbootstrap.constants import DARK
 
@@ -20,23 +21,33 @@ class ChatFrame(tkb.Frame):
     def __init__(self, master):
         tkb.Frame.__init__(self, master)
 
-        self.chatbox = ScrolledText()
-        self.chatbox.configure(state="disabled")
-        self.chatbox.grid(column=0, columnspan=2, row=0, rowspan=1, sticky=tk.NSEW)
+        master.title("Chat App - Chat")
 
-        self.messagebox = tkb.Entry()
-        self.messagebox.configure(textvariable=tk.StringVar(value=""))
-        self.messagebox.grid(column=0, padx=3, pady=5, row=1, rowspan=1, sticky=tk.NSEW)
-        self.messagebox.bind("<Return>", self.on_enter, add="")
+        self.chat_box = ScrolledText()
+        self.chat_box.configure(state="disabled")
+        self.chat_box.grid(column=0, columnspan=2, row=0, rowspan=1, sticky=tk.NSEW)
 
-        self.sendbutton = tkb.Button()
-        self.sendbutton.configure(text="Send")
-        self.sendbutton.grid(column=1, padx=3, pady=5, row=1, rowspan=1, sticky=tk.NSEW)
-        self.sendbutton.configure(command=self.on_send)
+        self.message_box = tkb.Entry()
+        self.message_box.configure(textvariable=tk.StringVar(value=""))
+        self.message_box.grid(column=0, padx=3, pady=5, row=1, rowspan=1, sticky=tk.NSEW)
+        self.message_box.bind("<Return>", self.on_enter, add="")
 
-        self.configure(height=200, padding=5, width=200)
+        self.send_btn = tkb.Button()
+        self.send_btn.configure(text="Send", command=self.on_send)
+        self.send_btn.grid(column=1, padx=3, pady=5, row=1, rowspan=1, sticky=tk.NSEW)
+
         self.grid_anchor("center")
         self.grid(column=0, columnspan=2, row=0, rowspan=2, sticky=tk.NSEW)
+
+        # top level
+        master.grid_anchor("center")
+        master.grid_rowconfigure(0, weight=1)
+        master.grid_columnconfigure(0, uniform=0, weight=1)
+        master.config(menu=MainMenu(master))
+        master.configure(height=200, width=200)
+        master.geometry("800x600")
+        master.minsize(400, 300)
+        master.resizable(True, True)
 
     def on_send(self) -> None:
         """On send button press."""
@@ -59,3 +70,35 @@ class LoginFrame(ttk.Frame):
 
     def __init__(self, master):
         tkb.Frame.__init__(self, master)
+
+        master.title("Chat App - Login")
+
+        self.username = tkb.Label(self)
+        self.username.configure(text="Username")
+        self.username.grid(column=0, padx=5, row=0, sticky="e")
+        self.entry2 = tkb.Entry(self)
+        self.entry2.grid(column=1, ipadx=10, pady=3, row=0, sticky="w")
+        self.label1 = tkb.Label(self)
+        self.label1.configure(text="Password")
+        self.label1.grid(column=0, padx=5, row=1, sticky="e")
+        self.entry3 = tkb.Entry(self)
+        self.entry3.grid(column=1, ipadx=10, pady=3, row=1, sticky="w")
+        self.login_btn = tkb.Button(self)
+        self.login_btn.configure(text="Login")
+        self.login_btn.bind("<ButtonPress>", self.on_login)
+        self.login_btn.grid(column=0, columnspan=2, pady=15, row=3, sticky="nsew")
+
+        self.grid_anchor("center")
+        self.grid(column=0, columnspan=2, row=0, rowspan=3, sticky=tk.NSEW)
+
+        # top level
+        master.grid_anchor("center")
+        master.config(menu=MainMenu(master))
+        master.configure(height=200, width=200)
+        master.geometry("800x600")
+        master.minsize(400, 300)
+        master.resizable(True, True)
+
+    def on_login(self, event: Event = None) -> None:
+        """On login button press."""
+        # self.master.switch_frame(ChatFrame)

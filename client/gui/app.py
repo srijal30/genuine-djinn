@@ -1,9 +1,7 @@
 import tkinter as tk
 from typing import Union
 
-import ttkbootstrap as tkb  # type: ignore
 from frames import ChatFrame, ConnectionFrame, LoginFrame
-from menus import MainMenu
 
 __all__ = (
     "ChatApp"
@@ -16,21 +14,13 @@ class ChatApp(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self._frame = None
-        self.switch_frame(ChatFrame)
-        tkb.Style("flatly")
-        self.config(menu=MainMenu(self))
-        self.configure(height=200, width=200)
-        self.geometry("800x600")
-        self.minsize(400, 300)
-        self.resizable(True, True)
-        self.title("Chat App")
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_columnconfigure(0, uniform=0, weight=1)
+        self.switch_frame(LoginFrame)
 
     def switch_frame(self, frame_class: Union[ChatFrame, ConnectionFrame, LoginFrame]) -> None:
-        """Frame switcher."""
+        """Destroys current frame and replaces it with a new one."""
         new_frame = frame_class(self)
         if self._frame is not None:
+            self._frame.grid_forget()
             self._frame.destroy()
         self._frame = new_frame
         self._frame.grid()
