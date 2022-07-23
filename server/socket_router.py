@@ -5,7 +5,7 @@ from typing import Awaitable, Callable, Dict
 from argon2 import PasswordHasher
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-from .db import db
+from .operations import create_room, login, register
 from .ws import Socket, SocketHandshake
 
 OperationFunc = Callable[[SocketHandshake], Awaitable[None]]
@@ -14,36 +14,6 @@ ROOMS: Dict[str, str] = {}
 
 router = APIRouter()
 hasher = PasswordHasher()
-
-
-async def _register(ws: SocketHandshake):
-    username, password = await ws.verify_current(
-        {
-            "username": str,
-            "password": str,
-        }
-    )
-
-    found = await db.user.find_many(where={"name": username})
-    tag: int = len(found) + 1
-
-    await db.user.create(
-        {
-            "name": username,
-            "password": hasher.hash(password),
-            "tag": tag,
-        }
-    )
-
-    await ws.finalize(success=True, payload={"tag": tag})
-
-
-async def _login(ws: SocketHandshake):
-    username, password = await ws.receive_next(
-        {"username": str, "password": str, "tag": int}
-    )
-
-    ...
 
 
 @dataclass
@@ -63,8 +33,9 @@ async def socket(raw_socket: WebSocket):
 
     # the key here is the type sent by the client
     operations: Dict[str, Operation] = {
-        "register": Operation(_register, 1),
-        "login": Operation(_login, 1),
+        "register": Operation(register, 1),
+        "login": Operation(login, 1),
+        "createroom": Operation(create_room),
     }
 
     with suppress(WebSocketDisconnect):

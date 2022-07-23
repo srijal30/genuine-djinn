@@ -10,14 +10,23 @@ datasource db {
 
 model User {
   name     String    @db.VarChar(50)
-  tag      Int       @unique
   password String
   id       Int       @id @default(autoincrement())
+  tag      Int       @unique
   messages Message[]
+  servers  Server[]
 }
 
 model Message {
-  user    User @relation(fields: [user_id], references: [id])
   user_id Int
-  id      Int  @id @default(autoincrement())
+  id      Int    @id @default(autoincrement())
+  content String
+  user    User   @relation(fields: [user_id], references: [id])
+}
+
+model Server {
+  id    Int    @id @default(autoincrement())
+  code  String @unique
+  name  String
+  users User[]
 }
