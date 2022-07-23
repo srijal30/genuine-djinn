@@ -1,5 +1,3 @@
-import random
-import string
 from dataclasses import dataclass
 from typing import Awaitable, Callable, Dict
 
@@ -7,6 +5,8 @@ from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 
 from .db import db
+from .rooms import RoomManager
+from .utils import create_string, room_dict
 from .ws import SocketHandshake
 
 hasher = PasswordHasher()
@@ -14,6 +14,7 @@ hasher = PasswordHasher()
 __all__ = ("operations",)
 
 OperationFunc = Callable[[SocketHandshake], Awaitable[None]]
+ROOMS: Dict[int, RoomManager] = {}
 
 
 @dataclass
@@ -23,10 +24,6 @@ class Operation:
     fn: OperationFunc
     limit: int = -1
     count: int = 0
-
-
-def _create_string(length: int = 8) -> str:
-    return "".join([random.choice(string.ascii_letters) for _ in range(length)])
 
 
 async def register(ws: SocketHandshake):
@@ -86,7 +83,7 @@ async def create_room(ws: SocketHandshake) -> None:
     record = await db.room.create(
         {
             "name": name,
-            "code": _create_string(),
+            "code": create_string(),
             "users": {"connect": {"id": user.id}},
         }
     )
@@ -146,15 +143,52 @@ async def list_rooms(ws: SocketHandshake) -> None:
     """List rooms of the current user."""
     user = await ws.get_user(
         include={
-            "servers": True,
+            "servers": {
+                "include": {
+                    "users": True,
+                }
+            },
         }
     )
 
     await ws.success(
         payload={
-            "servers": [i.__dict__ for i in (user.servers or [])],
+            "servers": [room_dict(i) for i in (user.servers or [])],
         }
     )
+
+
+async def room_connect(ws: SocketHandshake) -> None:
+    """Connect to a room."""
+    rid = await ws.expect_only(
+        {
+            "id": int,
+        },
+        ensure_logged=True,
+    )
+
+    room = await db.room.find_first(
+        where={
+            "id": rid,
+            "users": {
+                "some": {
+                    "id": await ws.get_user_id(),
+                }
+            },
+        }
+    )
+
+    if not room:
+        await ws.error("Invalid room ID.")
+
+    rid = room.id
+    manager = ROOMS.get(rid)
+
+    if not manager:
+        manager = RoomManager(rid)
+        ROOMS[rid] = manager
+
+    await manager.register_handshake(ws)
 
 
 # the key here is the type sent by the client
@@ -164,4 +198,5 @@ operations: Dict[str, Operation] = {
     "createroom": Operation(create_room),
     "joinroom": Operation(join),
     "listrooms": Operation(list_rooms),
+    "roomconnect": Operation(room_connect),
 }

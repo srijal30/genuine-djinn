@@ -45,7 +45,29 @@ The client is free to continue using the socket if it encounters an error, but i
 
 _More will be added here as protocol is implemented_
 
-## Using the WebSocket
+## Types
+
+### User
+
+```ts
+{
+    name: string,
+    tag: number
+}
+```
+
+### Server
+
+```ts
+{
+    id: number,
+    code: string,
+    name: string,
+    users: Array<User>
+}
+```
+
+## Reference
 
 Once again, every message should contain the `type` key. Responses will follow the format above (with other keys defined by the payload).
 

@@ -1,13 +1,35 @@
 import json
+import random
+import string
 from typing import Any, Dict, List, NoReturn, Optional
 
 from fastapi import WebSocket, WebSocketDisconnect
+from prisma.models import Room, User
 
 __all__ = (
     "err",
     "recv",
     "verify",
 )
+
+
+def create_string(length: int = 8) -> str:
+    return "".join([random.choice(string.ascii_lowercase) for _ in range(length)])
+
+
+def user_dict(user: User) -> dict:
+    """Make a public dictionary for a user object."""
+    return {
+        "name": user.name,
+        "tag": user.tag,
+    }
+
+
+def room_dict(room: Room) -> dict:
+    """Make a public dictionary for a room object."""
+    res = room.__dict__
+    res["users"] = [user_dict(i) for i in res["users"]]
+    return res
 
 
 async def err(

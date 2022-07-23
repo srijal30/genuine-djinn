@@ -79,7 +79,7 @@ class SocketHandshake:
 
         payload = await recv(self._ws, schema)
         self._reload(payload)
-        return [payload[i] for i in schema]
+        return [payload[i] for i in schema if i != "type"]
 
     def _reload(self, payload: dict) -> None:
         self._payload: dict = payload
