@@ -15,8 +15,8 @@ __app__ = (
 class FileMenu(tk.Menu):
     """File dropdown menu."""
 
-    def __init__(self, master):
-        tkb.Menu.__init__(self, master)
+    def __init__(self, parent, master):
+        tkb.Menu.__init__(self, parent)
 
         self.add_command(label="Leave Room", command=self.on_leave)
         self.add_command(label="Log Out", command=self.on_logout)
@@ -39,8 +39,8 @@ class FileMenu(tk.Menu):
 class ViewMenu(tk.Menu):
     """View dropdown menu."""
 
-    def __init__(self, master):
-        tkb.Menu.__init__(self, master)
+    def __init__(self, parent, master):
+        tkb.Menu.__init__(self, parent)
 
         tkb.Style("darkly")  # flatly/darkly
 
@@ -61,8 +61,8 @@ class ViewMenu(tk.Menu):
 class HelpMenu(tk.Menu):
     """Help dropdown menu."""
 
-    def __init__(self, master):
-        tkb.Menu.__init__(self, master)
+    def __init__(self, parent, master):
+        tkb.Menu.__init__(self, parent)
 
         self.add_command(label="About", command=self.on_about)
 
@@ -74,16 +74,12 @@ class HelpMenu(tk.Menu):
 class DebugMenu(tk.Menu):
     """Debug dropdown menu."""
 
-    def __init__(self, master):
-        tkb.Menu.__init__(self, master)
+    def __init__(self, parent, master):
+        tkb.Menu.__init__(self, parent)
 
         # Frames submenu
         frames_menu = Menu(self, tearoff=False)
-        frames_menu.add_command(label="ChatFrame", command=self.on_frame("Chat"))
-        frames_menu.add_command(label="ConnectionFrame", command=self.on_frame("Connection"))
-        frames_menu.add_command(label="LoginFrame", command=self.on_frame("Login"))
+        frames_menu.add_command(label="LoginFrame", command=master.login_frame)
+        frames_menu.add_command(label="ConnectFrame", command=master.connect_frame)
+        frames_menu.add_command(label="ChatFrame", command=master.chat_frame)
         self.add_cascade(label="Frames", menu=frames_menu)
-
-    def on_frame(self, frame) -> None:
-        """Switch to desired frame."""
-        # self.master.switch_frame(frame)
