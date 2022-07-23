@@ -6,7 +6,7 @@ from fastapi import WebSocketDisconnect
 from prisma.models import Room, User
 
 from .db import db
-from .utils import user_dict
+from .utils import EndHandshake, user_dict
 
 if TYPE_CHECKING:
     from .ws import SocketHandshake
@@ -105,7 +105,7 @@ class RoomManager:
         while True:
             try:
                 (content,) = await ws.receive_next({"content": str})
-            except WebSocketDisconnect as e:
+            except (WebSocketDisconnect, EndHandshake) as e:
                 self._connected.remove(ws)
                 raise e
 

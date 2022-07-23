@@ -3,7 +3,7 @@ import random
 import string
 from typing import Any, Dict, List, NoReturn, Optional
 
-from fastapi import WebSocket, WebSocketDisconnect
+from fastapi import WebSocket
 from prisma.models import Room, User
 
 __all__ = (
@@ -11,6 +11,10 @@ __all__ = (
     "recv",
     "verify",
 )
+
+
+class EndHandshake(Exception):
+    """Exception to end the current handshake without killing the connection."""
 
 
 def create_string(length: int = 8) -> str:
@@ -48,7 +52,7 @@ async def err(
         }
     )
     # await socket.close()
-    raise WebSocketDisconnect
+    raise EndHandshake
 
 
 async def verify(
@@ -88,6 +92,9 @@ async def recv(
         data: dict = json.loads(await socket.receive_text())
     except json.JSONDecodeError:
         await err(socket, "Invalid JSON object.")
+
+    if data.get("end"):
+        raise EndHandshake
 
     await verify(socket, data, schema)
     return data
