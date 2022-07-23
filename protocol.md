@@ -86,3 +86,42 @@ Once again, every message should contain the `type` key. Responses will follow t
     "success": true
 }
 ```
+
+### Login
+
+#### Schema
+
+**Limit:** `1`
+
+**Type Name:** `"login"`
+
+| Key        | Type     | Description                           |
+| ---------- | -------- | ------------------------------------- |
+| `username` | `string` | Username to log in with.              |
+| `tag`      | `int`    | Discriminator of the target username. |
+| `password` | `string` | Password to log in with.              |
+
+#### Response
+
+| Key       | Type   | Description |
+| --------- | ------ | ----------- |
+| `message` | `null` | N/A         |
+
+#### Example
+
+```json
+// SENT BY CLIENT
+{
+    "type": "login",
+    "username": "test",
+    "tag": 1,
+    "password": "test"
+}
+// SENT BY SERVER
+{
+    "type": "login",
+    "message": null,
+    "done": true,
+    "success": true
+}
+```
