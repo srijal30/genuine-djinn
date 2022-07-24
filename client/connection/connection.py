@@ -30,10 +30,10 @@ class SocketClient():
     def __init__(self):
         self.connected = False  # temprorary state system
 
-
+    # temprorary solution until figure out how to use __new__ instead of __init__
     async def connect(self):
+        """Connects to the server. Must be called in order for everything to work."""
         self.ws: websockets.WebSocketClientProtocol = await websockets.connect(URL)
-
 
     async def receive(self) -> Dict[str, Any]:
         """Receives a message from server and returns as dict."""
