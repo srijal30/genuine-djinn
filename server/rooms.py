@@ -3,13 +3,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, List, Union
 
 from fastapi import WebSocketDisconnect
-from prisma.models import Room, User
 
 from .db import db
 from .utils import EndHandshake, references, user_dict
 
 if TYPE_CHECKING:
     from .ws import SocketHandshake
+    from prisma.models import Room, User
+
+from .room_operations import RECEIVER_OPERATIONS
 
 
 class RoomManager:
@@ -38,7 +40,7 @@ class RoomManager:
         """Send a message in a room."""
         au = (
             author
-            if isinstance(author, User)
+            if not isinstance(author, int)
             else await db.user.find_unique({"id": author})
         )
         assert au
@@ -88,9 +90,19 @@ class RoomManager:
     ) -> None:
         while True:
             try:
-                (content,) = await ws.receive_next({"content": str})
+                (action,) = await ws.receive_next({"action": str})
             except (WebSocketDisconnect, EndHandshake) as e:
                 self._connected.remove(ws)
                 raise e
 
-            await self.send_message(content, await ws.get_user())
+            caller = RECEIVER_OPERATIONS.get(action)
+
+            if not caller:
+                await ws.error("Invalid action.", done=False)
+
+            try:
+                await caller(self, ws)
+            except EndHandshake as e:
+                # maybe make this catch WebSocketDisconnect as well?
+                self._connected.remove(ws)
+                raise e

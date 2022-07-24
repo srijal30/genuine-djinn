@@ -1,10 +1,14 @@
+from __future__ import annotations
+
 import json
 import random
 import string
-from typing import Any, Dict, List, NoReturn, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, NoReturn, Optional
 
 from fastapi import WebSocket
-from prisma.models import Room, User
+
+if TYPE_CHECKING:
+    from prisma.models import Message, Room, User
 
 __all__ = (
     "err",
@@ -50,22 +54,30 @@ def room_dict(room: Room) -> dict:
     return res
 
 
+def message_dict(message: Message) -> dict:
+    """Make a public dictionary for a message object."""
+    res = message.__dict__
+    res["author"] = user_dict(res["author"])
+
+    for i in {"server", "server_id", "author_id"}:
+        del res[i]
+    return res
+
+
 async def err(
     socket: WebSocket,
     message: str,
     data: Optional[dict] = None,
-    done: bool = True,
 ) -> NoReturn:
     """Send an error back to the user."""
     await socket.send_json(
         {
             "type": (data or {}).get("type") or "unknown",
             "message": message,
-            "done": done,
+            "done": True,
             "success": False,
         }
     )
-    # await socket.close()
     raise EndHandshake
 
 
@@ -75,12 +87,14 @@ async def verify(
     data: Dict[str, type],
 ) -> List[Any]:
     """Validate a received object."""
-    keys = [*data.keys(), "type"]
-    success: bool = all([origin.get(i) for i in keys])
+    keys = data.keys()
+    success: bool = all([origin.get(i) is not None for i in keys])
 
     if not success:
-        missing: str = ", ".join([i for i in keys if not data.get(i)])
-        await err(socket, f"Object missing keys: {missing}", data)
+        missing: str = ", ".join(
+            [i for i in keys if origin.get(i) is None],
+        )
+        await err(socket, f"Payload missing keys: {missing}", origin)
 
     for key, ntype in data.items():
         value = origin[key]
@@ -88,7 +102,7 @@ async def verify(
         if not isinstance(value, ntype):
             await err(
                 socket,
-                f'"{key}" got wrong type: expected {ntype}, got {type(value)}',
+                f'"{key}" got wrong type: expected {ntype.__name__}, got {type(value).__name__}',
             )
 
     return [origin[i] for i in data]
