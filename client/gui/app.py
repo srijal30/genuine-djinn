@@ -1,8 +1,8 @@
 import tkinter as tk
 from typing import Union
 
-import frames as f
-import menus as menu
+from frames import ChatFrame, ConnectFrame, LoginFrame, TestFrame
+from menus import DebugMenu
 
 __all__ = (
     "ChatApp"
@@ -26,14 +26,15 @@ class ChatApp(tk.Tk):
         self.buffer = {
             "Chat": None,
             "Login": None,
-            "Connect": None
+            "Connect": None,
+            "Test": None,
         }
 
-        self.login_frame()  # starting frame
+        self.chat_frame()  # starting frame
 
     def switch_frame(
         self,
-        frame: Union[f.ChatFrame, f.LoginFrame, f.ConnectFrame],
+        frame: Union[ChatFrame, LoginFrame, ConnectFrame],
         name: str,
         use_old: bool = False
     ) -> None:
@@ -48,45 +49,57 @@ class ChatApp(tk.Tk):
     def chat_frame(self, use_old: bool = False) -> None:
         """Class ChatFrame switching logic and styling."""
         # top level config
-        if type(self.current_frame) is not f.ChatFrame or use_old is True or self.current_frame is None:
+        if type(self.current_frame) is not ChatFrame or use_old is True or self.current_frame is None:
             self.title("Chat App - Chat")
 
-            self.grid_anchor("center")
-            self.grid_rowconfigure(0, weight=1)
-            self.grid_columnconfigure(0, weight=1)
-            self.config(menu=menu.DebugMenu(self))
+            self.columnconfigure(0, weight=1)
+            self.rowconfigure(0, weight=1)
+            self.config(menu=DebugMenu(self))
 
             # switch frame
-            self.switch_frame(f.ChatFrame, "Chat", use_old)
+            self.switch_frame(ChatFrame, "Chat", use_old)
 
     def login_frame(self, use_old: bool = False) -> None:
         """Class LoginFrame switching logic and styling."""
         # top level config
-        if type(self.current_frame) is not f.LoginFrame or use_old is True or self.current_frame is None:
+        if type(self.current_frame) is not LoginFrame or use_old is True or self.current_frame is None:
             self.title("Chat App - Login")
 
             self.grid_anchor("center")
-            self.config(menu=menu.DebugMenu(self))
+            self.config(menu=DebugMenu(self))
 
             # switch frame
-            self.switch_frame(f.LoginFrame, "Login", use_old)
+            self.switch_frame(LoginFrame, "Login", use_old)
 
     def connect_frame(self, use_old: bool = False) -> None:
         """Class ConnectFrame switching logic and styling."""
         # top level config
-        if type(self.current_frame) is not f.ConnectFrame or use_old is True or self.current_frame is None:
+        if type(self.current_frame) is not ConnectFrame or use_old is True or self.current_frame is None:
             self.title("Chat App - Connect")
 
             self.grid_anchor("center")
-            self.config(menu=menu.DebugMenu(self))
+            self.config(menu=DebugMenu(self))
 
             # switch frame
-            self.switch_frame(f.ConnectFrame, "Connect", use_old)
+            self.switch_frame(ConnectFrame, "Connect", use_old)
 
-    async def send_message(self) -> None:
+    def test_frame(self, use_old: bool = False) -> None:
+        """Class TestFrame switching logic and styling."""
+        # top level config
+        if type(self.current_frame) is not TestFrame or use_old is True or self.current_frame is None:
+            self.title("Chat App - Test")
+
+            self.config(menu=DebugMenu(self))
+
+            # switch frame
+            self.switch_frame(TestFrame, "Connect", use_old)
+
+    def send_message(self, message: str) -> None:
         """Passes a message on to the client server."""
-        pass
+        # self message loop until client server is integrated
+        self.receive_message(message)
 
-    async def receive_message(self) -> None:
+    def receive_message(self, message: str) -> None:
         """Called by client when a message is received."""
-        pass
+        # needs client integration, currently looping chat messages
+        self.buffer["Chat"].display_message(message)
