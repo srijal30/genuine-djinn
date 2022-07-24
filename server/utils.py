@@ -61,6 +61,9 @@ def message_dict(message: Message) -> dict:
 
     for i in {"server", "server_id", "author_id"}:
         del res[i]
+
+    res["created_at"] = res["created_at"].timestamp()
+
     return res
 
 

@@ -137,19 +137,19 @@ Listing is the simplest of the three. Just send `listrooms` as the type, and the
 
 A server object looks like this:
 
-| Key     | Description                                                |
-| ------- | ---------------------------------------------------------- |
-| `id`    | ID number of the room.                                     |
-| `code`  | The room code used to join.                                |
-| `name`  | The name of the room.                                      |
-| `users` | Array of members (user objects) that have joined the room. |
+| Key     | Type          | Description                                                |
+| ------- | ------------- | ---------------------------------------------------------- |
+| `id`    | `number`      | ID number of the room.                                     |
+| `code`  | `string`      | The room code used to join.                                |
+| `name`  | `string`      | The name of the room.                                      |
+| `users` | `Array<User>` | Array of members (user objects) that have joined the room. |
 
 A user object looks like this:
 
-| Key    | Description                |
-| ------ | -------------------------- |
-| `name` | Display name of the user.  |
-| `tag`  | Discriminator of the user. |
+| Key    | Type     | Description                |
+| ------ | -------- | -------------------------- |
+| `name` | `string` | Display name of the user.  |
+| `tag`  | `number` | Discriminator of the user. |
 
 ## Connecting to rooms
 
@@ -206,9 +206,41 @@ Sending a message to the room after connection is simple. Send a JSON message th
 ```json
 {
     "type": "roomconnect",
-    "content": "your message content"
+    "content": "your message content",
+    "action": "send"
 }
 ```
+
+The `action` key should be present when sending something to the server during the `roomconnect` handshake.
+
+### Getting messages
+
+You can get messages by sending the following:
+
+```json
+{
+    "type": "roomconnect",
+    "actions": "getmessages",
+    "skip": 0,
+    "take": 10
+}
+```
+
+This will get the first 10 messages in the room.
+
+-   `skip` is the number of messages to skip
+-   `take` is the number of messages to take from the database
+
+The server should respond with an array of `Message` objects under the `messages` key.
+
+A `Message` object looks like this:
+
+| Key          | Type     | Description                   |
+| ------------ | -------- | ----------------------------- |
+| `id`         | `number` | ID of the message.            |
+| `content`    | `string` | Content of the message.       |
+| `author`     | `User`   | Author of the message.        |
+| `created_at` | `number` | Creation date of the message. |
 
 ### Exiting
 

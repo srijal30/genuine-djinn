@@ -18,12 +18,13 @@ model User {
 }
 
 model Message {
-  id        Int    @id @default(autoincrement())
-  content   String
-  author_id Int
-  server_id Int
-  author    User   @relation(fields: [author_id], references: [id])
-  server    Room   @relation(fields: [server_id], references: [id])
+  id         Int      @id @default(autoincrement())
+  content    String
+  author_id  Int
+  server_id  Int
+  created_at DateTime @default(now())
+  author     User     @relation(fields: [author_id], references: [id])
+  server     Room     @relation(fields: [server_id], references: [id])
 }
 
 model Room {
