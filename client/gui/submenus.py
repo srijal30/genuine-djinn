@@ -2,8 +2,14 @@ import sys
 from tkinter import Menu
 
 import ttkbootstrap as tkb  # type: ignore
+from frames import ChatFrame, ConnectFrame, LoginFrame, TestFrame
 
-__app__ = ("FileMenu", "ViewMenu", "HelpMenu", "DebugMenu")
+__app__ = (
+    "FileMenu",
+    "ViewMenu",
+    "HelpMenu",
+    "TestMenu"
+)
 
 
 class FileMenu(tkb.Menu):
@@ -85,8 +91,13 @@ class HelpMenu(tkb.Menu):
         self.add_command(label="About", command=self.on_about)
 
     def on_about(self) -> None:
-        """On About item press."""
-        pass
+        """Open About window."""
+        about = tkb.Window()
+        about.title("About")
+        about.minsize(400, 300)
+        about_text = tkb.Label(about, text="Something About Related")
+        about_text.pack()
+        about.mainloop()
 
 
 class TestMenu(tkb.Menu):
@@ -95,10 +106,29 @@ class TestMenu(tkb.Menu):
     def __init__(self, parent, master):
         tkb.Menu.__init__(self, parent)
 
+        self.master = master
+        self.parent = parent
+
         # Frames submenu
         frames_menu = Menu(self, tearoff=False)
-        frames_menu.add_command(label="LoginFrame", command=master.login_frame)
-        frames_menu.add_command(label="ConnectFrame", command=master.connect_frame)
-        frames_menu.add_command(label="ChatFrame", command=master.chat_frame)
-        frames_menu.add_command(label="TestFrame", command=master.test_frame)
+        frames_menu.add_command(label="LoginFrame", command=self.login_frame)
+        frames_menu.add_command(label="ConnectFrame", command=self.connect_frame)
+        frames_menu.add_command(label="ChatFrame", command=self.chat_frame)
+        frames_menu.add_command(label="TestFrame", command=self.test_frame)
         self.add_cascade(label="Frames", menu=frames_menu)
+
+    def login_frame(self) -> None:
+        """Switch to LoginFrame"""
+        self.master.switch_frame(LoginFrame)
+
+    def connect_frame(self) -> None:
+        """Switch to LoginFrame"""
+        self.master.switch_frame(ConnectFrame)
+
+    def chat_frame(self) -> None:
+        """Switch to LoginFrame"""
+        self.master.switch_frame(ChatFrame)
+
+    def test_frame(self) -> None:
+        """Switch to LoginFrame"""
+        self.master.switch_frame(TestFrame)

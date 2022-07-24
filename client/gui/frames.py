@@ -19,6 +19,10 @@ class ChatFrame(tkb.Frame):
     def __init__(self, master):
         tkb.Frame.__init__(self, master)
 
+        self.master = master
+
+        self.master.title("Chat App - Chat")
+
         # ScrolledText frame
         self.chat_frame = tkb.Frame(master)
         self.chat_frame.grid(row=0, column=0, columnspan=3, sticky=tk.E+tk.W+tk.N+tk.S)
@@ -44,13 +48,26 @@ class ChatFrame(tkb.Frame):
         self.send_btn.bind("<ButtonPress>", self.on_send)
         self.send_btn.grid(row=0, column=1, padx=2)
 
+        self.leave_btn = tkb.Button(self.message_frame)
+        self.leave_btn.configure(text="Leave")
+        self.leave_btn.bind("<ButtonPress>", self.on_leave)
+        self.leave_btn.grid(row=0, column=3, padx=2)
+
+        self.master.columnconfigure(0, weight=1)
+        self.master.rowconfigure(0, weight=1)
+
     def on_send(self, event: Event) -> None:
-        """On send button or enter press."""
+        """On send button or enter press. Send message."""
         msg = self.message_box.get().strip()
 
         if len(msg) > 0:
+            print(f"Message: {msg}")
             self.master.send_message(msg)
             self.message_box.delete(0, "end")
+
+    def on_leave(self, event: Event) -> None:
+        """On leave button being pressed. Leave chat room."""
+        print("Leave")
 
     def display_message(self, message: str) -> None:
         """Displays message in chat."""
@@ -72,13 +89,17 @@ class ConnectFrame(tkb.Frame):
     def __init__(self, master):
         tkb.Frame.__init__(self, master)
 
-        self.room_label = ttk.Label(self)
-        self.room_label.configure(text="Make Room")
-        self.room_label.grid(column=0, row=0)
+        self.master = master
 
-        self.room_box = ttk.Entry(self)
-        self.room_box.grid(column=0, padx=20, pady=5, row=1, sticky="w")
-        self.room_box.bind("<Return>", self.on_create)
+        self.master.title("Chat App - Connect")
+
+        self.create_label = ttk.Label(self)
+        self.create_label.configure(text="Make Room")
+        self.create_label.grid(column=0, row=0)
+
+        self.create_box = ttk.Entry(self)
+        self.create_box.grid(column=0, padx=20, pady=5, row=1, sticky="w")
+        self.create_box.bind("<Return>", self.on_create)
 
         self.room_btn = ttk.Button(self)
         self.room_btn.configure(text="Create")
@@ -103,11 +124,11 @@ class ConnectFrame(tkb.Frame):
 
     def on_create(self, event: Event) -> None:
         """On Create Room button press."""
-        print("create")
+        print(f"Room Code (Create): {self.create_box.get().strip()}")
 
     def on_join(self, event: Event) -> None:
         """On Join Room button press."""
-        print("join")
+        print(f"Room Code (Join): {self.join_box.get().strip()}")
 
 
 class LoginFrame(tkb.Frame):
@@ -116,33 +137,68 @@ class LoginFrame(tkb.Frame):
     def __init__(self, master):
         tkb.Frame.__init__(self, master)
 
-        self.username_label = tkb.Label(self)
-        self.username_label.configure(text="Username")
-        self.username_label.grid(column=0, padx=5, row=0, sticky="e")
+        self.master = master
 
-        self.username_box = tkb.Entry(self)
-        self.username_box.grid(column=1, ipadx=10, pady=3, row=0, sticky="w")
-        self.username_box.bind("<Return>", self.on_login)
+        self.master.title("Chat App - Login")
 
-        self.password_label = tkb.Label(self)
-        self.password_label.configure(text="Password")
-        self.password_label.grid(column=0, padx=5, row=1, sticky="e")
+        # login
+        self.login_username_label = tkb.Label(self)
+        self.login_username_label.configure(text="Username")
+        self.login_username_label.grid(column=0, padx=5, row=0, sticky="e")
 
-        self.password_box = tkb.Entry(self, show="*")
-        self.password_box.grid(column=1, ipadx=10, pady=3, row=1, sticky="w")
-        self.password_box.bind("<Return>", self.on_login)
+        self.login_username_box = tkb.Entry(self)
+        self.login_username_box.grid(column=1, ipadx=10, pady=3, row=0, sticky="w")
+        self.login_username_box.bind("<Return>", self.on_login)
+
+        self.login_password_label = tkb.Label(self)
+        self.login_password_label.configure(text="Password")
+        self.login_password_label.grid(column=0, padx=5, row=1, sticky="e")
+
+        self.login_password_box = tkb.Entry(self, show="*")
+        self.login_password_box.grid(column=1, ipadx=10, pady=3, row=1, sticky="w")
+        self.login_password_box.bind("<Return>", self.on_login)
 
         self.login_btn = tkb.Button(self)
         self.login_btn.configure(text="Login")
         self.login_btn.bind("<ButtonPress>", self.on_login)
         self.login_btn.grid(column=0, columnspan=2, pady=15, row=3, sticky="nsew")
 
+        # register
+        self.register_username_label = tkb.Label(self)
+        self.register_username_label.configure(text="Username")
+        self.register_username_label.grid(column=2, padx=5, row=0, sticky="e")
+
+        self.register_username_box = tkb.Entry(self)
+        self.register_username_box.grid(column=3, ipadx=10, pady=3, row=0, sticky="w")
+        self.register_username_box.bind("<Return>", self.on_register)
+
+        self.register_password_label = tkb.Label(self)
+        self.register_password_label.configure(text="Password")
+        self.register_password_label.grid(column=2, padx=5, row=1, sticky="e")
+
+        self.register_password_box = tkb.Entry(self, show="*")
+        self.register_password_box.grid(column=3, ipadx=10, pady=3, row=1, sticky="w")
+        self.register_password_box.bind("<Return>", self.on_register)
+
+        self.register_btn = tkb.Button(self)
+        self.register_btn.configure(text="Register")
+        self.register_btn.bind("<ButtonPress>", self.on_register)
+        self.register_btn.grid(column=2, columnspan=2, pady=15, row=3, sticky="nsew")
+
         self.grid_anchor("center")
-        self.grid(column=0, columnspan=2, row=0, rowspan=3, sticky=tk.NSEW)
+        self.grid(column=0, columnspan=4, row=0, rowspan=3, sticky=tk.NSEW)
 
     def on_login(self, event: Event) -> None:
         """On login button press."""
-        print("login")
+        print("Login")
+        print(f"Username: {self.login_username_box.get().strip()}")
+        print(f"Password: {self.login_password_box.get().strip()}")
+
+    def on_register(self, event: Event) -> None:
+        """On login button press."""
+        print("Register")
+        print(f"Username: {self.register_username_box.get().strip()}")
+        print(f"Password: {self.register_password_box.get().strip()}")
 
 
 class TestFrame(tkb.Frame):
@@ -150,4 +206,8 @@ class TestFrame(tkb.Frame):
 
     def __init__(self, master):
         tkb.Frame.__init__(self, master)
+
+        self.master = master
+
+        self.master.title("Chat App - Test")
         pass
