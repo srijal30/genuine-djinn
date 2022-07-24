@@ -28,7 +28,7 @@ Custom menu classes are created using the submenu classes. Menu setting is done 
 `parent` - the parent menu class
 `master` - the master window `ChatApp`
 
-Don't worry about this for now. Needs some more cleanup before it can be integrated.
+Do not worry about this for now. Needs some more cleanup before it can be integrated.
 
 ## Where to hook into for integration
 
@@ -66,7 +66,7 @@ Don't worry about this for now. Needs some more cleanup before it can be integra
 
 `ChatApp` > `send_message()`
 
-When the user sends a message in the GUI, the `on_send()` method inside the `ChatFrame` class for the given room is called. This method sanitizes the text and then calls the `send_message()` method inside the main chat window class `ChatApp`. Should be able to hook directly into `send_message()`. 
+When the user sends a message in the GUI, the `on_send()` method inside the `ChatFrame` class for the given room is called. This method sanitizes the text and then calls the `send_message()` method inside the main chat window class `ChatApp`. Should be able to hook directly into `send_message()`.
 
 ### Receiving Message
 
