@@ -4,12 +4,7 @@ from tkinter import IntVar, Menu
 
 import ttkbootstrap as tkb  # type: ignore
 
-__app__ = (
-    "FileMenu",
-    "ViewMenu",
-    "HelpMenu",
-    "DebugMenu"
-)
+__app__ = ("FileMenu", "ViewMenu", "HelpMenu", "DebugMenu")
 
 
 class FileMenu(tk.Menu):
@@ -53,9 +48,21 @@ class ViewMenu(tk.Menu):
 
         # Theme submenu
         theme_menu = Menu(self, tearoff=False)
-        theme_menu.add_radiobutton(label="Light", value=1, variable=IntVar)
-        theme_menu.add_radiobutton(label="Dark", value=1, variable=IntVar)
+        theme_menu.add_radiobutton(
+            label="Light", value=1, variable=IntVar, command=self.on_light_mode
+        )
+        theme_menu.add_radiobutton(
+            label="Dark", value=1, variable=IntVar, command=self.on_dark_mode
+        )
         self.add_cascade(label="Theme", menu=theme_menu)
+
+    def on_light_mode(self):
+        """Change theme to light mode."""
+        tkb.Style("flatly")
+
+    def on_dark_mode(self):
+        """Change theme to dark mode."""
+        tkb.Style("darkly")
 
 
 class HelpMenu(tk.Menu):
