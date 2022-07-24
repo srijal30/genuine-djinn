@@ -39,7 +39,7 @@ class ViewMenu(tkb.Menu):
         self.master = master
         self.parent = parent
 
-        tkb.Style("darkly")  # flatly/darkly
+        tkb.Style("superhero")  # default theme
 
         # Clear Chat
         self.add_command(label="Clear Chat", command=self.on_clear)
@@ -47,24 +47,25 @@ class ViewMenu(tkb.Menu):
 
         # Text Size submenu
         size_menu = Menu(self, tearoff=False)
-        size_menu.add_radiobutton(label="Small", value=1, variable=IntVar)
-        size_menu.add_radiobutton(label="Medium", value=1, variable=IntVar)
-        size_menu.add_radiobutton(label="Large", value=1, variable=IntVar)
+        size_menu.add_radiobutton(label="Small")
+        size_menu.add_radiobutton(label="Medium")
+        size_menu.add_radiobutton(label="Large")
         self.add_cascade(label="Text Size", menu=size_menu)
 
         # Theme submenu
         theme_menu = Menu(self, tearoff=False)
-        theme_menu.add_radiobutton(
-            label="Light", value=1, variable=IntVar, command=self.on_light_mode
-        )
-        theme_menu.add_radiobutton(
-            label="Dark", value=1, variable=IntVar, command=self.on_dark_mode
-        )
+        theme_menu.add_radiobutton(label="Light", command=self.on_light_mode)
+        theme_menu.add_radiobutton(label="Classic", command=self.on_classic_mode)
+        theme_menu.add_radiobutton(label="Dark", command=self.on_dark_mode)
         self.add_cascade(label="Theme", menu=theme_menu)
 
     def on_light_mode(self):
         """Change theme to light mode."""
         tkb.Style("flatly")
+
+    def on_classic_mode(self):
+        """Change theme to classic mode."""
+        tkb.Style("superhero")
 
     def on_dark_mode(self):
         """Change theme to dark mode."""
