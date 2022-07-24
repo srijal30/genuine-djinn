@@ -45,6 +45,7 @@ def user_dict(user: User) -> dict:
 def room_dict(room: Room) -> dict:
     """Make a public dictionary for a room object."""
     res = room.__dict__
+    del res["messages"]
     res["users"] = [user_dict(i) for i in res["users"]]
     return res
 

@@ -26,7 +26,17 @@ class Operation:
     count: int = 0
 
 
-async def register(ws: SocketHandshake):
+async def _get_manager(rid: int) -> RoomManager:
+    manager = ROOMS.get(rid)
+
+    if not manager:
+        manager = RoomManager(rid)
+        ROOMS[rid] = manager
+
+    return manager
+
+
+async def register(ws: SocketHandshake) -> None:
     """Register an account."""
     username, password = await ws.expect(
         {
@@ -72,6 +82,9 @@ async def login(ws: SocketHandshake) -> None:
     if not user:
         await ws.error("Invalid username or password.")
 
+    if not user.id:  # check if its 0
+        await ws.error("Account is restricted.")
+
     try:
         hasher.verify(user.password, password)
     except VerifyMismatchError:
@@ -104,8 +117,9 @@ async def create_room(ws: SocketHandshake) -> None:
         },
         where={"id": user.id},
     )
+    ROOMS[rid] = RoomManager(rid)
 
-    await ws.success(payload={"id": rid})
+    await ws.success(payload={"id": rid, "code": record.code})
 
 
 async def join(ws: SocketHandshake) -> None:
@@ -115,7 +129,9 @@ async def join(ws: SocketHandshake) -> None:
         ensure_logged=True,
     )
 
-    uid: int = await ws.get_user_id()
+    user = await ws.get_user()
+    uid: int = user.id
+
     room = await db.room.update(
         {"users": references(uid, array=True)},
         where={"code": code},
@@ -124,14 +140,11 @@ async def join(ws: SocketHandshake) -> None:
     if not room:
         await ws.error("Invalid room code.")
 
+    manager = await _get_manager(room.id)
+    await manager.send_message(f'"{user.name}" has joined the room.', 0)
+
     await db.user.update(
-        {
-            "servers": {
-                "connect": [
-                    {"id": room.id},
-                ]
-            }
-        },
+        {"servers": references(room.id, array=True)},
         where={"id": uid},
     )
 
@@ -180,13 +193,7 @@ async def room_connect(ws: SocketHandshake) -> None:
     if not room:
         await ws.error("Invalid room ID.")
 
-    rid = room.id
-    manager = ROOMS.get(rid)
-
-    if not manager:
-        manager = RoomManager(rid)
-        ROOMS[rid] = manager
-
+    manager = await _get_manager(room.id)
     await manager.register_handshake(ws)
 
 
