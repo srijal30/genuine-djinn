@@ -1,5 +1,5 @@
 import sys
-from tkinter import IntVar, Menu
+from tkinter import Menu
 
 import ttkbootstrap as tkb  # type: ignore
 
