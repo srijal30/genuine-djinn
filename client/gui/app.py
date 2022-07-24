@@ -87,6 +87,6 @@ class ChatApp(tk.Tk):
         """Passes a message on to the client server."""
         pass
 
-    async def recieve_message(self) -> None:
-        """Called by client when a message is recieved."""
+    async def receive_message(self) -> None:
+        """Called by client when a message is received."""
         pass

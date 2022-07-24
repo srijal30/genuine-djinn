@@ -293,7 +293,7 @@ def encode_integer(message: str) -> str:
 
 
 def encode_binary(message: str) -> str:
-    """Encode th emessage into binary."""
+    """Encode the message into binary."""
     binary_message = "".join(
         format(i, "08b") for i in bytearray(message, encoding="utf-8")
     )

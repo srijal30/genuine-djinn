@@ -6,7 +6,7 @@
 
 Start with starting a WebSocket connection to `/ws`. All client-server data will be sent through here.
 
-No initilization message is required.
+No initialization message is required.
 
 ### Handshakes
 
