@@ -4,7 +4,7 @@ from typing import Any, Callable, Dict, List, Tuple
 import websockets
 
 DOMAIN = "ws://localhost:5000"
-ROUTE = "/ws/"
+ROUTE = "/ws"
 URL = DOMAIN + ROUTE
 
 # completed ones
@@ -27,9 +27,13 @@ URL = DOMAIN + ROUTE
 class SocketClient():
     """API Wrapper that handles all client side communication with the server."""
 
-    async def __init__(self):
-        self.ws: websockets.WebSocketClientProtocol = websockets.connect(URL)
+    def __init__(self):
         self.connected = False  # temprorary state system
+
+
+    async def connect(self):
+        self.ws: websockets.WebSocketClientProtocol = await websockets.connect(URL)
+
 
     async def receive(self) -> Dict[str, Any]:
         """Receives a message from server and returns as dict."""

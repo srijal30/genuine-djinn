@@ -1,22 +1,25 @@
 from connection import SocketClient
-
+import asyncio
 
 class MockGame():
     def __init__(self):
-        self.connection = SocketClient()
         self.operations = {
             0: self.register,
             1: self.login,
-            2: self.createroom,
-            3: self.logout,
-            4: self.joinroom,
-            5: self.connectroom,
-            6: self.listroom,
-            7: self.sendmessage,
-            8: self.exitroom
+            # 2: self.createroom,
+            # 3: self.logout,
+            # 4: self.joinroom,
+            # 5: self.connectroom,
+            # 6: self.listroom,
+            # 7: self.sendmessage,
+            # 8: self.exitroom
         }
 
-    def get_choice(self) -> None:
+    async def establish_connection(self):
+        self.connection = SocketClient()
+        await self.connection.connect()
+
+    async def get_choice(self) -> None:
         msg = """
         0: register
         1: login
@@ -27,25 +30,35 @@ class MockGame():
         6: list rooms
         7: send message
         8: exit a room
-        """
-        io = int( input() )
-        self.run_choice(io)
 
-    def run_choice(self, choice: int) -> None:
-        self.operations[choice]()
+        your choice: """
+        io = int( input(msg) )
+        await self.run_choice(io)
 
-    def register(self):
+    async def run_choice(self, choice: int) -> None:
+        await self.operations[choice]()
+
+    async def register(self):
         username = input("what is your username: ")
         password = input("what is your password: ")
-        self.userid = self.connection.register(username, password)
+        self.userid = await self.connection.register(username, password)
         print("you have registered")
     
-    def login(self):
+    async def login(self):
         username = input("what is your username: ")
         password = input("what is your password: ")
-        success = self.connection.login(username, self.userid, password)
+        success = await self.connection.login(username, self.userid, password)
         if success:
             print("succesful login!")
         else:
             print("unsuccesful login!")
 
+    async def start_game(self):
+        await game.establish_connection()
+        while True:
+            await self.get_choice()
+
+
+if __name__ == "__main__":
+    game = MockGame()
+    asyncio.run( game.start_game() )
