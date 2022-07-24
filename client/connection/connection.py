@@ -31,6 +31,11 @@ class SocketClient():
         self.ws: websockets.WebSocketClientProtocol = websockets.connect(URL)
         self.connected = False  # temprorary state system
 
+    async def receive(self) -> Dict[str, Any]:
+        """Receives a message from server and returns as dict."""
+        res = await self.ws.recv()
+        return json.loads(res)
+
     async def send(
         self,
         type: str,
@@ -48,9 +53,9 @@ class SocketClient():
         })
         await self.ws.send(req)
         if reply:
-            res = await self.ws.recv()
-            return json.loads(res)
-        return {}
+            return await self.receive()
+        else:
+            return {}
 
     async def login(self, username: str, tag: int, password: str) -> bool:
         """
@@ -141,7 +146,11 @@ class SocketClient():
         Authentication required. Connected room required.
         """
         while self.connected:
-            print(await self.ws.recv())
+            potential_msg = await self.receive()
+            if 'new' not in potential_msg:
+                continue
+            else:
+                callback(potential_msg['new'])
 
     # will the server send back a message after receiving a message send request?
     # are we expecting a reply from the server?
@@ -172,6 +181,7 @@ class SocketClient():
             'end': True
         }
         await self.send("roomconnect", payload, reply=False)
+        self.connected = False
         return True  # rn no way to fail?
 
     async def list_rooms(self) -> List[Dict[str, Any]]:

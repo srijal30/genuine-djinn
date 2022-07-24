@@ -101,4 +101,5 @@ class LoginFrame(ttk.Frame):
 
     def on_login(self, event: Event = None) -> None:
         """On login button press."""
+        print("login button pressed")
         # self.master.switch_frame(ChatFrame)

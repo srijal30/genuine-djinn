@@ -27,8 +27,10 @@ class ChatApp(tk.Tk):
 
     async def send_message(self) -> None:
         """Passes a message on to the client server."""
+        print("message sent") #DEBUG
         pass
 
     async def recieve_message(self) -> None:
         """Called by client when a message is recieved."""
+        print("message received") #DEBUG
         pass

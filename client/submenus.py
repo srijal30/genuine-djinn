@@ -25,10 +25,12 @@ class FileMenu(tk.Menu):
 
     def on_leave(self) -> None:
         """On Leave Room item press."""
+        print("room left") #DEBUG
         pass
 
     def on_logout(self) -> None:
         """On Log Out item press."""
+        print("log out button pressed") #DEBUG
         pass
 
     def on_quit(self) -> None:
