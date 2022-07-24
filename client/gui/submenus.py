@@ -1,5 +1,4 @@
 import sys
-import tkinter as tk
 from tkinter import IntVar, Menu
 
 import ttkbootstrap as tkb  # type: ignore
@@ -12,7 +11,7 @@ __app__ = (
 )
 
 
-class FileMenu(tk.Menu):
+class FileMenu(tkb.Menu):
     """File dropdown menu."""
 
     def __init__(self, parent, master):
@@ -36,13 +35,20 @@ class FileMenu(tk.Menu):
         sys.exit(0)
 
 
-class ViewMenu(tk.Menu):
+class ViewMenu(tkb.Menu):
     """View dropdown menu."""
 
     def __init__(self, parent, master):
         tkb.Menu.__init__(self, parent)
 
+        self.master = master
+        self.parent = parent
+
         tkb.Style("darkly")  # flatly/darkly
+
+        # Clear Chat
+        self.add_command(label="Clear Chat", command=self.on_clear)
+        self.add_separator()
 
         # Text Size submenu
         size_menu = Menu(self, tearoff=False)
@@ -57,8 +63,12 @@ class ViewMenu(tk.Menu):
         theme_menu.add_radiobutton(label="Dark", value=1, variable=IntVar)
         self.add_cascade(label="Theme", menu=theme_menu)
 
+    def on_clear(self) -> None:
+        """On Clear Chat item press."""
+        self.master.current_frame.clear_chat()
 
-class HelpMenu(tk.Menu):
+
+class HelpMenu(tkb.Menu):
     """Help dropdown menu."""
 
     def __init__(self, parent, master):
@@ -71,7 +81,7 @@ class HelpMenu(tk.Menu):
         pass
 
 
-class DebugMenu(tk.Menu):
+class TestMenu(tkb.Menu):
     """Debug dropdown menu."""
 
     def __init__(self, parent, master):
@@ -82,4 +92,5 @@ class DebugMenu(tk.Menu):
         frames_menu.add_command(label="LoginFrame", command=master.login_frame)
         frames_menu.add_command(label="ConnectFrame", command=master.connect_frame)
         frames_menu.add_command(label="ChatFrame", command=master.chat_frame)
+        frames_menu.add_command(label="TestFrame", command=master.test_frame)
         self.add_cascade(label="Frames", menu=frames_menu)

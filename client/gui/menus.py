@@ -1,7 +1,7 @@
 import tkinter as tk
 
-import submenus as submenu
 import ttkbootstrap as tkb  # type: ignore
+from submenus import FileMenu, HelpMenu, TestMenu, ViewMenu
 
 __app__ = (
     "MainMenu",
@@ -15,9 +15,9 @@ class MainMenu(tk.Menu):
     def __init__(self, master):
         tkb.Menu.__init__(self, master)
 
-        self.add_cascade(label="File", menu=submenu.FileMenu(self, master))    # File menu
-        self.add_cascade(label="View", menu=submenu.ViewMenu(self, master))    # View menu
-        self.add_cascade(label="Help", menu=submenu.HelpMenu(self, master))    # Help menu
+        self.add_cascade(label="File", menu=FileMenu(self, master))    # File menu
+        self.add_cascade(label="View", menu=ViewMenu(self, master))    # View menu
+        self.add_cascade(label="Help", menu=HelpMenu(self, master))    # Help menu
 
 
 class DebugMenu(tk.Menu):
@@ -26,7 +26,7 @@ class DebugMenu(tk.Menu):
     def __init__(self, master):
         tkb.Menu.__init__(self, master)
 
-        self.add_cascade(label="File", menu=submenu.FileMenu(self, master))    # File menu
-        self.add_cascade(label="View", menu=submenu.ViewMenu(self, master))    # View menu
-        self.add_cascade(label="Help", menu=submenu.HelpMenu(self, master))    # Help menu
-        self.add_cascade(label="Debug", menu=submenu.DebugMenu(self, master))  # Debug menu
+        self.add_cascade(label="File", menu=FileMenu(self, master))    # File menu
+        self.add_cascade(label="View", menu=ViewMenu(self, master))    # View menu
+        self.add_cascade(label="Help", menu=HelpMenu(self, master))    # Help menu
+        self.add_cascade(label="Debug", menu=TestMenu(self, master))   # Debug menu
