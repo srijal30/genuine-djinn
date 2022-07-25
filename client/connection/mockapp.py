@@ -122,7 +122,6 @@ class MockGame():
         print( f"{user['username']}" )
 
 
-
 if __name__ == "__main__":
     game = MockGame()
     asyncio.run( game.start_game() )
