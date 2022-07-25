@@ -150,18 +150,26 @@ class LoginFrame(tkb.Frame):
         self.login_username_box.grid(column=1, ipadx=10, pady=3, row=0, sticky="w")
         self.login_username_box.bind("<Return>", self.on_login)
 
+        self.login_tag_label = tkb.Label(self)
+        self.login_tag_label.configure(text="Tag")
+        self.login_tag_label.grid(column=0, padx=5, row=1, sticky="e")
+
+        self.login_tag_box = tkb.Entry(self)
+        self.login_tag_box.grid(column=1, ipadx=10, pady=3, row=1, sticky="w")
+        self.login_tag_box.bind("<Return>", self.on_login)
+
         self.login_password_label = tkb.Label(self)
         self.login_password_label.configure(text="Password")
-        self.login_password_label.grid(column=0, padx=5, row=1, sticky="e")
+        self.login_password_label.grid(column=0, padx=5, row=2, sticky="e")
 
         self.login_password_box = tkb.Entry(self, show="*")
-        self.login_password_box.grid(column=1, ipadx=10, pady=3, row=1, sticky="w")
+        self.login_password_box.grid(column=1, ipadx=10, pady=3, row=2, sticky="w")
         self.login_password_box.bind("<Return>", self.on_login)
 
         self.login_btn = tkb.Button(self)
         self.login_btn.configure(text="Login")
         self.login_btn.bind("<ButtonPress>", self.on_login)
-        self.login_btn.grid(column=0, columnspan=2, pady=15, row=3, sticky="nsew")
+        self.login_btn.grid(column=0, columnspan=2, pady=15, row=4, sticky="nsew")
 
         # register
         self.register_username_label = tkb.Label(self)
@@ -192,6 +200,7 @@ class LoginFrame(tkb.Frame):
         """On login button press."""
         print("Login")
         print(f"Username: {self.login_username_box.get().strip()}")
+        print(f"Tag: {self.login_tag_box.get().strip()}")
         print(f"Password: {self.login_password_box.get().strip()}")
 
     def on_register(self, event: Event) -> None:
