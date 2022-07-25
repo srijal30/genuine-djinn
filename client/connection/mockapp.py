@@ -15,7 +15,6 @@ class MockGame():
             7: self.sendmessage,
             8: self.exitroom
         }
-        self.userid = 0
 
     async def establish_connection(self):
         self.connection = SocketClient()
@@ -50,15 +49,17 @@ class MockGame():
         print("REGISTERING:")
         username = input("what is your username: ")
         password = input("what is your password: ")
-        self.userid = await self.connection.register(username, password)
-        print("THE TYPE OF THE TAG:", type(self.userid))
+        tag = await self.connection.register(username, password)
+        print(f"your tag is: {tag}")
         print("you have registered")
+        print("you are logged in!")
     
     async def login(self):
         print("LOGGIN IN:")
         username = input("what is your username: ")
         password = input("what is your password: ")
-        success = await self.connection.login(username, self.userid, password)
+        tag = int(input("what is your tag: "))
+        success = await self.connection.login(username, tag, password)
         if success:
             print("you are now logged in!")
         else:
@@ -82,14 +83,15 @@ class MockGame():
     async def joinroom(self):
         print("JOINING A ROOM:")
         code = input("please enter the room code: ")
-        self.roomid = await self.connection.join_room()
+        self.roomid = await self.connection.join_room(code)
         print(f"you have joined the room with code {code}")
 
     async def connectroom(self):
         print("CONNECTING TO A ROOM:")
-        success = await self.connection.connect_room(self.roomid)
+        id = int(input("what is the id of the room you want to join: "))
+        success = await self.connection.connect_room(id)
         if success:
-            self.connection.start_receive_messages(self.print_message)
+            asyncio.create_task(self.connection.start_receive_messages(self.print_message))
             print("you have connected to room and can now send/receive messages")
         else:
             print("connecting to the room was not a success")
@@ -99,7 +101,6 @@ class MockGame():
         rooms = await self.connection.list_rooms()
         for room in rooms:
             print(room)
-            print(rooms[room])
         print()
 
     async def sendmessage(self):

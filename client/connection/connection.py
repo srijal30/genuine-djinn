@@ -23,6 +23,9 @@ URL = DOMAIN + ROUTE
 # not sure but probably not done
 # receive messages
 
+# not done
+# getting message history
+
 
 class SocketClient():
     """API Wrapper that handles all client side communication with the server."""
@@ -109,6 +112,7 @@ class SocketClient():
             "name": name
         }
         res = await self.send("createroom", payload)
+        print(res)  # DEBUG
         return (res['code'], res['id'])
 
     # MAKE SURE THAT THE TYPE 'CREATEROOM' is not a typo (it was a typo)
@@ -124,6 +128,7 @@ class SocketClient():
             'code': code
         }
         res = await self.send("joinroom", payload)
+        print(res)
         return res['id']
 
     # maybe add state management here? (i added temp one for now)
@@ -142,6 +147,7 @@ class SocketClient():
         # turn on the message receive listener?
         return res['success']
 
+    # check what msg is, is it a json or string???
     async def start_receive_messages(self, callback: Callable[[str], None]) -> None:
         """
         Starts a message receiving listener.
@@ -149,12 +155,9 @@ class SocketClient():
         When a message is received, callback function is called.
         Authentication required. Connected room required.
         """
-        while self.connected:
-            potential_msg = await self.receive()
-            if 'new' not in potential_msg:
-                continue
-            else:
-                callback(potential_msg['new'])
+        async for msg in self.ws:
+            print(msg)
+            callback(msg)
 
     # will the server send back a message after receiving a message send request?
     # are we expecting a reply from the server?
@@ -167,7 +170,8 @@ class SocketClient():
         Authentication required. Connected room required.
         """
         payload = {
-            'message': message
+            'message': message,
+            'action': 'send'
         }
         await self.send("roomconnect", payload, reply=False)
         return True  # rn no way to fail?
