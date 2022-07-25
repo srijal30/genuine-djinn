@@ -43,6 +43,7 @@ def user_dict(user: User) -> dict:
     return {
         "name": user.name,
         "tag": user.tag,
+        "id": user.id,
     }
 
 

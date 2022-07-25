@@ -148,6 +148,7 @@ A user object looks like this:
 
 | Key    | Type     | Description                |
 | ------ | -------- | -------------------------- |
+| `id`   | `number` | ID of the user.            |
 | `name` | `string` | Display name of the user.  |
 | `tag`  | `number` | Discriminator of the user. |
 
