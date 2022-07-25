@@ -68,12 +68,19 @@ class SocketHandshake:
             )
         )[0]
 
-    async def error(self, message: str, *, done: bool = True) -> NoReturn:
+    async def error(self, message: str) -> NoReturn:
         """Send an error back to the client."""
         await err(
             self._ws,
             message,
             self._payload,
+        )
+
+    async def error_continue(self, message: str) -> None:
+        """Send an error through the handshake without ending it."""
+        await self.reply(
+            success=False,
+            message=message,
         )
 
     async def receive_next(

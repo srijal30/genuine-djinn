@@ -14,6 +14,11 @@ __all__ = (
     "err",
     "recv",
     "verify",
+    "references",
+    "user_dict",
+    "create_string",
+    "message_dict",
+    "room_dict",
 )
 
 
@@ -35,7 +40,10 @@ def references(
 
 
 def create_string(length: int = 8) -> str:
-    return "".join([random.choice(string.ascii_lowercase) for _ in range(length)])
+    """Create a random string (not cryptograhpically secure)."""
+    return "".join(
+        [random.choice(string.ascii_lowercase) for _ in range(length)],
+    )
 
 
 def user_dict(user: User) -> dict:

@@ -9,17 +9,17 @@ datasource db {
 }
 
 model User {
-  name     String    @db.VarChar(50)
+  name     String    @db.VarChar(25)
   password String
   id       Int       @id @default(autoincrement())
-  tag      Int       @unique
+  tag      Int
   messages Message[]
   servers  Room[]
 }
 
 model Message {
   id         Int      @id @default(autoincrement())
-  content    String
+  content    String   @db.VarChar(2500)
   author_id  Int
   server_id  Int
   created_at DateTime @default(now())
@@ -29,8 +29,8 @@ model Message {
 
 model Room {
   id       Int       @id @default(autoincrement())
-  code     String    @unique
-  name     String
+  code     String    @unique @db.VarChar(8)
+  name     String    @db.VarChar(25)
   messages Message[]
   users    User[]
 }

@@ -200,6 +200,22 @@ Now, at any point during this connection you may receive a message from the serv
 
 This is the server telling you that a new message was received. It doesn't expect any reply from the client.
 
+You may also receive a message that looks like the following:
+
+```json
+{
+    "type": "roomconnect",
+    "done": false,
+    "message": "Message was updated.",
+    "update": {
+        "id": 0, // id of the updated message
+        "content": "new content of the message"
+    }
+}
+```
+
+This also does not expect any reply.
+
 ### Sending
 
 Sending a message to the room after connection is simple. Send a JSON message that looks like this:

@@ -8,6 +8,8 @@ from .operations import operations
 from .utils import EndHandshake
 from .ws import Socket
 
+__all__ = ("router",)
+
 router = APIRouter()
 hasher = PasswordHasher()
 
