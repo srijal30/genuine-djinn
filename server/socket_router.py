@@ -5,7 +5,7 @@ from argon2 import PasswordHasher
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from .operations import operations
-from .utils import EndHandshake
+from .utils import EndHandshake, err
 from .ws import Socket
 
 __all__ = ("router",)
@@ -24,7 +24,14 @@ async def socket(raw_socket: WebSocket):
 
     with suppress(WebSocketDisconnect):
         while True:
-            handshake = await ws.accept()
+            try:
+                handshake = await ws.accept()
+            except EndHandshake:
+                await err(
+                    raw_socket,
+                    "Connection closed",
+                )
+
             operation = ops.get(handshake.handshake_type)
 
             if not operation:
