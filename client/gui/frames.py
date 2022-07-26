@@ -1,5 +1,4 @@
 import tkinter as tk
-import tkinter.ttk as ttk
 from tkinter import Event
 
 import ttkbootstrap as tkb  # type: ignore
@@ -70,7 +69,7 @@ class ChatFrame(tkb.Frame):
             self.grid(row=1, rowspan=1, column=0, columnspan=3, sticky=tkb.NSEW)
 
             self.chat_box = ScrolledText(self.parent, bootstyle="round")
-            #self.chat_box.text.configure(state="disable")
+            # self.chat_box.text.configure(state="disable")
             self.chat_box.grid(row=1, column=0, columnspan=3, sticky=tkb.NSEW)
 
     class EntrySubframe(tkb.Frame):
@@ -129,11 +128,19 @@ class ChatFrame(tkb.Frame):
         """Displays message in chat."""
         self.chat_subframe.chat_box.text.configure(state="normal")
 
-        self.label = tk.Label(self.chat_subframe.chat_box, text=message, background='#d0ffff', justify='left', padx=10, pady=5, wraplength=self.master.winfo_width()*0.75) 
+        self.label = tk.Label(
+            self.chat_subframe.chat_box,
+            text=message,
+            background='#d0ffff',
+            justify='left',
+            padx=10,
+            pady=5,
+            wraplength=self.master.winfo_width()*0.75
+        )
         self.chat_subframe.chat_box.insert('end', '\n')
         self.chat_subframe.chat_box.window_create('end', window=self.label)
 
-        #self.chat_subframe.chat_box.text.insert("end", f"{message}\n")
+        # self.chat_subframe.chat_box.text.insert("end", f"{message}\n")
         self.chat_subframe.chat_box.text.configure(state="disable")
         self.chat_subframe.chat_box.text.yview_moveto(1)
 
