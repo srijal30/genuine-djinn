@@ -17,11 +17,22 @@ use_old (default False): switch back to old buffer frame instead of creating a f
 
 ### Frames (frames.py)
 
-Frame classes contain `self.master` which is passed down from the main window `ChatApp`. So for example, to switch frames inside a frame class you can do `self.master.switch_frame()`.
+`master` - the master window `ChatApp`
+
+Frame classes contain `self.master` which is passed down from the main window `ChatApp`. A frame can also be called a page. To switch frames inside a frame class you can do `self.master.switch_frame()`.
+
+### Subframes
+
+`parent` - the parent frame class
+`master` - the master window `ChatApp`
+
+Subframes are frames inside of frames. All subframes are inside frame classes. Subframes are used to divide up the components of a frame. Dividing up stuff helps keep the code more organized and can make it easier to work with the grid layout of Tkinter.
 
 ### Menus (menus.py)
 
-Custom menu classes are created using the submenu classes. Menu setting is done for the entire window inside `ChatApp`.
+`master` - the master window `ChatApp`
+
+Custom menu classes are created using the submenu classes. Setting the menu is done for the entire window inside `ChatApp`.
 
 ### Submenus (submenus.py)
 
