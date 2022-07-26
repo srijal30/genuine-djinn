@@ -1,6 +1,14 @@
+import sys
 from typing import Any, Dict
 from connection import SocketClient
 import asyncio
+
+
+async def ainput(string: str) -> str:
+    print(string)
+    res = await asyncio.get_event_loop().run_in_executor(None, sys.stdin.readline)
+    return res[0:len(res)-1]
+
 
 class MockGame():
     def __init__(self):
@@ -38,7 +46,7 @@ class MockGame():
         8: exit a room
 
         your choice: """
-        io = int( input(msg) )
+        io = int( await ainput(msg) )
         print()
         await self.run_choice(io)
 
@@ -47,8 +55,8 @@ class MockGame():
 
     async def register(self):
         print("REGISTERING:")
-        username = input("what is your username: ")
-        password = input("what is your password: ")
+        username = await ainput("what is your username: ")
+        password = await ainput("what is your password: ")
         tag = await self.connection.register(username, password)
         print(f"your tag is: {tag}")
         print("you have registered")
@@ -56,9 +64,9 @@ class MockGame():
     
     async def login(self):
         print("LOGGIN IN:")
-        username = input("what is your username: ")
-        password = input("what is your password: ")
-        tag = int(input("what is your tag: "))
+        username = await ainput("what is your username: ")
+        password = await ainput("what is your password: ")
+        tag = int( await ainput("what is your tag: "))
         success = await self.connection.login(username, tag, password)
         if success:
             print("you are now logged in!")
@@ -74,7 +82,7 @@ class MockGame():
 
     async def createroom(self):
         print("CREATING A ROOM:")
-        name = input("create a room name: ")
+        name = await ainput("create a room name: ")
         roominfo = await self.connection.create_room(name)
         self.roomcode = roominfo[0]
         self.roomid = roominfo[1]
@@ -82,16 +90,16 @@ class MockGame():
 
     async def joinroom(self):
         print("JOINING A ROOM:")
-        code = input("please enter the room code: ")
+        code = await ainput("please enter the room code: ")
         self.roomid = await self.connection.join_room(code)
         print(f"you have joined the room with code {code}")
 
     async def connectroom(self):
         print("CONNECTING TO A ROOM:")
-        id = int(input("what is the id of the room you want to join: "))
+        id = int( await ainput("what is the id of the room you want to join: "))
         success = await self.connection.connect_room(id)
         if success:
-            asyncio.create_task(self.connection.start_receive_messages(self.print_message))
+            asyncio.create_task(self.connection.receive_messages(self.callback))
             print("you have connected to room and can now send/receive messages")
         else:
             print("connecting to the room was not a success")
@@ -104,7 +112,7 @@ class MockGame():
         print()
 
     async def sendmessage(self):
-        message = input(">>>: ")
+        message = await ainput("what is your message: ")
         success = await self.connection.send_message(message)
         if success:
             print("message sent")
@@ -119,8 +127,11 @@ class MockGame():
         else:
             print("error when leaving room")
 
-    def print_message(self, user: Dict[str, Any]):
-        print( f"{user['username']}" )
+    def callback(self, message: Dict[str, Any]):
+        display = f"{message['author']['name']}: {message['content']}\n"
+        with open("message.log", "a") as file:
+            file.write(display)
+        print(display)
 
 
 if __name__ == "__main__":

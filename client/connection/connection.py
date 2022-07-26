@@ -4,6 +4,8 @@ from typing import Any, Callable, Dict, List, Tuple
 import websockets
 
 DOMAIN = "ws://localhost:5000"
+# DOMAIN = "ws://192.155.88.143:5005"
+
 ROUTE = "/ws"
 URL = DOMAIN + ROUTE
 
@@ -15,10 +17,10 @@ URL = DOMAIN + ROUTE
 # join room
 # connect to room
 # list rooms
+# exit a room
 
 # not sure but probaly done
 # send messages
-# exit a room
 
 # not sure but probably not done
 # receive messages
@@ -30,37 +32,29 @@ URL = DOMAIN + ROUTE
 class SocketClient():
     """API Wrapper that handles all client side communication with the server."""
 
-    def __init__(self):
-        self.connected = False  # temprorary state system
-
-    # temprorary solution until figure out how to use __new__ instead of __init__
     async def connect(self):
         """Connects to the server. Must be called in order for everything to work."""
         self.ws: websockets.WebSocketClientProtocol = await websockets.connect(URL)
 
-    async def receive(self) -> Dict[str, Any]:
-        """Receives a message from server and returns as dict."""
+    async def _receive(self) -> Dict[str, Any]:
+        """Receives a message from the server. Converts raw data to python dict."""
         res = await self.ws.recv()
         return json.loads(res)
 
-    async def send(
+    async def _send(
         self,
         type: str,
         payload: Dict[str, Any],
         reply: bool = True
     ) -> Dict[str, Any]:
-        """
-        Sends a message to the server and returns the response.
-
-        Specify type of request, payload data, and if reply is expected (by default yes)
-        """
+        """Sends a message to the server. Expects no reply by default."""
         req = json.dumps({
             "type": type,
             **payload
         })
         await self.ws.send(req)
         if reply:
-            return await self.receive()
+            return await self._receive()
         else:
             return {}
 
@@ -75,22 +69,21 @@ class SocketClient():
             "tag": tag,
             "password": password
         }
-        res = await self.send("login", payload)
+        res = await self._send("login", payload)
         return res['success']
 
-    # Will this work when user is not currently logged in?
     async def logout(self) -> bool:
         """
         Logs out the user.
 
         Returns if successful or not.
         """
-        res = await self.send("logout", {})
+        res = await self._send("logout", {})
         return res['success']
 
     async def register(self, username: str, password: str) -> int:
         """
-        Sends a register request to the server.
+        Sends a register request to the server. Also logs user in.
 
         Returns the unique user tag of the new user.
         """
@@ -98,7 +91,7 @@ class SocketClient():
             "username": username,
             "password": password
         }
-        res = await self.send("register", payload)
+        res = await self._send("register", payload)
         return res["tag"]
 
     async def create_room(self, name: str) -> Tuple[int, int]:
@@ -111,8 +104,7 @@ class SocketClient():
         payload = {
             "name": name
         }
-        res = await self.send("createroom", payload)
-        print(res)  # DEBUG
+        res = await self._send("createroom", payload)
         return (res['code'], res['id'])
 
     # MAKE SURE THAT THE TYPE 'CREATEROOM' is not a typo (it was a typo)
@@ -127,7 +119,7 @@ class SocketClient():
         payload = {
             'code': code
         }
-        res = await self.send("joinroom", payload)
+        res = await self._send("joinroom", payload)
         print(res)
         return res['id']
 
@@ -142,22 +134,21 @@ class SocketClient():
         payload = {
             "id": id
         }
-        res = await self.send("roomconnect", payload)
+        res = await self._send("roomconnect", payload)
         self.connected = res['success']
-        # turn on the message receive listener?
         return res['success']
 
     # check what msg is, is it a json or string???
-    async def start_receive_messages(self, callback: Callable[[str], None]) -> None:
+    async def receive_messages(self, callback: Callable[[str], None]) -> None:
         """
         Starts a message receiving listener.
 
-        When a message is received, callback function is called.
+        When a message is received, callback function is called on the new message.
         Authentication required. Connected room required.
         """
-        async for msg in self.ws:
-            print(msg)
-            callback(msg)
+        async for res in self.ws:
+            msg = json.loads(res)
+            callback(msg['new'])
 
     # will the server send back a message after receiving a message send request?
     # are we expecting a reply from the server?
@@ -170,14 +161,12 @@ class SocketClient():
         Authentication required. Connected room required.
         """
         payload = {
-            'message': message,
+            'content': message,
             'action': 'send'
         }
-        await self.send("roomconnect", payload, reply=False)
+        await self._send("roomconnect", payload, reply=False)
         return True  # rn no way to fail?
 
-    # are we expecting a reply from the server here??
-    # rn assuming no
     async def exit_room(self) -> bool:
         """
         Exits the currently connected room.
@@ -188,9 +177,8 @@ class SocketClient():
         payload = {
             'end': True
         }
-        await self.send("roomconnect", payload, reply=False)
-        self.connected = False
-        return True  # rn no way to fail?
+        res = await self._send("roomconnect", payload, reply=False)
+        return res['success']  # rn no way to fail?
 
     async def list_rooms(self) -> List[Dict[str, Any]]:
         """
@@ -199,5 +187,5 @@ class SocketClient():
         Returns list of connected rooms.
         Authentication required. Operation cannot fail.
         """
-        res = await self.send("listrooms", {})
+        res = await self._send("listrooms", {})
         return res['servers']
