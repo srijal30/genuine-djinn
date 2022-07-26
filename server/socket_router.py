@@ -5,7 +5,7 @@ from argon2 import PasswordHasher
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from .operations import operations
-from .utils import EndHandshake, err
+from .utils import EndHandshake
 from .ws import Socket
 
 __all__ = ("router",)
@@ -22,15 +22,9 @@ async def socket(raw_socket: WebSocket):
 
     ops = copy.deepcopy(operations)
 
-    with suppress(WebSocketDisconnect):
+    with suppress(WebSocketDisconnect, EndHandshake):
         while True:
-            try:
-                handshake = await ws.accept()
-            except EndHandshake:
-                await err(
-                    raw_socket,
-                    "Connection closed",
-                )
+            handshake = await ws.accept()
 
             operation = ops.get(handshake.handshake_type)
 
@@ -40,9 +34,6 @@ async def socket(raw_socket: WebSocket):
             if operation.limit == operation.count:
                 await handshake.error("Limit exceeded for operation.")
 
-            try:
-                await operation.fn(handshake)
-            except EndHandshake:
-                await handshake.success(message="Closed connection.")
+            await operation.fn(handshake)
 
             operation.count += 1

@@ -123,6 +123,7 @@ class RoomManager:
             try:
                 (action,) = await ws.receive_next({"action": str})
             except (WebSocketDisconnect, EndHandshake) as e:
+                print("hello")
                 self._connected.remove(ws)
                 raise e
 
