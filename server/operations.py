@@ -45,6 +45,9 @@ async def register(ws: SocketHandshake) -> None:
         }
     )
 
+    if len(username) > 25:
+        await ws.error("Name cannot exceed 25 characters.")
+
     found = await db.user.find_many(where={"name": username})
     tag: int = len(found) + 1
 
@@ -100,6 +103,9 @@ async def create_room(ws: SocketHandshake) -> None:
         {"name": str},
         ensure_logged=True,
     )
+
+    if len(name) > 25:
+        await ws.error("Name cannot exceed 25 characters.")
 
     user = await ws.get_user()
     record = await db.room.create(

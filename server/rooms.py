@@ -13,6 +13,8 @@ if TYPE_CHECKING:
 
 from .room_operations import RECEIVER_OPERATIONS
 
+__all__ = ("RoomManager",)
+
 
 class RoomManager:
     """Class for managing rooms via socket handshakes."""
@@ -72,6 +74,35 @@ class RoomManager:
             where={"id": au.id},
         )
 
+    async def update_message(
+        self,
+        message_id: int,
+        new_content: str,
+    ) -> None:
+        """Update a message in a room."""
+        for i in self._connected:
+            await i.reply(
+                message="Message was updated.",
+                payload={
+                    "update": {
+                        "id": message_id,
+                        "content": new_content,
+                    },
+                },
+            )
+
+    async def delete_message(self, message_id: int) -> None:
+        """Delete a message in a room."""
+        for i in self._connected:
+            await i.reply(
+                message="Message was deleted.",
+                payload={
+                    "delete": {
+                        "id": message_id,
+                    },
+                },
+            )
+
     @property
     def id(self) -> int:
         """ID of the room."""
@@ -98,7 +129,8 @@ class RoomManager:
             caller = RECEIVER_OPERATIONS.get(action)
 
             if not caller:
-                await ws.error("Invalid action.", done=False)
+                await ws.error_continue("Invalid action.")
+                continue
 
             try:
                 await caller(self, ws)
