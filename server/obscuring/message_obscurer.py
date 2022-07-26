@@ -96,13 +96,17 @@ class MessageObscurer:
 
     def owoify(self) -> str:
         """Make message cuter."""
-        # Create patterns to find in the message
+        # Create patterns to find in the message.
+        # Match to lemma "have". Lemma is the base form of a word.
+        # (e.g., the lemma of "having" is "have")
         have_pattern = MatchPattern(
             name="HAVE_PATTERN", pattern=[{"LEMMA": "have"}], replacement="haz"
         )
+        # Match case-insensitive mentions of "you"
         you_pattern = MatchPattern(
             name="YOU_PATTERN", pattern=[{"LOWER": "you"}], replacement="uu"
         )
+        # Match case-insensitive mentions of "the"
         the_pattern = MatchPattern(
             name="THE_PATTERN", pattern=[{"LOWER": "the"}], replacement="da"
         )
