@@ -1,3 +1,4 @@
+import asyncio
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import Event
@@ -122,13 +123,24 @@ class ConnectFrame(tkb.Frame):
         self.grid_anchor("center")
         self.grid(column=0, columnspan=3, row=0, rowspan=3, sticky=tk.NSEW)
 
-    def on_create(self, event: Event) -> None:
-        """On Create Room button press."""
-        print(f"Room Code (Create): {self.create_box.get().strip()}")
 
-    def on_join(self, event: Event) -> None:
+    # you have to enter name here not code
+    async def on_create(self, event: Event) -> None:
+        """On Create Room button press."""
+        # print(f"Room Name (Create): {self.create_box.get().strip()}")
+        new_name = self.create_box.get().strip()
+        room_info = await self.master.connection.create_room(new_name)
+        print(f"New room code is: {room_info[0]}")
+        print(f"New room id is: {room_info[1]}")
+
+    async def on_join(self, event: Event) -> None:
         """On Join Room button press."""
-        print(f"Room Code (Join): {self.join_box.get().strip()}")
+        # print(f"Room Code (Join): {self.join_box.get().strip()}")
+        code = int(self.join_box.get().strip())
+        id = await self.master.connection.join_room(code)
+        print(f"ID of the newly joined room is: {id}")
+
+    # WE NEED A METHOD FOR CONNECTING TO A ROOM
 
 
 class LoginFrame(tkb.Frame):
@@ -199,15 +211,34 @@ class LoginFrame(tkb.Frame):
     def on_login(self, event: Event) -> None:
         """On login button press."""
         print("Login")
-        print(f"Username: {self.login_username_box.get().strip()}")
-        print(f"Tag: {self.login_tag_box.get().strip()}")
-        print(f"Password: {self.login_password_box.get().strip()}")
+        # print(f"Username: {self.login_username_box.get().strip()}")
+        # print(f"Tag: {self.login_tag_box.get().strip()}")
+        # print(f"Password: {self.login_password_box.get().strip()}")
+        username = self.login_username_box.get().strip()
+        tag = int(self.login_tag_box.get().strip())
+        password = self.login_password_box.get().strip()
+
+        loop = asyncio.get_event_loop()
+        success = loop.run_until_complete(self.master.connection.login(username, tag, password))
+        #success = await self.master.connection.login(username, tag, password)\
+
+        if success:
+            print("you are logged in!")
+        else:
+            print("it didnt work try again!")
 
     def on_register(self, event: Event) -> None:
         """On login button press."""
         print("Register")
-        print(f"Username: {self.register_username_box.get().strip()}")
-        print(f"Password: {self.register_password_box.get().strip()}")
+        # print(f"Username: {self.register_username_box.get().strip()}")
+        # print(f"Password: {self.register_password_box.get().strip()}")
+        username = self.register_username_box.get().strip()
+        password = self.register_password_box.get().strip()
+
+        loop = asyncio.get_event_loop()
+        new_tag = loop.run_until_complete(self.master.connection.register(username, password))
+        # new_tag = await self.master.connection.register(username, password)
+        print(f'your tag is {new_tag}')
 
 
 class TestFrame(tkb.Frame):

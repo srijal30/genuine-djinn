@@ -1,6 +1,7 @@
-from typing import Union
+from typing import Any, Dict, Union
 
 import ttkbootstrap as tkb  # type: ignore
+from client.connection import SocketClient
 from frames import ChatFrame, ConnectFrame, LoginFrame, TestFrame
 from menus import DebugMenu
 
@@ -26,6 +27,9 @@ class ChatApp(tkb.Window):
         self.current_frame = None
         self.buffer = {}
 
+        # create SocketClient which will handle all communication b/w client & server
+        self.connection = SocketClient()
+
         self.switch_frame(ChatFrame)  # starting frame
 
     def switch_frame(
@@ -44,15 +48,20 @@ class ChatApp(tkb.Window):
             self.current_frame = self.buffer[name]
             self.buffer[name].grid()
 
-    def send_message(self, message: str) -> None:
+    async def send_message(self, message: str) -> None:
         """Passes a message on to the client server."""
         # self message loop until client server is integrated
-        # "message" is currently a str, but will likely be JSON when intregrated with client
-        self.receive_message(message)
+        # "message" is currently a str, but will likely be JSON when intregrated with client'
+        # self.receive_message(message)
 
-    def receive_message(self, message: str) -> None:
+        # add error handling in the future
+        sucess = await self.connection.send_message(message)
+        print(sucess)
+
+    def receive_message(self, message_data: Dict[str, Any]) -> None:
         """Called by client when a message is received."""
         # needs client integration, currently looping chat messages
         # "message" is currently a str, but will likely be JSON when intregrated with client
         # for now, just send the text content of the message to this
+        message = f"{message_data['author']}: {message_data['content']}"
         self.buffer[ChatFrame.__name__].display_message(message)

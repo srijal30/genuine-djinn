@@ -1,3 +1,4 @@
+import asyncio
 import sys
 from tkinter import Menu
 
@@ -109,6 +110,9 @@ class TestMenu(tkb.Menu):
         self.master = master
         self.parent = parent
 
+        # added to temporarily connect to the server
+        self.add_command(label="Connect to Server", command=self.connect_server)
+
         # Frames submenu
         frames_menu = Menu(self, tearoff=False)
         frames_menu.add_command(label="LoginFrame", command=self.login_frame)
@@ -116,6 +120,12 @@ class TestMenu(tkb.Menu):
         frames_menu.add_command(label="ChatFrame", command=self.chat_frame)
         frames_menu.add_command(label="TestFrame", command=self.test_frame)
         self.add_cascade(label="Frames", menu=frames_menu)
+
+    def connect_server(self):
+        """Connect SocketClient to the server"""
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(self.master.connection.connect())
+        #await self.master.connection.connect()
 
     def login_frame(self) -> None:
         """Switch to LoginFrame"""
