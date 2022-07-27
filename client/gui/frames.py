@@ -120,8 +120,21 @@ class ConnectFrame(tkb.Frame):
         self.join_btn.bind("<ButtonPress>", self.on_join)
         self.join_btn.grid(column=2, pady=3, row=2)
 
+        self.connect_label = ttk.Label(self)
+        self.connect_label.configure(text="Connect to Room")
+        self.connect_label.grid(column=4, row=0)
+
+        self.connect_box = ttk.Entry(self)
+        self.connect_box.grid(column=4, padx=20, pady=5, row=1)
+        self.connect_box.bind("<Return>", self.on_connect)
+
+        self.connect_btn = ttk.Button(self)
+        self.connect_btn.configure(text="Connect")
+        self.connect_btn.bind("<ButtonPress>", self.on_connect)
+        self.connect_btn.grid(column=4, pady=3, row=2)
+
         self.grid_anchor("center")
-        self.grid(column=0, columnspan=3, row=0, rowspan=3, sticky=tk.NSEW)
+        self.grid(column=0, columnspan=5, row=0, rowspan=3, sticky=tk.NSEW)
 
 
     # you have to enter name here not code
@@ -146,7 +159,10 @@ class ConnectFrame(tkb.Frame):
         # id = await self.master.connection.join_room(code)
         print(f"ID of the newly joined room is: {id}")
 
-    # WE NEED A METHOD FOR CONNECTING TO A ROOM
+    def on_connect(self, event: Event) -> None:
+        """On Connect button being pressed."""
+        self.connect_box.get()
+        print(f"Connect to room: {self.connect_box.get()}")
 
 
 class LoginFrame(tkb.Frame):
