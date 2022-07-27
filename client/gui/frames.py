@@ -237,11 +237,9 @@ class LoginFrame(tkb.Frame):
         self.master.title("Chat App - Login")
 
         self.grid_anchor("center")
-        self.grid(column=0, columnspan=5, row=0, rowspan=4, sticky=tkb.NSEW)
+        self.grid(column=0, columnspan=2, row=0, rowspan=5, sticky=tkb.NSEW)
         self.login_subframe = self.LoginSubframe(self, self.master)
-        self.separator = tkb.Separator(self, orient="vertical")
-        self.separator.grid(column=2, columnspan=1, row=0, rowspan=4, padx=30, sticky=tkb.NSEW)
-        self.register_subframe = self.RegisterSubframe(self, self.master)
+        self.info_subframe = self.InfoSubframe(self, self.master)
 
         self.master.columnconfigure(0, weight=1)
         self.master.rowconfigure(0, weight=1)
@@ -285,7 +283,54 @@ class LoginFrame(tkb.Frame):
             self.login_btn = tkb.Button(self.parent)
             self.login_btn.configure(text="Login")
             self.login_btn.bind("<ButtonPress>", self.parent.on_login)
-            self.login_btn.grid(column=0, columnspan=2, pady=15, row=3)
+            self.login_btn.grid(column=0, columnspan=2, pady=15, row=3, sticky=tkb.NSEW)
+
+    class InfoSubframe(tkb.Frame):
+        """Subframe for login/registration info."""
+
+        def __init__(self, parent, master):
+            tkb.Frame.__init__(self, parent)
+
+            self.parent = parent
+            self.master = master
+
+            self.grid_anchor("center")
+            self.grid(column=0, columnspan=2, row=4, rowspan=1, sticky=tkb.NSEW)
+
+            self.info_label = tkb.Label(self.parent)
+            self.info_label.configure(text="Don't have an account? Register")
+            self.info_label.bind("<ButtonPress>", self.parent.switch_register)
+            self.info_label.grid(column=0, columnspan=2, row=4)
+
+    def on_login(self, event: Event) -> None:
+        """On login button press."""
+        print("Login")
+        print(f"Username: {self.login_subframe.login_username_box.get().strip()}")
+        print(f"Tag: {self.login_subframe.login_tag_box.get().strip()}")
+        print(f"Password: {self.login_subframe.login_password_box.get().strip()}")
+
+    def switch_register(self, event: Event) -> None:
+        """Switch to register frame."""
+        self.master.switch_frame(RegisterFrame)
+
+
+class RegisterFrame(tkb.Frame):
+    """Frame for registration page."""
+
+    def __init__(self, master):
+        tkb.Frame.__init__(self, master)
+
+        self.master = master
+
+        self.master.title("Chat App - Register")
+
+        self.grid_anchor("center")
+        self.grid(column=0, columnspan=2, row=0, rowspan=5, sticky=tkb.NSEW)
+        self.register_subframe = self.RegisterSubframe(self, self.master)
+        self.info_subframe = self.InfoSubframe(self, self.master)
+
+        self.master.columnconfigure(0, weight=1)
+        self.master.rowconfigure(0, weight=1)
 
     class RegisterSubframe(tkb.Frame):
         """Subframe for registration form."""
@@ -296,41 +341,55 @@ class LoginFrame(tkb.Frame):
             self.parent = parent
             self.master = master
 
-            self.grid(column=3, columnspan=2, row=0, rowspan=4, sticky=tkb.NSEW)
+            self.grid(column=0, columnspan=2, row=0, rowspan=4, sticky=tkb.NSEW)
 
             self.register_username_label = tkb.Label(self.parent)
             self.register_username_label.configure(text="Username")
-            self.register_username_label.grid(column=3, padx=5, row=0, sticky=tkb.E)
+            self.register_username_label.grid(column=0, padx=5, row=0, sticky=tkb.E)
 
             self.register_username_box = tkb.Entry(self.parent)
-            self.register_username_box.grid(column=4, ipadx=10, pady=3, row=0)
+            self.register_username_box.grid(column=1, ipadx=10, pady=3, row=0)
             self.register_username_box.bind("<Return>", self.parent.on_register)
 
             self.register_password_label = tkb.Label(self.parent)
             self.register_password_label.configure(text="Password")
-            self.register_password_label.grid(column=3, padx=5, row=1, sticky=tkb.E)
+            self.register_password_label.grid(column=0, padx=5, row=1, sticky=tkb.E)
 
             self.register_password_box = tkb.Entry(self.parent, show="*")
-            self.register_password_box.grid(column=4, ipadx=10, pady=3, row=1)
+            self.register_password_box.grid(column=1, ipadx=10, pady=3, row=1)
             self.register_password_box.bind("<Return>", self.parent.on_register)
 
             self.register_btn = tkb.Button(self.parent)
             self.register_btn.configure(text="Register")
             self.register_btn.bind("<ButtonPress>", self.parent.on_register)
-            self.register_btn.grid(column=3, columnspan=2, pady=15, row=3)
+            self.register_btn.grid(column=0, columnspan=2, pady=15, row=3, sticky=tkb.NSEW)
 
-    def on_login(self, event: Event) -> None:
-        """On login button press."""
-        print("Login")
-        print(f"Username: {self.login_subframe.login_username_box.get().strip()}")
-        print(f"Tag: {self.login_subframe.login_tag_box.get().strip()}")
-        print(f"Password: {self.login_subframe.login_password_box.get().strip()}")
+    class InfoSubframe(tkb.Frame):
+        """Subframe for login/registration info."""
+
+        def __init__(self, parent, master):
+            tkb.Frame.__init__(self, parent)
+
+            self.parent = parent
+            self.master = master
+
+            self.grid_anchor("center")
+            self.grid(column=0, columnspan=2, row=4, rowspan=1, sticky=tkb.NSEW)
+
+            self.info_label = tkb.Label(self.parent)
+            self.info_label.configure(text="Already have an account? Login")
+            self.info_label.bind("<ButtonPress>", self.parent.switch_login)
+            self.info_label.grid(column=0, columnspan=2, row=4)
 
     def on_register(self, event: Event) -> None:
-        """On login button press."""
+        """On registration button press."""
         print("Register")
         print(f"Username: {self.register_subframe.register_username_box.get().strip()}")
         print(f"Password: {self.register_subframe.register_password_box.get().strip()}")
+
+    def switch_login(self, event: Event) -> None:
+        """Switch to login frame."""
+        self.master.switch_frame(LoginFrame)
 
 
 class TestFrame(tkb.Frame):

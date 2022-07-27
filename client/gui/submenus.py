@@ -2,7 +2,9 @@ import sys
 from tkinter import Menu
 
 import ttkbootstrap as tkb  # type: ignore
-from frames import ChatFrame, ConnectFrame, LoginFrame, TestFrame
+from frames import (
+    ChatFrame, ConnectFrame, LoginFrame, RegisterFrame, TestFrame
+)
 
 __app__ = (
     "FileMenu",
@@ -112,6 +114,7 @@ class TestMenu(tkb.Menu):
         # Frames submenu
         frames_menu = Menu(self, tearoff=False)
         frames_menu.add_command(label="LoginFrame", command=self.login_frame)
+        frames_menu.add_command(label="RegisterFrame", command=self.register_frame)
         frames_menu.add_command(label="ConnectFrame", command=self.connect_frame)
         frames_menu.add_command(label="ChatFrame", command=self.chat_frame)
         frames_menu.add_command(label="TestFrame", command=self.test_frame)
@@ -120,6 +123,10 @@ class TestMenu(tkb.Menu):
     def login_frame(self) -> None:
         """Switch to LoginFrame"""
         self.master.switch_frame(LoginFrame)
+
+    def register_frame(self) -> None:
+        """Switch to LoginFrame"""
+        self.master.switch_frame(RegisterFrame)
 
     def connect_frame(self) -> None:
         """Switch to LoginFrame"""
