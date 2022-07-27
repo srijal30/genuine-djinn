@@ -30,7 +30,10 @@ class FileMenu(tkb.Menu):
 
     def on_logout(self) -> None:
         """On Log Out item press."""
-        pass
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(self.master.master.connection.logout())
+        print("logged out!")
+        self.master.master.switch_frame(LoginFrame)
 
     def on_quit(self) -> None:
         """On Quit item press."""
@@ -125,7 +128,7 @@ class TestMenu(tkb.Menu):
         """Connect SocketClient to the server"""
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self.master.connection.connect())
-        #await self.master.connection.connect()
+        # await self.master.connection.connect()
 
     def login_frame(self) -> None:
         """Switch to LoginFrame"""
@@ -142,3 +145,4 @@ class TestMenu(tkb.Menu):
     def test_frame(self) -> None:
         """Switch to LoginFrame"""
         self.master.switch_frame(TestFrame)
+    

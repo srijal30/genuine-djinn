@@ -34,7 +34,7 @@ class ChatApp(tkb.Window):
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self.connection.connect())
 
-        self.switch_frame(ChatFrame)  # starting frame
+        self.switch_frame(LoginFrame)  # starting frame
 
     def switch_frame(
         self,
@@ -56,10 +56,10 @@ class ChatApp(tkb.Window):
         """Passes a message on to the client server."""
         # self message loop until client server is integrated
         # "message" is currently a str, but will likely be JSON when intregrated with client'
-        # self.receive_message(message)
 
         # add error handling in the future
         loop = asyncio.get_event_loop()
+        self.receive_message({'author': {'name': 'me'}, 'content': message})
         sucess = loop.run_until_complete(self.connection.send_message(message))
         print(sucess)
 
@@ -68,5 +68,5 @@ class ChatApp(tkb.Window):
         # needs client integration, currently looping chat messages
         # "message" is currently a str, but will likely be JSON when intregrated with client
         # for now, just send the text content of the message to this
-        message = f"{message_data['author']}: {message_data['content']}"
+        message = f"{message_data['author']['name']}: {message_data['content']}"
         self.buffer[ChatFrame.__name__].display_message(message)

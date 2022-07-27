@@ -139,6 +139,7 @@ class SocketClient():
         When a message is received, callback function is called on the new message.
         Authentication required. Connected room required.
         """
+        print('start receiving')  # DEBUG
         async for res in self.ws:
             msg = json.loads(res)
             callback(msg['new'])

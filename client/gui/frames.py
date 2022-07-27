@@ -1,4 +1,6 @@
 import asyncio
+# import threading  # using this for a temp solution
+
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import Event
@@ -136,13 +138,12 @@ class ConnectFrame(tkb.Frame):
         self.grid_anchor("center")
         self.grid(column=0, columnspan=5, row=0, rowspan=3, sticky=tk.NSEW)
 
-
     # you have to enter name here not code
     def on_create(self, event: Event) -> None:
         """On Create Room button press."""
         # print(f"Room Name (Create): {self.create_box.get().strip()}")
         new_name = self.create_box.get().strip()
-        
+
         loop = asyncio.get_event_loop()
         room_info = loop.run_until_complete(self.master.connection.create_room(new_name))
         # room_info = await self.master.connection.create_room(new_name)
@@ -161,8 +162,17 @@ class ConnectFrame(tkb.Frame):
 
     def on_connect(self, event: Event) -> None:
         """On Connect button being pressed."""
-        self.connect_box.get()
-        print(f"Connect to room: {self.connect_box.get()}")
+        id = int(self.connect_box.get())
+        # connect to the room
+        loop = asyncio.get_event_loop()
+        success = loop.run_until_complete(self.master.connection.connect_room(id))
+        print(success)
+
+        # switch frame
+        self.master.switch_frame(ChatFrame)
+        # add this to a thread
+        # receive_message_task = self.master.connection.receive_messages(self.master.receive_message)
+        # _thread = threading.Thread(target=asyncio.run, args=receive_message_task)
 
 
 class LoginFrame(tkb.Frame):
@@ -242,12 +252,13 @@ class LoginFrame(tkb.Frame):
 
         loop = asyncio.get_event_loop()
         success = loop.run_until_complete(self.master.connection.login(username, tag, password))
-        #success = await self.master.connection.login(username, tag, password)\
-
+        # success = await self.master.connection.login(username, tag, password)
         if success:
             print("you are logged in!")
         else:
             print("it didnt work try again!")
+        # switch to the connect frame
+        self.master.switch_frame(ConnectFrame)
 
     def on_register(self, event: Event) -> None:
         """On login button press."""
