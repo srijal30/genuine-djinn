@@ -5,7 +5,7 @@ from frames import ChatFrame, ConnectFrame, LoginFrame, TestFrame
 from menus import DebugMenu
 
 __all__ = (
-    "ChatApp"
+    "ChatApp",
 )
 
 
