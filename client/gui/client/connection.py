@@ -3,8 +3,7 @@ from typing import Any, Callable, Dict, List, Tuple
 
 import websockets
 
-DOMAIN = "ws://localhost:5000"
-# DOMAIN = "ws://192.155.88.143:5005"
+DOMAIN = "ws://192.155.88.143:5005"
 ROUTE = "/ws"
 URL = DOMAIN + ROUTE
 

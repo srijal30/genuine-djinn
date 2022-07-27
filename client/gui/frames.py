@@ -125,19 +125,25 @@ class ConnectFrame(tkb.Frame):
 
 
     # you have to enter name here not code
-    async def on_create(self, event: Event) -> None:
+    def on_create(self, event: Event) -> None:
         """On Create Room button press."""
         # print(f"Room Name (Create): {self.create_box.get().strip()}")
         new_name = self.create_box.get().strip()
-        room_info = await self.master.connection.create_room(new_name)
+        
+        loop = asyncio.get_event_loop()
+        room_info = loop.run_until_complete(self.master.connection.create_room(new_name))
+        # room_info = await self.master.connection.create_room(new_name)
         print(f"New room code is: {room_info[0]}")
         print(f"New room id is: {room_info[1]}")
 
-    async def on_join(self, event: Event) -> None:
+    def on_join(self, event: Event) -> None:
         """On Join Room button press."""
         # print(f"Room Code (Join): {self.join_box.get().strip()}")
-        code = int(self.join_box.get().strip())
-        id = await self.master.connection.join_room(code)
+        code = self.join_box.get().strip()
+
+        loop = asyncio.get_event_loop()
+        id = loop.run_until_complete(self.master.connection.join_room(code))
+        # id = await self.master.connection.join_room(code)
         print(f"ID of the newly joined room is: {id}")
 
     # WE NEED A METHOD FOR CONNECTING TO A ROOM

@@ -5,8 +5,10 @@ from client.connection import SocketClient
 from frames import ChatFrame, ConnectFrame, LoginFrame, TestFrame
 from menus import DebugMenu
 
+import asyncio
+
 __all__ = (
-    "ChatApp"
+    "ChatApp",
 )
 
 
@@ -29,6 +31,8 @@ class ChatApp(tkb.Window):
 
         # create SocketClient which will handle all communication b/w client & server
         self.connection = SocketClient()
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(self.connection.connect())
 
         self.switch_frame(ChatFrame)  # starting frame
 
@@ -48,14 +52,15 @@ class ChatApp(tkb.Window):
             self.current_frame = self.buffer[name]
             self.buffer[name].grid()
 
-    async def send_message(self, message: str) -> None:
+    def send_message(self, message: str) -> None:
         """Passes a message on to the client server."""
         # self message loop until client server is integrated
         # "message" is currently a str, but will likely be JSON when intregrated with client'
         # self.receive_message(message)
 
         # add error handling in the future
-        sucess = await self.connection.send_message(message)
+        loop = asyncio.get_event_loop()
+        sucess = loop.run_until_complete(self.connection.send_message(message))
         print(sucess)
 
     def receive_message(self, message_data: Dict[str, Any]) -> None:
