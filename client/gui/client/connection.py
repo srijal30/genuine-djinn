@@ -2,6 +2,7 @@ import json
 from typing import Any, Callable, Dict, List, Tuple
 
 import websockets
+import threading
 
 DOMAIN = "ws://192.155.88.143:5005"
 ROUTE = "/ws"
@@ -139,7 +140,7 @@ class SocketClient():
         When a message is received, callback function is called on the new message.
         Authentication required. Connected room required.
         """
-        print('start receiving')  # DEBUG
+        print('start receiving: ')  # DEBUG
         async for res in self.ws:
             msg = json.loads(res)
             callback(msg['new'])

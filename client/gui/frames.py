@@ -167,12 +167,17 @@ class ConnectFrame(tkb.Frame):
         loop = asyncio.get_event_loop()
         success = loop.run_until_complete(self.master.connection.connect_room(id))
         print(success)
-
         # switch frame
         self.master.switch_frame(ChatFrame)
+        receive_task = self.master.connection.receive_messages(self.master.receive_message)
+        loop.create_task(receive_task)
+        def test():
+            loop.run_until_complete(asyncio.sleep(1))
+            self.master.after(1, test)
+        self.master.after(1, test)
         # add this to a thread
-        # receive_message_task = self.master.connection.receive_messages(self.master.receive_message)
         # _thread = threading.Thread(target=asyncio.run, args=receive_message_task)
+
 
 
 class LoginFrame(tkb.Frame):

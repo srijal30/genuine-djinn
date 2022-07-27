@@ -113,9 +113,6 @@ class TestMenu(tkb.Menu):
         self.master = master
         self.parent = parent
 
-        # added to temporarily connect to the server
-        self.add_command(label="Connect to Server", command=self.connect_server)
-
         # Frames submenu
         frames_menu = Menu(self, tearoff=False)
         frames_menu.add_command(label="LoginFrame", command=self.login_frame)

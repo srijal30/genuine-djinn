@@ -34,7 +34,7 @@ class ChatApp(tkb.Window):
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self.connection.connect())
 
-        self.switch_frame(LoginFrame)  # starting frame
+        self.switch_frame(ChatFrame)  # starting frame
 
     def switch_frame(
         self,
