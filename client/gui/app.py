@@ -1,7 +1,9 @@
 from typing import Union
 
 import ttkbootstrap as tkb  # type: ignore
-from frames import ChatFrame, ConnectFrame, LoginFrame, TestFrame
+from frames import (
+    ChatFrame, ConnectFrame, LoginFrame, RegisterFrame, TestFrame
+)
 from menus import DebugMenu
 
 __all__ = (
@@ -26,11 +28,11 @@ class ChatApp(tkb.Window):
         self.current_frame = None
         self.buffer = {}
 
-        self.switch_frame(ChatFrame)  # starting frame
+        self.switch_frame(LoginFrame)  # starting frame
 
     def switch_frame(
         self,
-        frame: Union[ChatFrame, LoginFrame, ConnectFrame, TestFrame],
+        frame: Union[ChatFrame, LoginFrame, ConnectFrame, RegisterFrame, TestFrame],
         use_old: bool = False
     ) -> None:
         """Switches to provided frame."""
