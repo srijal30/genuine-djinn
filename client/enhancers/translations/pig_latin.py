@@ -1,7 +1,7 @@
 import spacy
 
 
-def pig_latin(nlp: spacy.Language, doc: spacy.tokens.doc.Doc) -> str:
+def pig_latin(doc: spacy.tokens.doc.Doc) -> str:
     """Translate the message into pig latin."""
     vowels = "aeiou"
     pig_latin_message = ""

@@ -33,7 +33,7 @@ class MessageProcesser:
     def auto_translate(self, doc, message: str, message_hash: int):
         """Translate message."""
         self.translations[message_hash][owoify.__name__] = owoify(self.nlp, doc)
-        self.translations[message_hash][pig_latin.__name__] = pig_latin(self.nlp, doc)
+        self.translations[message_hash][pig_latin.__name__] = pig_latin(doc)
         self.translations[message_hash][boomhauer.__name__] = boomhauer(doc, message)
 
     def autocorrect(self, message: str):
