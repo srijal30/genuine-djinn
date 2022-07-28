@@ -1,36 +1,30 @@
-import re
-import string
+from string import punctuation
 
+import spacy
 from word_types import get_nouns
 
 
-def boomhauer(doc, message: str) -> str:
+def boomhauer(doc: spacy.tokens.doc.Doc) -> str:
     """
     Talk like Boomhauer, a fictional character in the animated series King of the Hill.
 
     Begin every line with 'I'll tell you what'. Before every noun, add 'dang ol'. After
     every sentence, end with ', man'.
     """
-    modified_message_list = []
+    boomhauer_message = ""
     nouns = get_nouns(doc)
-    for word in message.split():
-        token = word.strip(string.punctuation)
-        new_expression = word
-
+    for token in doc:
         # Add "dang ol" before every noun.
-        if token in nouns:
-            new_expression = word.rstrip(string.punctuation).replace(
-                token, f"dang ol {word}"
+        if token.text in nouns:
+            boomhauer_message += (
+                f"{'D' if boomhauer_message[-2]== '.' else 'd'}ang ol {token.text}"
             )
-
         # Add ", man" after every sentence.
-        if word[-1] in string.punctuation:
-            new_expression = re.sub(f"[{string.punctuation}]", ", man.", new_expression)
+        elif token.text in punctuation:
+            boomhauer_message += ", man."
+        else:
+            boomhauer_message += token.text
+        boomhauer_message += token.whitespace_
 
-        modified_message_list.append(new_expression)
-
-    boomhauer_message = " ".join(modified_message_list)
-    complete_boomhauer_message = (
-        f"I'll tell you what man, {boomhauer_message[0].lower()}{boomhauer_message[1:]}"
-    )
+    complete_boomhauer_message = f"I'll tell you what, man. {boomhauer_message}"
     return complete_boomhauer_message

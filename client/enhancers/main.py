@@ -6,4 +6,4 @@ if __name__ == "__main__":
     m.add_new_message("I dropped my spaghetti.")
     m.add_new_message("Linux is better than Windows and Mac.")
     print(m.messages)
-    print(m.translations)
+    print(m.translated_messages)

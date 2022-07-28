@@ -3,9 +3,7 @@ from typing import Dict
 
 import spacy
 from spacy.matcher import Matcher
-from translations.boomhauer import boomhauer
-from translations.owoify import owoify
-from translations.pig_latin import pig_latin
+from translations import boomhauer, emojify, owoify, pig_latin
 
 
 class MessageProcesser:
@@ -21,7 +19,7 @@ class MessageProcesser:
 
         # Initialize a dictionary of messages to their processed texts
         self.messages: Dict[int, spacy.tokens.doc.Doc] = {}
-        self.translations: Dict[int, Dict[str, str]] = defaultdict(dict)
+        self.translated_messages: Dict[int, Dict[str, str]] = defaultdict(dict)
 
     def add_new_message(self, message: str):
         """Add a new message to the NLP processer."""
@@ -32,9 +30,16 @@ class MessageProcesser:
 
     def auto_translate(self, doc, message: str, message_hash: int):
         """Translate message."""
-        self.translations[message_hash][owoify.__name__] = owoify(self.nlp, doc)
-        self.translations[message_hash][pig_latin.__name__] = pig_latin(doc)
-        self.translations[message_hash][boomhauer.__name__] = boomhauer(doc, message)
+        self.translated_messages[message_hash][
+            boomhauer.__name__
+        ] = boomhauer.boomhauer(doc)
+        self.translated_messages[message_hash][emojify.__name__] = emojify.emojify(doc)
+        self.translated_messages[message_hash][owoify.__name__] = owoify.owoify(
+            self.nlp, doc
+        )
+        self.translated_messages[message_hash][
+            pig_latin.__name__
+        ] = pig_latin.pig_latin(doc)
 
     def autocorrect(self, message: str):
         """Autocorrect message."""
