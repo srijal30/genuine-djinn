@@ -1,5 +1,4 @@
 import asyncio
-import threading
 from typing import Any, Dict, Union
 
 import ttkbootstrap as tkb  # type: ignore
@@ -15,10 +14,15 @@ __all__ = (
 class ChatApp(tkb.Window):
     """Main chat application window."""
 
-    currentThread = None
-
-    def __init__(self):
+    def __init__(self, loop):
         tkb.Window.__init__(self)
+
+        # setup the event loop
+        self.loop = loop
+
+        # setup the client
+        self.connection = SocketClient()
+        loop.run_until_complete(self.connection.connect())
 
         # window config
         self.configure(height=200, width=200)
@@ -30,12 +34,6 @@ class ChatApp(tkb.Window):
         # frame switching and buffering
         self.current_frame = None
         self.buffer = {}
-
-        # create SocketClient which will handle all communication b/w client & server
-        self.connection = SocketClient()
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(self.connection.connect())
-
         self.switch_frame(LoginFrame)  # starting frame
 
     def switch_frame(
@@ -57,33 +55,21 @@ class ChatApp(tkb.Window):
     def send_message(self, message: str) -> None:
         """Passes a message on to the client server."""
         # add error handling in the future
-        loop = asyncio.get_event_loop()
         self.receive_message({'author': {'name': 'me'}, 'content': message})  # DEBUG
-        sucess = loop.run_until_complete(self.connection.send_message(message))
-        print(sucess)
+        task = self.loop.create_task(self.connection.send_message(message))
+
+        def callback(result: asyncio.Future) -> None:
+            success = result.result()
+            print(success)
+
+        task.add_done_callback(callback)
 
     def receive_message(self, message_data: Dict[str, Any]) -> None:
         """Called by client when a message is received."""
         message = f"{message_data['author']['name']}: {message_data['content']}"
         self.buffer[ChatFrame.__name__].display_message(message)
 
-    def start_receiving(self):
-        """Starts message receiving thread."""
-        receive_coroutine = self.connection.receive_messages(self.receive_message)
-
-        def test():
-            loop = asyncio.new_event_loop()
-            loop.run_until_complete(receive_coroutine)
-
-        receive_thread = threading.Thread(target=test)
-        self.current_thread = receive_thread
-        receive_thread.start()
-        print("started receiving messages")  # DEBUG
-
-    def stop_receiving(self):
-        """Stops the current message receiving thread."""
-        if not self.current_thread:
-            raise('No thread to stop receiving messages from')
-        self.current_thread.join()
-        self.current_thread = None
-        print("stopped receiving messages")  # DEBUG
+    def update_loop(self):
+        """Updates the GUI through the asyncio event loop."""
+        self.update()
+        self.loop.call_soon(self.update_loop)

@@ -69,11 +69,15 @@ class ChatFrame(tkb.Frame):
     def on_leave(self, event: Event) -> None:
         """On leave button being pressed. Leave chat room."""
         # stop the connection
-        loop = asyncio.get_event_loop()
-        success = loop.run_until_complete(self.master.connection.exit_room())
-        print(f"leaving room was success:{success}")
-        # stop the receiving thread
-        self.master.stop_receiving()
+        loop = self.master.loop
+        task = loop.create_task(self.master.connection.exit_room())
+
+        def callback(result: asyncio.Task) -> None:
+            success = result.result()
+            print(f"leaving room was success:{success}")
+
+        task.add_done_callback(callback)
+        # add code to stop receiving messages if requiered
 
     def display_message(self, message: str) -> None:
         """Displays message in chat."""
@@ -146,30 +150,46 @@ class ConnectFrame(tkb.Frame):
         """On Create Room button press."""
         new_name = self.create_box.get().strip()
 
-        loop = asyncio.get_event_loop()
-        room_info = loop.run_until_complete(self.master.connection.create_room(new_name))
-        print(f"New room code is: {room_info[0]}")
-        print(f"New room id is: {room_info[1]}")
+        loop = self.master.loop
+        task = loop.create_task(self.master.connection.create_room(new_name))
+
+        def callback(result: asyncio.Task) -> None:
+            room_info = result.result()
+            print(f"New room code is: {room_info[0]}")
+            print(f"New room id is: {room_info[1]}")
+
+        task.add_done_callback(callback)
 
     def on_join(self, event: Event) -> None:
         """On Join Room button press."""
         code = self.join_box.get().strip()
 
-        loop = asyncio.get_event_loop()
-        id = loop.run_until_complete(self.master.connection.join_room(code))
-        print(f"ID of the newly joined room is: {id}")
+        loop = self.master.loop
+        task = loop.create_task(self.master.connection.join_room(code))
+
+        def callback(result: asyncio.Task) -> None:
+            print(f"ID of the newly joined room is: {id}")
+
+        task.add_done_callback(callback)
 
     def on_connect(self, event: Event) -> None:
         """On Connect button being pressed."""
         id = int(self.connect_box.get())
         # connect to the room
-        loop = asyncio.get_event_loop()
-        success = loop.run_until_complete(self.master.connection.connect_room(id))
-        print(success)
-        # switch frame
-        self.master.switch_frame(ChatFrame)
-        # start thread
-        self.master.start_receiving()
+
+        loop = self.master.loop
+        task = loop.create_task(self.master.connection.connect_room(id))
+
+        def callback(result: asyncio.Task) -> None:
+            success = result.result()
+            print(f"connecting to room was a success: {success}")
+            if success:
+                # start receiving messages and open chatroom
+                receive_task = self.master.connection.receive_messages(self.master.receive_message)
+                loop.create_task(receive_task)
+                self.master.switch_frame(ChatFrame)
+
+        task.add_done_callback(callback)
 
 
 class LoginFrame(tkb.Frame):
@@ -243,23 +263,34 @@ class LoginFrame(tkb.Frame):
         username = self.login_username_box.get().strip()
         tag = int(self.login_tag_box.get().strip())
         password = self.login_password_box.get().strip()
-        loop = asyncio.get_event_loop()
-        success = loop.run_until_complete(self.master.connection.login(username, tag, password))
-        if success:
-            print("you are logged in!")
-        else:
-            print("it didnt work try again!")
-        # switch to the connect frame
-        self.master.switch_frame(ConnectFrame)
+
+        loop = self.master.loop
+        task = loop.create_task(self.master.connection.login(username, tag, password))
+
+        def callback(result: asyncio.Task) -> None:
+            success = result.result()
+            if success:
+                print("you are logged in!")
+                self.master.switch_frame(ConnectFrame)
+            else:
+                print("it didnt work try again!")
+
+        task.add_done_callback(callback)
 
     def on_register(self, event: Event) -> None:
         """On login button press."""
         print("Register")
         username = self.register_username_box.get().strip()
         password = self.register_password_box.get().strip()
-        loop = asyncio.get_event_loop()
-        new_tag = loop.run_until_complete(self.master.connection.register(username, password))
-        print(f'your tag is {new_tag}')
+
+        loop = self.master.loop
+        task = loop.create_task(self.master.connection.register(username, password))
+
+        def callback(result: asyncio.Task) -> None:
+            tag = result.result()
+            print(f'your tag is {tag}')
+
+        task.add_done_callback(callback)
 
 
 class TestFrame(tkb.Frame):

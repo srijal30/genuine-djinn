@@ -4,6 +4,7 @@ from typing import Any, Callable, Dict, List, Tuple
 import websockets
 
 DOMAIN = "ws://192.155.88.143:5005"
+# DOMAIN = "ws://localhost:5000"
 ROUTE = "/ws"
 URL = DOMAIN + ROUTE
 
@@ -30,6 +31,7 @@ class SocketClient():
     async def connect(self):
         """Connects to the server. Must be called in order for everything to work."""
         self.ws = await websockets.connect(URL)
+        print('connected!')
 
     async def _receive(self) -> Dict[str, Any]:
         """Receives a message from the server. Converts raw data to python dict."""
@@ -65,6 +67,7 @@ class SocketClient():
             "password": password
         }
         res = await self._send("login", payload)
+        print(res)
         return res['success']
 
     async def logout(self) -> bool:
@@ -144,6 +147,7 @@ class SocketClient():
         async for res in self.ws:
             # makes sure that there is a way for loop to end
             if not self.connected_to_room:
+                print('stopped receicving')  # see if we even neee Task.cancel()
                 break
             res = json.loads(res)
             # make sure that handler not stealing non message requests
