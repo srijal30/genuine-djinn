@@ -1,11 +1,53 @@
-import os
+import sys
 
+import click
 import uvicorn
 from dotenv import load_dotenv
 
 from server.app import app
 
+sys.path.append("./client/gui")  # maybe change this later?
+from client.gui.app import ChatApp  # noqa: E402
+
 load_dotenv()
 
+
+@click.command()
+@click.option(
+    "--action",
+    "-a",
+    type=click.Choice(
+        ["server", "app"],
+        case_sensitive=False,
+    ),
+    help="Action to perform.",
+)
+@click.option(
+    "--port",
+    "-p",
+    default=5000,
+    show_default=True,
+    type=int,
+    help="Port to host the server on.",
+)
+@click.option(
+    "--host",
+    "-h",
+    default="0.0.0.0",
+    show_default=True,
+    type=str,
+    help="IP to host the server on.",
+)
+def main(
+    action: str,
+    port: int,
+    host: str,
+) -> None:
+    """CLI entry point."""
+    uvicorn.run(
+        app, host=host, port=port
+    ) if action.lower() == "server" else ChatApp().mainloop()
+
+
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT") or 5000))
+    main()
