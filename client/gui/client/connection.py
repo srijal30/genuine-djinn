@@ -2,7 +2,6 @@ import json
 from typing import Any, Callable, Dict, List, Tuple
 
 import websockets
-import threading
 
 DOMAIN = "ws://192.155.88.143:5005"
 ROUTE = "/ws"
@@ -25,6 +24,8 @@ URL = DOMAIN + ROUTE
 # add a __new__ method so that we can call connect on construction
 class SocketClient():
     """API Wrapper that handles all client side communication with the server."""
+
+    connected_to_room = False
 
     async def connect(self):
         """Connects to the server. Must be called in order for everything to work."""
@@ -129,7 +130,7 @@ class SocketClient():
             "id": id
         }
         res = await self._send("roomconnect", payload)
-        self.connected = res['success']
+        self.connected_to_room = res['success']
         return res['success']
 
     # check what msg is, is it a json or string???
@@ -140,10 +141,16 @@ class SocketClient():
         When a message is received, callback function is called on the new message.
         Authentication required. Connected room required.
         """
-        print('start receiving: ')  # DEBUG
         async for res in self.ws:
-            msg = json.loads(res)
-            callback(msg['new'])
+            # makes sure that there is a way for loop to end
+            if not self.connected_to_room:
+                break
+            res = json.loads(res)
+            # make sure that handler not stealing non message requests
+            if res['type'] != 'roomconnect':
+                raise(BaseException('Message Handler Received an Incorrect Message'))
+            msg = res['new']
+            callback(msg)
 
     # will the server send back a message after receiving a message send request?
     # are we expecting a reply from the server?
@@ -162,6 +169,7 @@ class SocketClient():
         await self._send("roomconnect", payload, reply=False)
         return True  # rn no way to fail?
 
+    # add code to check if there is a current room
     async def exit_room(self) -> bool:
         """
         Exits the currently connected room.
@@ -173,6 +181,8 @@ class SocketClient():
             'end': True
         }
         res = await self._send("roomconnect", payload, reply=False)
+        if res['success']:
+            self.connected_to_room = False
         return res['success']  # rn no way to fail?
 
     async def list_rooms(self) -> List[Dict[str, Any]]:

@@ -1,6 +1,4 @@
 import asyncio
-# import threading  # using this for a temp solution
-
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import Event
@@ -70,7 +68,12 @@ class ChatFrame(tkb.Frame):
 
     def on_leave(self, event: Event) -> None:
         """On leave button being pressed. Leave chat room."""
-        print("Leave")
+        # stop the connection
+        loop = asyncio.get_event_loop()
+        success = loop.run_until_complete(self.master.connection.exit_room())
+        print(f"leaving room was success:{success}")
+        # stop the receiving thread
+        self.master.stop_receiving()
 
     def display_message(self, message: str) -> None:
         """Displays message in chat."""
@@ -141,23 +144,19 @@ class ConnectFrame(tkb.Frame):
     # you have to enter name here not code
     def on_create(self, event: Event) -> None:
         """On Create Room button press."""
-        # print(f"Room Name (Create): {self.create_box.get().strip()}")
         new_name = self.create_box.get().strip()
 
         loop = asyncio.get_event_loop()
         room_info = loop.run_until_complete(self.master.connection.create_room(new_name))
-        # room_info = await self.master.connection.create_room(new_name)
         print(f"New room code is: {room_info[0]}")
         print(f"New room id is: {room_info[1]}")
 
     def on_join(self, event: Event) -> None:
         """On Join Room button press."""
-        # print(f"Room Code (Join): {self.join_box.get().strip()}")
         code = self.join_box.get().strip()
 
         loop = asyncio.get_event_loop()
         id = loop.run_until_complete(self.master.connection.join_room(code))
-        # id = await self.master.connection.join_room(code)
         print(f"ID of the newly joined room is: {id}")
 
     def on_connect(self, event: Event) -> None:
@@ -169,15 +168,8 @@ class ConnectFrame(tkb.Frame):
         print(success)
         # switch frame
         self.master.switch_frame(ChatFrame)
-        receive_task = self.master.connection.receive_messages(self.master.receive_message)
-        loop.create_task(receive_task)
-        def test():
-            loop.run_until_complete(asyncio.sleep(1))
-            self.master.after(1, test)
-        self.master.after(1, test)
-        # add this to a thread
-        # _thread = threading.Thread(target=asyncio.run, args=receive_message_task)
-
+        # start thread
+        self.master.start_receiving()
 
 
 class LoginFrame(tkb.Frame):
@@ -248,16 +240,11 @@ class LoginFrame(tkb.Frame):
     def on_login(self, event: Event) -> None:
         """On login button press."""
         print("Login")
-        # print(f"Username: {self.login_username_box.get().strip()}")
-        # print(f"Tag: {self.login_tag_box.get().strip()}")
-        # print(f"Password: {self.login_password_box.get().strip()}")
         username = self.login_username_box.get().strip()
         tag = int(self.login_tag_box.get().strip())
         password = self.login_password_box.get().strip()
-
         loop = asyncio.get_event_loop()
         success = loop.run_until_complete(self.master.connection.login(username, tag, password))
-        # success = await self.master.connection.login(username, tag, password)
         if success:
             print("you are logged in!")
         else:
@@ -268,14 +255,10 @@ class LoginFrame(tkb.Frame):
     def on_register(self, event: Event) -> None:
         """On login button press."""
         print("Register")
-        # print(f"Username: {self.register_username_box.get().strip()}")
-        # print(f"Password: {self.register_password_box.get().strip()}")
         username = self.register_username_box.get().strip()
         password = self.register_password_box.get().strip()
-
         loop = asyncio.get_event_loop()
         new_tag = loop.run_until_complete(self.master.connection.register(username, password))
-        # new_tag = await self.master.connection.register(username, password)
         print(f'your tag is {new_tag}')
 
 

@@ -1,11 +1,11 @@
+import asyncio
+import threading
 from typing import Any, Dict, Union
 
 import ttkbootstrap as tkb  # type: ignore
 from client.connection import SocketClient
 from frames import ChatFrame, ConnectFrame, LoginFrame, TestFrame
 from menus import DebugMenu
-
-import asyncio
 
 __all__ = (
     "ChatApp",
@@ -14,6 +14,8 @@ __all__ = (
 
 class ChatApp(tkb.Window):
     """Main chat application window."""
+
+    currentThread = None
 
     def __init__(self):
         tkb.Window.__init__(self)
@@ -34,7 +36,7 @@ class ChatApp(tkb.Window):
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self.connection.connect())
 
-        self.switch_frame(ChatFrame)  # starting frame
+        self.switch_frame(LoginFrame)  # starting frame
 
     def switch_frame(
         self,
@@ -54,19 +56,34 @@ class ChatApp(tkb.Window):
 
     def send_message(self, message: str) -> None:
         """Passes a message on to the client server."""
-        # self message loop until client server is integrated
-        # "message" is currently a str, but will likely be JSON when intregrated with client'
-
         # add error handling in the future
         loop = asyncio.get_event_loop()
-        self.receive_message({'author': {'name': 'me'}, 'content': message})
+        self.receive_message({'author': {'name': 'me'}, 'content': message})  # DEBUG
         sucess = loop.run_until_complete(self.connection.send_message(message))
         print(sucess)
 
     def receive_message(self, message_data: Dict[str, Any]) -> None:
         """Called by client when a message is received."""
-        # needs client integration, currently looping chat messages
-        # "message" is currently a str, but will likely be JSON when intregrated with client
-        # for now, just send the text content of the message to this
         message = f"{message_data['author']['name']}: {message_data['content']}"
         self.buffer[ChatFrame.__name__].display_message(message)
+
+    def start_receiving(self):
+        """Starts message receiving thread."""
+        receive_coroutine = self.connection.receive_messages(self.receive_message)
+
+        def test():
+            loop = asyncio.new_event_loop()
+            loop.run_until_complete(receive_coroutine)
+
+        receive_thread = threading.Thread(target=test)
+        self.current_thread = receive_thread
+        receive_thread.start()
+        print("started receiving messages")  # DEBUG
+
+    def stop_receiving(self):
+        """Stops the current message receiving thread."""
+        if not self.current_thread:
+            raise('No thread to stop receiving messages from')
+        self.current_thread.join()
+        self.current_thread = None
+        print("stopped receiving messages")  # DEBUG
