@@ -3,10 +3,9 @@ from typing import Dict
 
 import spacy
 from spacy.matcher import Matcher
-
-from .translations.boomhauer import boomhauer
-from .translations.owoify import owoify
-from .translations.pig_latin import pig_latin
+from translations.boomhauer import boomhauer
+from translations.owoify import owoify
+from translations.pig_latin import pig_latin
 
 
 class MessageProcesser:

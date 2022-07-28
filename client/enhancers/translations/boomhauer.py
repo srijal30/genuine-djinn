@@ -1,7 +1,7 @@
 import re
 import string
 
-from ..word_types import get_nouns
+from word_types import get_nouns
 
 
 def boomhauer(doc, message: str) -> str:

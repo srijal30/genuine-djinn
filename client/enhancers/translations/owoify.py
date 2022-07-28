@@ -1,7 +1,6 @@
 import spacy
+from match_pattern import MatchPattern
 from spacy.matcher import Matcher
-
-from ..match_pattern import MatchPattern
 
 
 def owoify(nlp: spacy.Language, doc: spacy.tokens.doc.Doc) -> str:
