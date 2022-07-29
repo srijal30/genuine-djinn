@@ -6,7 +6,7 @@ from spacy.matcher import Matcher
 from translations import boomhauer, emojify, owoify, pig_latin
 
 
-class MessageProcesser:
+class AutoTranslater:
     """Use natural language processing to analyze the message and obscure the text."""
 
     def __init__(self):
@@ -41,6 +41,29 @@ class MessageProcesser:
             pig_latin.__name__
         ] = pig_latin.pig_latin(doc)
 
-    def autocorrect(self, message: str):
+
+class AutoCorrecter:
+    """Use natural language processing to analyze the message and obscure the text."""
+
+    def __init__(self):
+        # Create the nlp object using a small English pipeline trained on written
+        # web text, like blogs, news, and comments.
+        self.nlp: spacy.Language = spacy.load("en_core_web_sm")
+
+        # Merge named entities into a single token.
+        self.nlp.add_pipe("merge_entities")
+
+    def autocorrect(self, message: str) -> str:
         """Autocorrect message."""
-        ...
+        doc: spacy.tokens.doc.Doc = self.nlp(message)
+        token_list = [token.text for token in doc]
+
+        # Replace with entities labels for now.
+        for ent in doc.ents:
+            # print(ent.text, ent.start, ent.end, ent.label_, spacy.explain(ent.label_))
+            token_list[ent.start: ent.end] = [f"\u007b{ent.label_}\u007d"]
+
+        autocorrected_message = ""
+        for i in range(len(token_list)):
+            autocorrected_message += token_list[i] + doc[i].whitespace_
+        return autocorrected_message
