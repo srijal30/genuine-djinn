@@ -6,7 +6,7 @@ from argon2.exceptions import VerifyMismatchError
 
 from .db import db
 from .rooms import RoomManager
-from .utils import create_string, references, room_dict
+from .utils import create_string, find_room_for, references, room_dict
 from .ws import SocketHandshake
 
 hasher = PasswordHasher()
@@ -167,10 +167,7 @@ async def leave(ws: SocketHandshake) -> None:
     user = await ws.get_user()
     uid: int = user.id
 
-    room = await db.room.update(
-        {"users": references(uid, array=True)},
-        where={"id": rid},
-    )
+    room = await find_room_for(rid, uid)
 
     if not room:
         await ws.error("Room does not exist.")
@@ -179,7 +176,7 @@ async def leave(ws: SocketHandshake) -> None:
     await manager.send_message(f'"{user.name}" has left the room.', 0)
 
     await db.user.update(
-        {"servers": {"delete": references(rid)}},
+        {"servers": references(rid, array=True, disconnect=True)},
         where={"id": uid},
     )
 
@@ -214,16 +211,7 @@ async def room_connect(ws: SocketHandshake) -> None:
         ensure_logged=True,
     )
 
-    room = await db.room.find_first(
-        where={
-            "id": rid,
-            "users": {
-                "some": {
-                    "id": await ws.get_user_id(),
-                }
-            },
-        }
-    )
+    room = await find_room_for(rid, await ws.get_user_id())
 
     if not room:
         await ws.error("Invalid room ID.")

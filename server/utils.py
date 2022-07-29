@@ -7,6 +7,8 @@ from typing import TYPE_CHECKING, Any, Dict, List, NoReturn, Optional
 
 from fastapi import WebSocket
 
+from .db import db
+
 if TYPE_CHECKING:
     from prisma.models import Message, Room, User
 
@@ -19,6 +21,7 @@ __all__ = (
     "create_string",
     "message_dict",
     "room_dict",
+    "find_room_for",
 )
 
 
@@ -26,16 +29,35 @@ class EndHandshake(Exception):
     """Exception to end the current handshake without killing the connection."""
 
 
+async def find_room_for(room_id: int, user_id: int) -> Optional[Room]:
+    """Find a room that contains a user."""
+    return await db.room.find_first(
+        where={
+            "id": room_id,
+            "users": {
+                "some": {
+                    "id": user_id,
+                }
+            },
+        },
+    )
+
+
 def references(
     target: Any,
     *,
     name: str = "id",
     array: bool = False,
+    disconnect: bool = False,
 ) -> Any:
     """Create a Prisma relation dictionary."""
     raw = {name: target}
     return {
-        "connect": raw if not array else [raw],
+        "connect"
+        if not disconnect
+        else "disconnect": raw
+        if not array
+        else [raw],  # fmt: off
     }
 
 

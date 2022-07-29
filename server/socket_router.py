@@ -22,9 +22,12 @@ async def socket(raw_socket: WebSocket):
 
     ops = copy.deepcopy(operations)
 
-    with suppress(WebSocketDisconnect, EndHandshake):
+    with suppress(WebSocketDisconnect):
         while True:
-            handshake = await ws.accept()
+            try:
+                handshake = await ws.accept()
+            except EndHandshake:
+                continue
 
             operation = ops.get(handshake.handshake_type)
 
@@ -34,6 +37,7 @@ async def socket(raw_socket: WebSocket):
             if operation.limit == operation.count:
                 await handshake.error("Limit exceeded for operation.")
 
-            await operation.fn(handshake)
+            with suppress(EndHandshake):
+                await operation.fn(handshake)
 
             operation.count += 1
