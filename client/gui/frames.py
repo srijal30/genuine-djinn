@@ -5,7 +5,13 @@ from tkinter import Event
 import ttkbootstrap as tkb  # type: ignore
 from ttkbootstrap.scrolled import ScrolledText
 
-__app__ = ("ChatFrame", "ConnectionFrame", "LoginFrame", "TestFrame")
+__app__ = (
+    "ChatFrame",
+    "ConnectionFrame",
+    "LoginFrame",
+    "RegisterFrame",
+    "TestFrame"
+)
 
 
 class ChatFrame(tkb.Frame):
@@ -45,7 +51,6 @@ class ChatFrame(tkb.Frame):
             self.config(
                 text=self.msg,
                 justify="left",
-                background="#32465a",
                 wraplength=self.master.winfo_width() * 0.75,
             )
 
@@ -192,10 +197,11 @@ class ConnectFrame(tkb.Frame):
 
         self.grid_anchor("center")
         self.grid(
-            row=0, rowspan=3, column=0, columnspan=2, padx=3, pady=3, sticky=tkb.NSEW
+            row=0, rowspan=3, column=0, columnspan=3, padx=3, pady=3, sticky=tkb.NSEW
         )
         self.join_subframe = self.JoinSubframe(self, self.master)
         self.create_subframe = self.CreateSubframe(self, self.master)
+        self.connect_subframe = self.ConnectSubframe(self, self.master)
 
         self.master.columnconfigure(0, weight=1)
         self.master.rowconfigure(0, weight=1)
@@ -248,10 +254,34 @@ class ConnectFrame(tkb.Frame):
             self.room_btn.bind("<ButtonPress>", self.parent.on_create)
             self.room_btn.grid(row=2, column=1, pady=3)
 
+    class ConnectSubframe(tkb.Frame):
+        """Subframe for connecting to a room."""
+
+        def __init__(self, parent, master):
+            tkb.Frame.__init__(self, parent)
+
+            self.parent = parent
+            self.master = master
+
+            self.grid(row=0, rowspan=3, column=2, columnspan=1)
+
+            self.connect_label = tkb.Label(self)
+            self.connect_label.configure(text="Connect to Room")
+            self.connect_label.grid(row=0, column=2)
+
+            self.connect_box = tkb.Entry(self)
+            self.connect_box.grid(row=1, column=2, padx=20, pady=5)
+            self.connect_box.bind("<Return>", self.parent.on_connect)
+
+            self.connect_btn = tkb.Button(self)
+            self.connect_btn.configure(text="Connect")
+            self.connect_btn.bind("<ButtonPress>", self.parent.on_connect)
+            self.connect_btn.grid(row=2, column=2, pady=3)
+
     # you have to enter name here not code
     def on_create(self, event: Event) -> None:
         """On Create Room button press."""
-        new_name = self.create_box.get().strip()
+        new_name = self.create_subframe.create_box.get().strip()
 
         loop = self.master.loop
         task = loop.create_task(self.master.connection.create_room(new_name))
@@ -265,7 +295,7 @@ class ConnectFrame(tkb.Frame):
 
     def on_join(self, event: Event) -> None:
         """On Join Room button press."""
-        code = self.join_box.get().strip()
+        code = self.join_subframe.join_box.get().strip()
 
         loop = self.master.loop
         task = loop.create_task(self.master.connection.join_room(code))
@@ -277,7 +307,7 @@ class ConnectFrame(tkb.Frame):
 
     def on_connect(self, event: Event) -> None:
         """On Connect button being pressed."""
-        id = int(self.connect_box.get())
+        id = int(self.connect_subframe.connect_box.get())
         # connect to the room
 
         loop = self.master.loop
