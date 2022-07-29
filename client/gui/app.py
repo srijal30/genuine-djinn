@@ -2,13 +2,14 @@ import asyncio
 from typing import Any, Dict, Union
 
 import ttkbootstrap as tkb  # type: ignore
-from client.connection import SocketClient
-from frames import ChatFrame, ConnectFrame, LoginFrame, TestFrame
+from frames import (
+    ChatFrame, ConnectFrame, LoginFrame, RegisterFrame, TestFrame
+)
 from menus import DebugMenu
 
-__all__ = (
-    "ChatApp",
-)
+from client.connection import SocketClient
+
+__all__ = ("ChatApp",)
 
 
 class ChatApp(tkb.Window):
@@ -38,14 +39,22 @@ class ChatApp(tkb.Window):
 
     def switch_frame(
         self,
-        frame: Union[ChatFrame, LoginFrame, ConnectFrame, TestFrame],
-        use_old: bool = False
+        frame: Union[ChatFrame, LoginFrame, ConnectFrame, RegisterFrame, TestFrame],
+        use_old: bool = False,
     ) -> None:
         """Switches to provided frame."""
         name = frame.__name__
 
-        if self.current_frame is None or not isinstance(self.current_frame, frame) or use_old:
-            if name in self.buffer.items() and self.buffer[name] is not None and not use_old:
+        if (
+            self.current_frame is None
+            or not isinstance(self.current_frame, frame)
+            or use_old
+        ):
+            if (
+                name in self.buffer.items()
+                and self.buffer[name] is not None
+                and not use_old
+            ):
                 self.buffer[name].destroy()
 
             self.buffer[name] = frame(self)
@@ -55,7 +64,7 @@ class ChatApp(tkb.Window):
     def send_message(self, message: str) -> None:
         """Passes a message on to the client server."""
         # add error handling in the future
-        self.receive_message({'author': {'name': 'me'}, 'content': message})  # DEBUG
+        self.receive_message({"author": {"name": "me"}, "content": message})  # DEBUG
         task = self.loop.create_task(self.connection.send_message(message))
 
         def callback(result: asyncio.Future) -> None:

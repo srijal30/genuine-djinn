@@ -76,20 +76,31 @@ def message_dict(message: Message) -> dict:
     return res
 
 
+async def _send(
+    socket: WebSocket,
+    message: str,
+    done: bool,
+    success: bool,
+    data: Optional[dict] = None,
+) -> None:
+    """Send an message back to the user."""
+    await socket.send_json(
+        {
+            "type": (data or {}).get("type") or "unknown",
+            "message": message,
+            "done": done,
+            "success": success,
+        }
+    )
+
+
 async def err(
     socket: WebSocket,
     message: str,
     data: Optional[dict] = None,
 ) -> NoReturn:
     """Send an error back to the user."""
-    await socket.send_json(
-        {
-            "type": (data or {}).get("type") or "unknown",
-            "message": message,
-            "done": True,
-            "success": False,
-        }
-    )
+    await _send(socket, message, True, False, data)
     raise EndHandshake
 
 
@@ -134,6 +145,7 @@ async def recv(
         await err(socket, "Invalid JSON object.")
 
     if data.get("end"):
+        await _send(socket, "Ended handshake.", True, True)
         raise EndHandshake
 
     await verify(socket, data, schema)
