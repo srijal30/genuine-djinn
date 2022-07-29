@@ -2,12 +2,11 @@ import asyncio
 from typing import Any, Dict, Union
 
 import ttkbootstrap as tkb  # type: ignore
+from connection import SocketClient
 from frames import (
     ChatFrame, ConnectFrame, LoginFrame, RegisterFrame, TestFrame
 )
 from menus import DebugMenu
-
-from client.connection import SocketClient
 
 __all__ = ("ChatApp",)
 

@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from server.app import app
 
 sys.path.append("./client/gui")  # maybe change this later?
-from client.gui.app import ChatApp  # noqa: E402
+from client import start_app  # noqa: E402
 
 load_dotenv()
 
@@ -44,9 +44,13 @@ def main(
     host: str,
 ) -> None:
     """CLI entry point."""
+    if not action:
+        print("action must be supplied (use --action or -a)")
+        sys.exit(1)
+
     uvicorn.run(
         app, host=host, port=port
-    ) if action.lower() == "server" else ChatApp().mainloop()
+    ) if action.lower() == "server" else start_app()
 
 
 if __name__ == "__main__":

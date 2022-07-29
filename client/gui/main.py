@@ -2,7 +2,9 @@ import asyncio
 
 from app import ChatApp
 
-if __name__ == "__main__":
+
+def start_app() -> None:
+    """Start the app."""
     # create loop
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
@@ -12,3 +14,7 @@ if __name__ == "__main__":
 
     application.update_loop()
     loop.run_forever()
+
+
+if __name__ == "__main__":
+    start_app()
