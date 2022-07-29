@@ -220,6 +220,24 @@ async def room_connect(ws: SocketHandshake) -> None:
     await manager.register_handshake(ws)
 
 
+async def change_name(ws: SocketHandshake) -> None:
+    """Change the name of the current user."""
+    new_name = await ws.expect_only(
+        {
+            "name": str,
+        },
+        ensure_logged=True,
+    )
+
+    await db.user.update(
+        {"name": new_name},
+        where={
+            "id": await ws.get_user_id(),
+        },
+    )
+    await ws.success()
+
+
 async def logout(ws: SocketHandshake) -> None:
     await ws.get_user_id()  # to ensure that they are authenticated already
     ws.socket.user_id = None
@@ -236,5 +254,6 @@ operations: Dict[str, Operation] = {
     "roomconnect": Operation(room_connect),
     "logout": Operation(logout),
     "leaveroom": Operation(leave),
+    "changename": Operation(change_name),
 }
 """Dictionary containing resolvers for type headers."""
