@@ -1,21 +1,28 @@
-from typing import Union
+import asyncio
+from typing import Any, Dict, Union
 
 import ttkbootstrap as tkb  # type: ignore
+from connection import SocketClient
 from frames import (
     ChatFrame, ConnectFrame, LoginFrame, RegisterFrame, TestFrame
 )
 from menus import DebugMenu
 
-__all__ = (
-    "ChatApp",
-)
+__all__ = ("ChatApp",)
 
 
 class ChatApp(tkb.Window):
     """Main chat application window."""
 
-    def __init__(self):
+    def __init__(self, loop):
         tkb.Window.__init__(self)
+
+        # setup the event loop
+        self.loop = loop
+
+        # setup the client
+        self.connection = SocketClient()
+        loop.run_until_complete(self.connection.connect())
 
         # window config
         self.configure(height=200, width=200)
@@ -27,19 +34,26 @@ class ChatApp(tkb.Window):
         # frame switching and buffering
         self.current_frame = None
         self.buffer = {}
-
-        self.switch_frame(ChatFrame)  # starting frame
+        self.switch_frame(LoginFrame)  # starting frame
 
     def switch_frame(
         self,
         frame: Union[ChatFrame, LoginFrame, ConnectFrame, RegisterFrame, TestFrame],
-        use_old: bool = False
+        use_old: bool = False,
     ) -> None:
         """Switches to provided frame."""
         name = frame.__name__
 
-        if self.current_frame is None or not isinstance(self.current_frame, frame) or use_old:
-            if name in self.buffer.items() and self.buffer[name] is not None and not use_old:
+        if (
+            self.current_frame is None
+            or not isinstance(self.current_frame, frame)
+            or use_old
+        ):
+            if (
+                name in self.buffer.items()
+                and self.buffer[name] is not None
+                and not use_old
+            ):
                 self.buffer[name].destroy()
 
             self.buffer[name] = frame(self)
@@ -48,13 +62,22 @@ class ChatApp(tkb.Window):
 
     def send_message(self, message: str) -> None:
         """Passes a message on to the client server."""
-        # self message loop until client server is integrated
-        # "message" is currently a str, but will likely be JSON when intregrated with client
-        self.receive_message(message)
+        # add error handling in the future
+        self.receive_message({"author": {"name": "me"}, "content": message})  # DEBUG
+        task = self.loop.create_task(self.connection.send_message(message))
 
-    def receive_message(self, message: str) -> None:
+        def callback(result: asyncio.Future) -> None:
+            success = result.result()
+            print(success)
+
+        task.add_done_callback(callback)
+
+    def receive_message(self, message_data: Dict[str, Any]) -> None:
         """Called by client when a message is received."""
-        # needs client integration, currently looping chat messages
-        # "message" is currently a str, but will likely be JSON when intregrated with client
-        # for now, just send the text content of the message to this
+        message = f"{message_data['author']['name']}: {message_data['content']}"
         self.buffer[ChatFrame.__name__].display_message(message)
+
+    def update_loop(self):
+        """Updates the GUI through the asyncio event loop."""
+        self.update()
+        self.loop.call_soon(self.update_loop)

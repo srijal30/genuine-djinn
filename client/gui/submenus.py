@@ -1,3 +1,4 @@
+import asyncio
 import sys
 from tkinter import Menu
 
@@ -31,10 +32,18 @@ class FileMenu(tkb.Menu):
 
     def on_logout(self) -> None:
         """On Log Out item press."""
-        pass
+        loop = self.master.master.loop
+        task = loop.create_task(self.master.master.connection.logout())
+
+        def callback(result: asyncio.Task) -> None:
+            print("logged out!")
+            self.master.master.switch_frame(LoginFrame)
+
+        task.add_done_callback(callback)
 
     def on_quit(self) -> None:
         """On Quit item press."""
+        self.master.master.loop.stop()  # end the loop
         sys.exit(0)
 
 

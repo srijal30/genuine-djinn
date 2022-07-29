@@ -1,15 +1,11 @@
+import asyncio
 import tkinter as tk
 from tkinter import Event
 
 import ttkbootstrap as tkb  # type: ignore
 from ttkbootstrap.scrolled import ScrolledText
 
-__app__ = (
-    "ChatFrame",
-    "ConnectionFrame",
-    "LoginFrame",
-    "TestFrame"
-)
+__app__ = ("ChatFrame", "ConnectionFrame", "LoginFrame", "TestFrame")
 
 
 class ChatFrame(tkb.Frame):
@@ -22,7 +18,9 @@ class ChatFrame(tkb.Frame):
 
         self.master.title("Chat App - Chat")
 
-        self.grid(row=0, rowspan=3, column=0, columnspan=3, padx=3, pady=3, sticky=tkb.NSEW)
+        self.grid(
+            row=0, rowspan=3, column=0, columnspan=3, padx=3, pady=3, sticky=tkb.NSEW
+        )
         self.menu_subframe = self.MenuSubframe(self, self.master)
         self.chat_subframe = self.ChatSubframe(self, self.master)
         self.entry_subframe = self.EntrySubframe(self, self.master)
@@ -48,7 +46,7 @@ class ChatFrame(tkb.Frame):
                 text=self.msg,
                 justify="left",
                 background="#32465a",
-                wraplength=self.master.winfo_width()*0.75
+                wraplength=self.master.winfo_width() * 0.75,
             )
 
         def set_msg(self, msg: str) -> None:
@@ -98,7 +96,9 @@ class ChatFrame(tkb.Frame):
 
             self.chat_box = ScrolledText(self, bootstyle="round")
             self.chat_box.text.configure(state="disable")
-            self.chat_box.grid(row=1, rowspan=1, column=0, columnspan=3, sticky=tkb.NSEW)
+            self.chat_box.grid(
+                row=1, rowspan=1, column=0, columnspan=3, sticky=tkb.NSEW
+            )
 
     class EntrySubframe(tkb.Frame):
         """Subframe for chat entry and sending."""
@@ -143,7 +143,16 @@ class ChatFrame(tkb.Frame):
 
     def on_leave(self, event: Event) -> None:
         """On leave button being pressed. Leave chat room."""
-        print("Leave")
+        # stop the connection
+        loop = self.master.loop
+        task = loop.create_task(self.master.connection.exit_room())
+
+        def callback(result: asyncio.Task) -> None:
+            success = result.result()
+            print(f"leaving room was success:{success}")
+
+        task.add_done_callback(callback)
+        # add code to stop receiving messages if requiered
 
     def on_char(self, event: Event) -> None:
         """Open char menu on button click."""
@@ -182,7 +191,9 @@ class ConnectFrame(tkb.Frame):
         self.master.title("Chat App - Connect")
 
         self.grid_anchor("center")
-        self.grid(row=0, rowspan=3, column=0, columnspan=2, padx=3, pady=3, sticky=tkb.NSEW)
+        self.grid(
+            row=0, rowspan=3, column=0, columnspan=2, padx=3, pady=3, sticky=tkb.NSEW
+        )
         self.join_subframe = self.JoinSubframe(self, self.master)
         self.create_subframe = self.CreateSubframe(self, self.master)
 
@@ -237,13 +248,53 @@ class ConnectFrame(tkb.Frame):
             self.room_btn.bind("<ButtonPress>", self.parent.on_create)
             self.room_btn.grid(row=2, column=1, pady=3)
 
+    # you have to enter name here not code
     def on_create(self, event: Event) -> None:
         """On Create Room button press."""
-        print(f"Room Code (Create): {self.create_subframe.create_box.get().strip()}")
+        new_name = self.create_box.get().strip()
+
+        loop = self.master.loop
+        task = loop.create_task(self.master.connection.create_room(new_name))
+
+        def callback(result: asyncio.Task) -> None:
+            room_info = result.result()
+            print(f"New room code is: {room_info[0]}")
+            print(f"New room id is: {room_info[1]}")
+
+        task.add_done_callback(callback)
 
     def on_join(self, event: Event) -> None:
         """On Join Room button press."""
-        print(f"Room Code (Join): {self.join_subframe.join_box.get().strip()}")
+        code = self.join_box.get().strip()
+
+        loop = self.master.loop
+        task = loop.create_task(self.master.connection.join_room(code))
+
+        def callback(result: asyncio.Task) -> None:
+            print(f"ID of the newly joined room is: {id}")
+
+        task.add_done_callback(callback)
+
+    def on_connect(self, event: Event) -> None:
+        """On Connect button being pressed."""
+        id = int(self.connect_box.get())
+        # connect to the room
+
+        loop = self.master.loop
+        task = loop.create_task(self.master.connection.connect_room(id))
+
+        def callback(result: asyncio.Task) -> None:
+            success = result.result()
+            print(f"connecting to room was a success: {success}")
+            if success:
+                # start receiving messages and open chatroom
+                receive_task = self.master.connection.receive_messages(
+                    self.master.receive_message
+                )
+                loop.create_task(receive_task)
+                self.master.switch_frame(ChatFrame)
+
+        task.add_done_callback(callback)
 
 
 class LoginFrame(tkb.Frame):
@@ -303,7 +354,9 @@ class LoginFrame(tkb.Frame):
             self.login_btn = tkb.Button(self)
             self.login_btn.configure(text="Login")
             self.login_btn.bind("<ButtonPress>", self.parent.on_login)
-            self.login_btn.grid(row=3, rowspan=1, column=0, columnspan=2, pady=15, sticky=tkb.NSEW)
+            self.login_btn.grid(
+                row=3, rowspan=1, column=0, columnspan=2, pady=15, sticky=tkb.NSEW
+            )
 
     class InfoSubframe(tkb.Frame):
         """Subframe for login/registration info."""
@@ -324,7 +377,9 @@ class LoginFrame(tkb.Frame):
             self.register_btn = tkb.Button(self)
             self.register_btn.configure(text="Register")
             self.register_btn.bind("<ButtonPress>", self.parent.switch_register)
-            self.register_btn.grid(row=4, rowspan=1, column=1, columnspan=1, pady=15, sticky=tkb.NSEW)
+            self.register_btn.grid(
+                row=4, rowspan=1, column=1, columnspan=1, pady=15, sticky=tkb.NSEW
+            )
 
     def on_login(self, event: Event) -> None:
         """On login button press."""
@@ -386,7 +441,9 @@ class RegisterFrame(tkb.Frame):
             self.register_btn = tkb.Button(self)
             self.register_btn.configure(text="Register")
             self.register_btn.bind("<ButtonPress>", self.parent.on_register)
-            self.register_btn.grid(row=3, rowspan=1, column=0, columnspan=2, pady=15, sticky=tkb.NSEW)
+            self.register_btn.grid(
+                row=3, rowspan=1, column=0, columnspan=2, pady=15, sticky=tkb.NSEW
+            )
 
     class InfoSubframe(tkb.Frame):
         """Subframe for login/registration info."""
@@ -407,13 +464,24 @@ class RegisterFrame(tkb.Frame):
             self.login_btn = tkb.Button(self)
             self.login_btn.configure(text="Login")
             self.login_btn.bind("<ButtonPress>", self.parent.switch_login)
-            self.login_btn.grid(row=4, rowspan=1, column=1, columnspan=1, pady=15, sticky=tkb.NSEW)
+            self.login_btn.grid(
+                row=4, rowspan=1, column=1, columnspan=1, pady=15, sticky=tkb.NSEW
+            )
 
     def on_register(self, event: Event) -> None:
         """On registration button press."""
         print("Register")
-        print(f"Username: {self.register_subframe.register_username_box.get().strip()}")
-        print(f"Password: {self.register_subframe.register_password_box.get().strip()}")
+        username = self.register_username_box.get().strip()
+        password = self.register_password_box.get().strip()
+
+        loop = self.master.loop
+        task = loop.create_task(self.master.connection.register(username, password))
+
+        def callback(result: asyncio.Task) -> None:
+            tag = result.result()
+            print(f"your tag is {tag}")
+
+        task.add_done_callback(callback)
 
     def switch_login(self, event: Event) -> None:
         """Switch to login frame."""
