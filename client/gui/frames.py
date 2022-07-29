@@ -1,6 +1,7 @@
 import asyncio
 import tkinter as tk
 from tkinter import Event
+from typing import Any, Dict
 
 import ttkbootstrap as tkb  # type: ignore
 from ttkbootstrap.scrolled import ScrolledText
@@ -39,11 +40,13 @@ class ChatFrame(tkb.Frame):
     class Message(tkb.Label):
         """Message class."""
 
-        def __init__(self, container, msg: str):
+        def __init__(self, container, msg: Dict[str, Any]):
             tkb.Label.__init__(self, container)
 
+            self.msg_data = msg
+
             self.container = container
-            self.msg = msg
+            self.msg = f"{self.msg_data['author']['name']}: {self.msg_data['content']}"
             self.setup()
 
         def setup(self) -> None:
@@ -54,9 +57,10 @@ class ChatFrame(tkb.Frame):
                 wraplength=self.master.winfo_width() * 0.75,
             )
 
-        def set_msg(self, msg: str) -> None:
+        def set_msg(self, msg: Dict[str, Any]) -> None:
             """Updates the message object."""
-            self.msg = msg
+            self.msg_data = msg
+            self.msg = f"{self.msg_data['author']['name']}: {self.msg_data['content']}"
             self.setup()
 
     class MenuSubframe(tkb.Frame):
@@ -167,7 +171,7 @@ class ChatFrame(tkb.Frame):
         """Set message at top of chat room."""
         self.menu_subframe.room_info.configure(text=message)
 
-    def display_message(self, message: str) -> None:
+    def display_message(self, message: Dict[str, Any]) -> None:
         """Displays message in chat."""
         self.chat_subframe.chat_box.text.configure(state="normal")
 
@@ -281,7 +285,7 @@ class ConnectFrame(tkb.Frame):
     # you have to enter name here not code
     def on_create(self, event: Event) -> None:
         """On Create Room button press."""
-        new_name = self.create_subframe.create_box.get().strip()
+        new_name = str(self.create_subframe.create_box.get().strip())
 
         loop = self.master.loop
         task = loop.create_task(self.master.connection.create_room(new_name))
@@ -295,7 +299,7 @@ class ConnectFrame(tkb.Frame):
 
     def on_join(self, event: Event) -> None:
         """On Join Room button press."""
-        code = self.join_subframe.join_box.get().strip()
+        code = str(self.join_subframe.join_box.get().strip())
 
         loop = self.master.loop
         task = loop.create_task(self.master.connection.join_room(code))

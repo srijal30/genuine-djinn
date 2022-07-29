@@ -19,11 +19,11 @@ class ChatApp(tkb.Window):
 
         # setup the event loop
         self.loop = loop
+        self.protocol("WM_DELETE_WINDOW", self.close_loop)
 
         # setup the client
         self.connection = SocketClient()
         loop.run_until_complete(self.connection.connect())
-        self.protocol("WM_DELETE_WINDOW", self.close_loop)
 
         # window config
         self.configure(height=200, width=200)
@@ -75,14 +75,13 @@ class ChatApp(tkb.Window):
 
     def receive_message(self, message_data: Dict[str, Any]) -> None:
         """Called by client when a message is received."""
-        message = f"{message_data['author']['name']}: {message_data['content']}"
-        self.buffer[ChatFrame.__name__].display_message(message)
+        self.buffer[ChatFrame.__name__].display_message(message_data)
 
-    def update_loop(self):
+    def update_loop(self) -> None:
         """Updates the GUI through the asyncio event loop."""
         self.update()
         self.loop.call_soon(self.update_loop)
 
-    def close_loop(self):
+    def close_loop(self) -> None:
         """Closes the asyncio event loop."""
         self.loop.stop()
