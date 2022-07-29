@@ -3,8 +3,8 @@ from typing import Any, Callable, Dict, List, Tuple
 
 import websockets
 
-DOMAIN = "ws://192.155.88.143:5005"
-# DOMAIN = "ws://localhost:5000"
+# DOMAIN = "ws://192.155.88.143:5005"
+DOMAIN = "ws://localhost:5000"
 ROUTE = "/ws"
 URL = DOMAIN + ROUTE
 
@@ -23,7 +23,7 @@ URL = DOMAIN + ROUTE
 
 # add what ip to connect to in the constructor?
 # add a __new__ method so that we can call connect on construction
-class SocketClient():
+class SocketClient:
     """API Wrapper that handles all client side communication with the server."""
 
     connected_to_room = False
@@ -31,7 +31,7 @@ class SocketClient():
     async def connect(self):
         """Connects to the server. Must be called in order for everything to work."""
         self.ws = await websockets.connect(URL)
-        print('connected!')
+        print("connected!")
 
     async def _receive(self) -> Dict[str, Any]:
         """Receives a message from the server. Converts raw data to python dict."""
@@ -39,16 +39,10 @@ class SocketClient():
         return json.loads(res)
 
     async def _send(
-        self,
-        type: str,
-        payload: Dict[str, Any],
-        reply: bool = True
+        self, type: str, payload: Dict[str, Any], reply: bool = True
     ) -> Dict[str, Any]:
         """Sends a message to the server. Expects no reply by default."""
-        req = json.dumps({
-            "type": type,
-            **payload
-        })
+        req = json.dumps({"type": type, **payload})
         await self.ws.send(req)
         if reply:
             return await self._receive()
@@ -61,14 +55,10 @@ class SocketClient():
 
         Returns True if it was succesful and False if not.
         """
-        payload = {
-            "username": username,
-            "tag": tag,
-            "password": password
-        }
+        payload = {"username": username, "tag": tag, "password": password}
         res = await self._send("login", payload)
         print(res)
-        return res['success']
+        return res["success"]
 
     async def logout(self) -> bool:
         """
@@ -77,7 +67,7 @@ class SocketClient():
         Returns if successful or not.
         """
         res = await self._send("logout", {})
-        return res['success']
+        return res["success"]
 
     async def register(self, username: str, password: str) -> int:
         """
@@ -85,10 +75,7 @@ class SocketClient():
 
         Returns the unique user tag of the new user.
         """
-        payload = {
-            "username": username,
-            "password": password
-        }
+        payload = {"username": username, "password": password}
         res = await self._send("register", payload)
         return res["tag"]
 
@@ -99,11 +86,9 @@ class SocketClient():
         Returns (roomcode, roomid) of the newly created room.
         Cannot fail. Authentication is required.
         """
-        payload = {
-            "name": name
-        }
+        payload = {"name": name}
         res = await self._send("createroom", payload)
-        return (res['code'], res['id'])
+        return (res["code"], res["id"])
 
     # MAKE SURE THAT THE TYPE 'CREATEROOM' is not a typo (it was a typo)
     # There might be an issue with the return in the case that not successful.
@@ -114,12 +99,10 @@ class SocketClient():
         Returns id of the joined room.
         Authentication required.
         """
-        payload = {
-            'code': code
-        }
+        payload = {"code": code}
         res = await self._send("joinroom", payload)
         print(res)
-        return res['id']
+        return res["id"]
 
     # maybe add state management here? (i added temp one for now)
     async def connect_room(self, id: int) -> bool:
@@ -129,12 +112,10 @@ class SocketClient():
         Returns whether connection was successful or not.
         Authentication required. Joining room required.
         """
-        payload = {
-            "id": id
-        }
+        payload = {"id": id}
         res = await self._send("roomconnect", payload)
-        self.connected_to_room = res['success']
-        return res['success']
+        self.connected_to_room = res["success"]
+        return res["success"]
 
     # check what msg is, is it a json or string???
     async def receive_messages(self, callback: Callable[[str], None]) -> None:
@@ -147,13 +128,13 @@ class SocketClient():
         async for res in self.ws:
             # makes sure that there is a way for loop to end
             if not self.connected_to_room:
-                print('stopped receicving')  # see if we even neee Task.cancel()
+                print("stopped receicving")  # see if we even neee Task.cancel()
                 break
             res = json.loads(res)
             # make sure that handler not stealing non message requests
-            if res['type'] != 'roomconnect':
-                raise(BaseException('Message Handler Received an Incorrect Message'))
-            msg = res['new']
+            if res["type"] != "roomconnect":
+                raise (BaseException("Message Handler Received an Incorrect Message"))
+            msg = res["new"]
             callback(msg)
 
     # will the server send back a message after receiving a message send request?
@@ -166,10 +147,7 @@ class SocketClient():
         Does not expect a reply from the server.
         Authentication required. Connected room required.
         """
-        payload = {
-            'content': message,
-            'action': 'send'
-        }
+        payload = {"content": message, "action": "send"}
         await self._send("roomconnect", payload, reply=False)
         return True  # rn no way to fail?
 
@@ -181,13 +159,11 @@ class SocketClient():
         Returns whether succesful or not.
         Authentication required. Connected room required.
         """
-        payload = {
-            'end': True
-        }
+        payload = {"end": True}
         res = await self._send("roomconnect", payload, reply=False)
-        if res['success']:
+        if res["success"]:
             self.connected_to_room = False
-        return res['success']  # rn no way to fail?
+        return res["success"]  # rn no way to fail?
 
     async def list_rooms(self) -> List[Dict[str, Any]]:
         """
@@ -197,4 +173,4 @@ class SocketClient():
         Authentication required. Operation cannot fail.
         """
         res = await self._send("listrooms", {})
-        return res['servers']
+        return res["servers"]

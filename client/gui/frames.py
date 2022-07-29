@@ -470,9 +470,8 @@ class RegisterFrame(tkb.Frame):
 
     def on_register(self, event: Event) -> None:
         """On registration button press."""
-        print("Register")
-        username = self.register_username_box.get().strip()
-        password = self.register_password_box.get().strip()
+        username = self.register_subframe.register_username_box.get().strip()
+        password = self.register_subframe.register_password_box.get().strip()
 
         loop = self.master.loop
         task = loop.create_task(self.master.connection.register(username, password))
