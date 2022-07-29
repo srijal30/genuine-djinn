@@ -28,7 +28,7 @@ class ChatApp(tkb.Window):
         self.current_frame = None
         self.buffer = {}
 
-        self.switch_frame(LoginFrame)  # starting frame
+        self.switch_frame(ChatFrame)  # starting frame
 
     def switch_frame(
         self,

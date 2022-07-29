@@ -32,6 +32,30 @@ class ChatFrame(tkb.Frame):
         self.columnconfigure(0, weight=1)
         self.rowconfigure(1, weight=1)
 
+    class Message(tkb.Label):
+        """Message class."""
+
+        def __init__(self, container, msg: str):
+            tkb.Label.__init__(self, container)
+
+            self.container = container
+            self.msg = msg
+            self.setup()
+
+        def setup(self) -> None:
+            """Configure the Label object."""
+            self.config(
+                text=self.msg,
+                justify="left",
+                background="#32465a",
+                wraplength=self.master.winfo_width()*0.75
+            )
+
+        def set_msg(self, msg: str) -> None:
+            """Updates the message object."""
+            self.msg = msg
+            self.setup()
+
     class MenuSubframe(tkb.Frame):
         """Subframe for chat menu."""
 
@@ -69,7 +93,7 @@ class ChatFrame(tkb.Frame):
             self.grid(row=1, rowspan=1, column=0, columnspan=3, sticky=tkb.NSEW)
 
             self.chat_box = ScrolledText(self.parent, bootstyle="round")
-            # self.chat_box.text.configure(state="disable")
+            self.chat_box.text.configure(state="disable")
             self.chat_box.grid(row=1, column=0, columnspan=3, sticky=tkb.NSEW)
 
     class EntrySubframe(tkb.Frame):
@@ -110,6 +134,7 @@ class ChatFrame(tkb.Frame):
 
     def on_menu(self, event: Event) -> None:
         """Open chat option menu when button pressed."""
+        self.last_msg.set_msg("Potato")
         print("chat menu")
 
     def on_leave(self, event: Event) -> None:
@@ -128,19 +153,10 @@ class ChatFrame(tkb.Frame):
         """Displays message in chat."""
         self.chat_subframe.chat_box.text.configure(state="normal")
 
-        self.label = tk.Label(
-            self.chat_subframe.chat_box,
-            text=message,
-            background='#d0ffff',
-            justify='left',
-            padx=10,
-            pady=5,
-            wraplength=self.master.winfo_width()*0.75
-        )
-        self.chat_subframe.chat_box.insert('end', '\n')
-        self.chat_subframe.chat_box.window_create('end', window=self.label)
+        self.msg = self.Message(self.chat_subframe.chat_box, message)
 
-        # self.chat_subframe.chat_box.text.insert("end", f"{message}\n")
+        self.chat_subframe.chat_box.insert("end", "\n")
+        self.chat_subframe.chat_box.window_create("end", window=self.msg, pady=2)
         self.chat_subframe.chat_box.text.configure(state="disable")
         self.chat_subframe.chat_box.text.yview_moveto(1)
 
@@ -393,7 +409,7 @@ class RegisterFrame(tkb.Frame):
 
 
 class TestFrame(tkb.Frame):
-    """Frame for testing and creating."""
+    """Frame for testing stuff."""
 
     def __init__(self, master):
         tkb.Frame.__init__(self, master)
@@ -401,4 +417,3 @@ class TestFrame(tkb.Frame):
         self.master = master
 
         self.master.title("Chat App - Test")
-        pass
