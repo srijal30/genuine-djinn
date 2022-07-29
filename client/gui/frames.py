@@ -66,17 +66,19 @@ class ChatFrame(tkb.Frame):
             self.master = master
 
             self.grid(row=0, rowspan=1, column=0, columnspan=3, sticky=tkb.NSEW)
+            self.columnconfigure(0, weight=1)
+            self.rowconfigure(1, weight=1)
 
-            self.room_info = tkb.Label(self.parent)
+            self.room_info = tkb.Label(self)
             self.room_info.configure(text="Room Info")
             self.room_info.grid(row=0, column=0, padx=2, sticky=tkb.NSEW)
 
-            self.menu_btn = tkb.Button(self.parent)
+            self.menu_btn = tkb.Button(self)
             self.menu_btn.configure(text="Menu")
             self.menu_btn.bind("<ButtonPress>", self.parent.on_menu)
             self.menu_btn.grid(row=0, column=1, padx=2, sticky=tkb.NSEW)
 
-            self.leave_btn = tkb.Button(self.parent)
+            self.leave_btn = tkb.Button(self)
             self.leave_btn.configure(text="Leave")
             self.leave_btn.bind("<ButtonPress>", self.parent.on_leave)
             self.leave_btn.grid(row=0, column=2, padx=2, sticky=tkb.NSEW)
@@ -91,10 +93,12 @@ class ChatFrame(tkb.Frame):
             self.master = master
 
             self.grid(row=1, rowspan=1, column=0, columnspan=3, sticky=tkb.NSEW)
+            self.columnconfigure(0, weight=1)
+            self.rowconfigure(1, weight=1)
 
-            self.chat_box = ScrolledText(self.parent, bootstyle="round")
+            self.chat_box = ScrolledText(self, bootstyle="round")
             self.chat_box.text.configure(state="disable")
-            self.chat_box.grid(row=1, column=0, columnspan=3, sticky=tkb.NSEW)
+            self.chat_box.grid(row=1, rowspan=1, column=0, columnspan=3, sticky=tkb.NSEW)
 
     class EntrySubframe(tkb.Frame):
         """Subframe for chat entry and sending."""
@@ -108,17 +112,17 @@ class ChatFrame(tkb.Frame):
             self.grid(row=2, rowspan=1, column=0, columnspan=3, sticky=tkb.NSEW)
             self.columnconfigure(0, weight=1)
 
-            self.message_box = tkb.Entry(self.parent, bootstyle="secondary")
+            self.message_box = tkb.Entry(self, bootstyle="secondary")
             self.message_box.configure(textvariable=tk.StringVar(value=""))
             self.message_box.grid(row=2, column=0, padx=2, sticky=tkb.NSEW)
             self.message_box.bind("<Return>", self.parent.on_send)
 
-            self.char_btn = tkb.Button(self.parent)
+            self.char_btn = tkb.Button(self)
             self.char_btn.configure(text="Emotes")
             self.char_btn.bind("<ButtonPress>", self.parent.on_char)
             self.char_btn.grid(row=2, column=1, padx=2, sticky=tkb.NSEW)
 
-            self.send_btn = tkb.Button(self.parent)
+            self.send_btn = tkb.Button(self)
             self.send_btn.configure(text="Send")
             self.send_btn.bind("<ButtonPress>", self.parent.on_send)
             self.send_btn.grid(row=2, column=2, padx=2, sticky=tkb.NSEW)
@@ -163,7 +167,7 @@ class ChatFrame(tkb.Frame):
     def clear_chat(self) -> None:
         """Clears contents of the ScrolledText chat."""
         self.chat_subframe.chat_box.text.configure(state="normal")
-        self.chat_subframe.chat_box.text.delete('1.0', "end")
+        self.chat_subframe.chat_box.text.delete("1.0", "end")
         self.chat_subframe.chat_box.text.configure(state="disable")
 
 
@@ -178,7 +182,7 @@ class ConnectFrame(tkb.Frame):
         self.master.title("Chat App - Connect")
 
         self.grid_anchor("center")
-        self.grid(column=0, columnspan=2, row=0, rowspan=3, padx=3, pady=3, sticky=tkb.NSEW)
+        self.grid(row=0, rowspan=3, column=0, columnspan=2, padx=3, pady=3, sticky=tkb.NSEW)
         self.join_subframe = self.JoinSubframe(self, self.master)
         self.create_subframe = self.CreateSubframe(self, self.master)
 
@@ -194,20 +198,20 @@ class ConnectFrame(tkb.Frame):
             self.parent = parent
             self.master = master
 
-            self.grid(column=0, columnspan=1, row=0, rowspan=3)
+            self.grid(row=0, rowspan=3, column=0, columnspan=1)
 
-            self.join_label = tkb.Label(self.parent)
+            self.join_label = tkb.Label(self)
             self.join_label.configure(text="Join Room")
-            self.join_label.grid(column=0, row=0)
+            self.join_label.grid(row=0, column=0)
 
-            self.join_box = tkb.Entry(self.parent)
-            self.join_box.grid(column=0, row=1, padx=20, pady=5)
+            self.join_box = tkb.Entry(self)
+            self.join_box.grid(row=1, column=0, padx=20, pady=5)
             self.join_box.bind("<Return>", self.parent.on_join)
 
-            self.join_btn = tkb.Button(self.parent)
+            self.join_btn = tkb.Button(self)
             self.join_btn.configure(text="Join")
             self.join_btn.bind("<ButtonPress>", self.parent.on_join)
-            self.join_btn.grid(column=0, row=2, pady=3)
+            self.join_btn.grid(row=2, column=0, pady=3)
 
     class CreateSubframe(tkb.Frame):
         """Subframe for creating a room."""
@@ -218,20 +222,20 @@ class ConnectFrame(tkb.Frame):
             self.parent = parent
             self.master = master
 
-            self.grid(column=1, columnspan=1, row=0, rowspan=3)
+            self.grid(row=0, rowspan=3, column=1, columnspan=1)
 
-            self.create_label = tkb.Label(self.parent)
+            self.create_label = tkb.Label(self)
             self.create_label.configure(text="Make Room")
-            self.create_label.grid(column=1, row=0)
+            self.create_label.grid(row=0, column=1)
 
-            self.create_box = tkb.Entry(self.parent)
-            self.create_box.grid(column=1, row=1, padx=20, pady=5)
+            self.create_box = tkb.Entry(self)
+            self.create_box.grid(row=1, column=1, padx=20, pady=5)
             self.create_box.bind("<Return>", self.parent.on_create)
 
-            self.room_btn = tkb.Button(self.parent)
+            self.room_btn = tkb.Button(self)
             self.room_btn.configure(text="Create")
             self.room_btn.bind("<ButtonPress>", self.parent.on_create)
-            self.room_btn.grid(column=1, row=2, pady=3)
+            self.room_btn.grid(row=2, column=1, pady=3)
 
     def on_create(self, event: Event) -> None:
         """On Create Room button press."""
@@ -253,7 +257,7 @@ class LoginFrame(tkb.Frame):
         self.master.title("Chat App - Login")
 
         self.grid_anchor("center")
-        self.grid(column=0, columnspan=2, row=0, rowspan=5, sticky=tkb.NSEW)
+        self.grid(row=0, rowspan=5, column=0, columnspan=2, sticky=tkb.NSEW)
         self.login_subframe = self.LoginSubframe(self, self.master)
         self.info_subframe = self.InfoSubframe(self, self.master)
 
@@ -270,36 +274,36 @@ class LoginFrame(tkb.Frame):
             self.master = master
 
             self.grid_anchor("center")
-            self.grid(column=0, columnspan=2, row=0, rowspan=4, sticky=tkb.NSEW)
+            self.grid(row=0, rowspan=4, column=0, columnspan=2, sticky=tkb.NSEW)
 
-            self.login_username_label = tkb.Label(self.parent)
+            self.login_username_label = tkb.Label(self)
             self.login_username_label.configure(text="Username")
             self.login_username_label.grid(column=0, row=0, sticky=tkb.E)
 
-            self.login_username_box = tkb.Entry(self.parent)
-            self.login_username_box.grid(column=1, ipadx=10, padx=5, pady=3, row=0)
+            self.login_username_box = tkb.Entry(self)
+            self.login_username_box.grid(row=0, column=1, padx=5, pady=3, ipadx=10)
             self.login_username_box.bind("<Return>", self.parent.on_login)
 
-            self.login_tag_label = tkb.Label(self.parent)
+            self.login_tag_label = tkb.Label(self)
             self.login_tag_label.configure(text="Tag")
-            self.login_tag_label.grid(column=0, row=1, sticky=tkb.E)
+            self.login_tag_label.grid(row=1, column=0, sticky=tkb.E)
 
-            self.login_tag_box = tkb.Entry(self.parent)
-            self.login_tag_box.grid(column=1, ipadx=10, padx=5, pady=3, row=1)
+            self.login_tag_box = tkb.Entry(self)
+            self.login_tag_box.grid(row=1, column=1, padx=5, pady=3, ipadx=10)
             self.login_tag_box.bind("<Return>", self.parent.on_login)
 
-            self.login_password_label = tkb.Label(self.parent)
+            self.login_password_label = tkb.Label(self)
             self.login_password_label.configure(text="Password")
-            self.login_password_label.grid(column=0, row=2, sticky=tkb.E)
+            self.login_password_label.grid(row=2, column=0, sticky=tkb.E)
 
-            self.login_password_box = tkb.Entry(self.parent, show="*")
-            self.login_password_box.grid(column=1, ipadx=10, padx=5, pady=3, row=2)
+            self.login_password_box = tkb.Entry(self, show="*")
+            self.login_password_box.grid(row=2, column=1, padx=5, pady=3, ipadx=10)
             self.login_password_box.bind("<Return>", self.parent.on_login)
 
-            self.login_btn = tkb.Button(self.parent)
+            self.login_btn = tkb.Button(self)
             self.login_btn.configure(text="Login")
             self.login_btn.bind("<ButtonPress>", self.parent.on_login)
-            self.login_btn.grid(column=0, columnspan=2, pady=15, row=3, sticky=tkb.NSEW)
+            self.login_btn.grid(row=3, rowspan=1, column=0, columnspan=2, pady=15, sticky=tkb.NSEW)
 
     class InfoSubframe(tkb.Frame):
         """Subframe for login/registration info."""
@@ -311,12 +315,16 @@ class LoginFrame(tkb.Frame):
             self.master = master
 
             self.grid_anchor("center")
-            self.grid(column=0, columnspan=2, row=4, rowspan=1, sticky=tkb.NSEW)
+            self.grid(row=4, rowspan=1, column=0, columnspan=2, sticky=tkb.NSEW)
 
-            self.info_label = tkb.Label(self.parent)
-            self.info_label.configure(text="Don't have an account? Register")
-            self.info_label.bind("<ButtonPress>", self.parent.switch_register)
-            self.info_label.grid(column=0, columnspan=2, row=4)
+            self.info_label = tkb.Label(self)
+            self.info_label.configure(text="Don't have an account?  ")
+            self.info_label.grid(row=4, rowspan=1, column=0, columnspan=1)
+
+            self.register_btn = tkb.Button(self)
+            self.register_btn.configure(text="Register")
+            self.register_btn.bind("<ButtonPress>", self.parent.switch_register)
+            self.register_btn.grid(row=4, rowspan=1, column=1, columnspan=1, pady=15, sticky=tkb.NSEW)
 
     def on_login(self, event: Event) -> None:
         """On login button press."""
@@ -341,7 +349,7 @@ class RegisterFrame(tkb.Frame):
         self.master.title("Chat App - Register")
 
         self.grid_anchor("center")
-        self.grid(column=0, columnspan=2, row=0, rowspan=5, sticky=tkb.NSEW)
+        self.grid(row=0, rowspan=5, column=0, columnspan=2, sticky=tkb.NSEW)
         self.register_subframe = self.RegisterSubframe(self, self.master)
         self.info_subframe = self.InfoSubframe(self, self.master)
 
@@ -357,28 +365,28 @@ class RegisterFrame(tkb.Frame):
             self.parent = parent
             self.master = master
 
-            self.grid(column=0, columnspan=2, row=0, rowspan=4, sticky=tkb.NSEW)
+            self.grid(row=0, rowspan=4, column=0, columnspan=2, sticky=tkb.NSEW)
 
-            self.register_username_label = tkb.Label(self.parent)
+            self.register_username_label = tkb.Label(self)
             self.register_username_label.configure(text="Username")
-            self.register_username_label.grid(column=0, padx=5, row=0, sticky=tkb.E)
+            self.register_username_label.grid(row=0, column=0, padx=5, sticky=tkb.E)
 
-            self.register_username_box = tkb.Entry(self.parent)
-            self.register_username_box.grid(column=1, ipadx=10, pady=3, row=0)
+            self.register_username_box = tkb.Entry(self)
+            self.register_username_box.grid(row=0, column=1, pady=3, ipadx=10)
             self.register_username_box.bind("<Return>", self.parent.on_register)
 
-            self.register_password_label = tkb.Label(self.parent)
+            self.register_password_label = tkb.Label(self)
             self.register_password_label.configure(text="Password")
-            self.register_password_label.grid(column=0, padx=5, row=1, sticky=tkb.E)
+            self.register_password_label.grid(row=1, column=0, padx=5, sticky=tkb.E)
 
-            self.register_password_box = tkb.Entry(self.parent, show="*")
-            self.register_password_box.grid(column=1, ipadx=10, pady=3, row=1)
+            self.register_password_box = tkb.Entry(self, show="*")
+            self.register_password_box.grid(row=1, column=1, pady=3, ipadx=10)
             self.register_password_box.bind("<Return>", self.parent.on_register)
 
-            self.register_btn = tkb.Button(self.parent)
+            self.register_btn = tkb.Button(self)
             self.register_btn.configure(text="Register")
             self.register_btn.bind("<ButtonPress>", self.parent.on_register)
-            self.register_btn.grid(column=0, columnspan=2, pady=15, row=3, sticky=tkb.NSEW)
+            self.register_btn.grid(row=3, rowspan=1, column=0, columnspan=2, pady=15, sticky=tkb.NSEW)
 
     class InfoSubframe(tkb.Frame):
         """Subframe for login/registration info."""
@@ -390,12 +398,16 @@ class RegisterFrame(tkb.Frame):
             self.master = master
 
             self.grid_anchor("center")
-            self.grid(column=0, columnspan=2, row=4, rowspan=1, sticky=tkb.NSEW)
+            self.grid(row=4, rowspan=1, column=0, columnspan=2, sticky=tkb.NSEW)
 
-            self.info_label = tkb.Label(self.parent)
-            self.info_label.configure(text="Already have an account? Login")
-            self.info_label.bind("<ButtonPress>", self.parent.switch_login)
-            self.info_label.grid(column=0, columnspan=2, row=4)
+            self.info_label = tkb.Label(self)
+            self.info_label.configure(text="Already have an account?  ")
+            self.info_label.grid(row=4, rowspan=1, column=0, columnspan=1)
+
+            self.login_btn = tkb.Button(self)
+            self.login_btn.configure(text="Login")
+            self.login_btn.bind("<ButtonPress>", self.parent.switch_login)
+            self.login_btn.grid(row=4, rowspan=1, column=1, columnspan=1, pady=15, sticky=tkb.NSEW)
 
     def on_register(self, event: Event) -> None:
         """On registration button press."""
