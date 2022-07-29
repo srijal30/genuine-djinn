@@ -271,3 +271,138 @@ Send the following to end the connection:
 ```
 
 **Note:** Sending `"end": true` will actually close any handshake, not just room connections.
+
+## Reference
+
+### Operations
+
+#### `register`
+
+Register a new account.
+
+_Request_
+
+| Key        | Type     | Description                      |
+| ---------- | -------- | -------------------------------- |
+| `username` | `string` | Username to create account with. |
+| `password` | `string` | Password to create account with. |
+
+_Response_
+
+| Key   | Type     | Description               |
+| ----- | -------- | ------------------------- |
+| `tag` | `number` | Tag assigned to the user. |
+
+#### `login`
+
+Log in to an account.
+
+_Request_
+
+| Key        | Type     | Description                                 |
+| ---------- | -------- | ------------------------------------------- |
+| `username` | `string` | Username to login with.                     |
+| `tag`      | `number` | Tag assigned to the user upon registration. |
+| `password` | `string` | Password to login with.                     |
+
+#### `logout`
+
+Log out of an account.
+
+_No data_
+
+#### `changename`
+
+Change the display name of the current account.
+
+_Request_
+
+| Key    | Type     | Description      |
+| ------ | -------- | ---------------- |
+| `name` | `string` | New name to set. |
+
+#### `createroom`
+
+Create a new room.
+
+_Request_
+
+| Key    | Type     | Description       |
+| ------ | -------- | ----------------- |
+| `name` | `string` | Name of the room. |
+
+_Response_
+
+| Key    | Type     | Description                   |
+| ------ | -------- | ----------------------------- |
+| `id`   | `number` | ID of the newly created room. |
+| `code` | `string` | Unique room code to join.     |
+
+#### `joinroom`
+
+Join a room.
+
+_Request_
+
+| Key    | Type     | Description             |
+| ------ | -------- | ----------------------- |
+| `code` | `string` | Room code to join with. |
+
+_Response_
+
+| Key  | Type     | Description            |
+| ---- | -------- | ---------------------- |
+| `id` | `number` | ID of the joined room. |
+
+#### `listrooms`
+
+List all rooms the current user has joined.
+
+_Response_
+
+| Key       | Type            | Description                 |
+| --------- | --------------- | --------------------------- |
+| `servers` | `Array<Server>` | Array of the users servers. |
+
+#### `leaveroom`
+
+Leave a room.
+
+_Request_
+
+| Key  | Type     | Description    |
+| ---- | -------- | -------------- |
+| `id` | `number` | Room to leave. |
+
+#### `roomconnect`
+
+Start a indefinite client-server exchange for handling room data.
+
+_Request_
+
+| Key  | Type     | Description         |
+| ---- | -------- | ------------------- |
+| `id` | `number` | Room to connect to. |
+
+_Response_
+
+**Continous handshake**
+
+### Types
+
+#### `User`
+
+| Key    | Type     | Description               |
+| ------ | -------- | ------------------------- |
+| `name` | `string` | Display name of the user. |
+| `tag`  | `number` | Tag of the user.          |
+| `id`   | `number` | ID of the user.           |
+
+#### `Server`
+
+| Key     | Type          | Description                      |
+| ------- | ------------- | -------------------------------- |
+| `id`    | `number`      | ID of the room.                  |
+| `name`  | `string`      | Name of the room.                |
+| `code`  | `string`      | Unique room code.                |
+| `users` | `Array<User>` | Users that have joined the room. |
