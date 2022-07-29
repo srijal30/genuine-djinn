@@ -21,6 +21,8 @@ class FileMenu(tkb.Menu):
     def __init__(self, parent, master):
         tkb.Menu.__init__(self, parent)
 
+        self.master = master
+
         self.add_command(label="Leave Room", command=self.on_leave)
         self.add_command(label="Log Out", command=self.on_logout)
         self.add_separator()
@@ -32,18 +34,18 @@ class FileMenu(tkb.Menu):
 
     def on_logout(self) -> None:
         """On Log Out item press."""
-        loop = self.master.master.loop
-        task = loop.create_task(self.master.master.connection.logout())
+        loop = self.master.loop
+        task = loop.create_task(self.master.connection.logout())
 
         def callback(result: asyncio.Task) -> None:
             print("logged out!")
-            self.master.master.switch_frame(LoginFrame)
+            self.master.switch_frame(LoginFrame)
 
         task.add_done_callback(callback)
 
     def on_quit(self) -> None:
         """On Quit item press."""
-        self.master.master.loop.stop()  # end the loop
+        self.master.loop.stop()  # end the loop
         sys.exit(0)
 
 
@@ -105,8 +107,11 @@ class HelpMenu(tkb.Menu):
         """Open About window."""
         about = tkb.Window()
         about.title("About")
-        about.minsize(400, 300)
-        about_text = tkb.Label(about, text="Something About Related")
+        about.minsize(400, 200)
+        about_text = tkb.Label(
+            about,
+            text="https://github.com/srijal30/genuine-djinn"
+        )
         about_text.pack()
         about.mainloop()
 

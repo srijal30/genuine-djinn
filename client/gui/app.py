@@ -23,6 +23,7 @@ class ChatApp(tkb.Window):
         # setup the client
         self.connection = SocketClient()
         loop.run_until_complete(self.connection.connect())
+        self.protocol("WM_DELETE_WINDOW", self.close_loop)
 
         # window config
         self.configure(height=200, width=200)
@@ -81,3 +82,7 @@ class ChatApp(tkb.Window):
         """Updates the GUI through the asyncio event loop."""
         self.update()
         self.loop.call_soon(self.update_loop)
+
+    def close_loop(self):
+        """Closes the asyncio event loop."""
+        self.loop.stop()
