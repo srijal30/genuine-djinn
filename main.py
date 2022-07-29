@@ -6,8 +6,15 @@ from dotenv import load_dotenv
 
 from server.app import app
 
-sys.path.append("./client/gui")  # maybe change this later?
-from client import start_app  # noqa: E402
+loaded_client: bool
+
+try:
+    loaded_client = True
+    sys.path.append("./client/gui")  # maybe change this later?
+    from client import start_app  # noqa: E402
+except ModuleNotFoundError:
+    loaded_client = False
+
 
 load_dotenv()
 
@@ -48,9 +55,15 @@ def main(
         print("action must be supplied (use --action or -a)")
         sys.exit(1)
 
-    uvicorn.run(
-        app, host=host, port=port
-    ) if action.lower() == "server" else start_app()
+    ac = action.lower()
+
+    if ac == "app":
+        if not loaded_client:
+            print("failed to load client!")
+            sys.exit(1)
+        start_app()
+
+    uvicorn.run(app, host=host, port=port)
 
 
 if __name__ == "__main__":
