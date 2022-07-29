@@ -157,6 +157,35 @@ async def join(ws: SocketHandshake) -> None:
     await ws.success(payload={"id": room.id})
 
 
+async def leave(ws: SocketHandshake) -> None:
+    """Leave a room."""
+    rid: int = await ws.expect_only(
+        {"id": int},
+        ensure_logged=True,
+    )
+
+    user = await ws.get_user()
+    uid: int = user.id
+
+    room = await db.room.update(
+        {"users": references(uid, array=True)},
+        where={"id": rid},
+    )
+
+    if not room:
+        await ws.error("Room does not exist.")
+
+    manager = await _get_manager(room.id)
+    await manager.send_message(f'"{user.name}" has left the room.', 0)
+
+    await db.user.update(
+        {"servers": {"delete": references(rid)}},
+        where={"id": uid},
+    )
+
+    await ws.success()
+
+
 async def list_rooms(ws: SocketHandshake) -> None:
     """List rooms of the current user."""
     user = await ws.get_user(
@@ -218,5 +247,6 @@ operations: Dict[str, Operation] = {
     "listrooms": Operation(list_rooms),
     "roomconnect": Operation(room_connect),
     "logout": Operation(logout),
+    "leaveroom": Operation(leave),
 }
 """Dictionary containing resolvers for type headers."""
