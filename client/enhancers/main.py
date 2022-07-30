@@ -13,6 +13,8 @@ if __name__ == "__main__":
         "In Greek mythology, Python was the serpent, sometimes represented as a medieval-style dragon, "
         "living at the center of the earth, believed by the ancient Greeks to be at Delphi."
     )
-    autocorrected_message = c.autocorrect(text)
+    autocorrected_entities_message = c.autocorrect_entities(text)
+    autocorrected_string_message = c.autocorrect_string(text)
     print("Sending message: ", text)
-    print("Autocorrected: ", autocorrected_message)
+    print("Autocorrected entities: ", autocorrected_entities_message)
+    print("Autocorrected string: ", autocorrected_string_message)
