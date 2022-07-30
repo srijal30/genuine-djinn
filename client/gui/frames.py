@@ -61,7 +61,10 @@ class ChatFrame(tkb.Frame):
             self.rowconfigure(1, weight=1)
 
             self.room_info = tkb.Label(self)
-            self.room_info.configure(text="Room Info")
+            self.cr = self.master.current_room
+            self.room_info.configure(
+                text=f"{self.cr['name']}  Join Code: {self.cr['code']}  ID: {self.cr['id']}"
+            )
             self.room_info.grid(
                 row=0,
                 column=0,
@@ -165,8 +168,8 @@ class ChatFrame(tkb.Frame):
 
             self.user_label.configure(state="normal")
 
-            for user in range(10):  # DEBUG
-                self.user_label.insert("end", "User\n")
+            for user in self.master.current_room["users"]:  # DEBUG
+                self.user_label.insert("end", f"{user['name']}#{user['tag']}\n")
 
             self.user_label.configure(state="disable")
 
