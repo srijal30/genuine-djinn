@@ -1,4 +1,6 @@
+import random
 from collections import defaultdict
+from pathlib import Path
 from typing import Dict
 
 import spacy
@@ -61,9 +63,36 @@ class AutoCorrecter:
         # Replace with entities labels for now.
         for ent in doc.ents:
             # print(ent.text, ent.start, ent.end, ent.label_, spacy.explain(ent.label_))
-            token_list[ent.start: ent.end] = [f"\u007b{ent.label_}\u007d"]
+            # token_list[ent.start: ent.end] = [f"\u007b{ent.label_}\u007d"]
+            random_entity = self._get_random_entity(ent.label_, ent.text)
+            token_list[ent.start: ent.end] = [random_entity]
 
         autocorrected_message = ""
         for i in range(len(token_list)):
             autocorrected_message += token_list[i] + doc[i].whitespace_
         return autocorrected_message
+
+    def _get_random_line(self, entity_label: str):
+        file_path = (
+            Path(__file__).parent / "word-lists" / f"{entity_label.lower()}s.txt"
+        )
+        all_lines = open(file_path).read().splitlines()
+        line = random.choice(all_lines)
+        return line
+
+    def _get_random_entity(self, entity_label: str, entity_text: str) -> str:
+        entity_list = [
+            "EVENT",
+            "FAC",
+            "GPE",
+            "LANGAUGE",
+            "LOC",
+            "NORP",
+            "ORG",
+            "PERSON",
+            "PRODUCT",
+            "WORK_OF_ART",
+        ]
+        if entity_label in entity_list:
+            return self._get_random_line(entity_label)
+        return entity_text
