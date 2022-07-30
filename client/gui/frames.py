@@ -249,6 +249,13 @@ class ConnectFrame(tkb.Frame):
         self.master.columnconfigure(0, weight=1)
         self.master.rowconfigure(0, weight=1)
 
+    def update_rooms(self) -> None:
+        """Update room subframe."""
+        print("update rooms")
+        self.master.get_room_list()
+        self.room_subframe.destroy()
+        self.room_subframe = self.RoomSubframe(self, self.master)
+
     class HeaderSubframe(tkb.Frame):
         """Subframe for header information (username, tag, etc.)."""
 
@@ -372,6 +379,8 @@ class ConnectFrame(tkb.Frame):
         def __init__(self, parent, master):
             tkb.Frame.__init__(self, parent)
 
+            print("room subframe created")
+
             self.parent = parent
             self.master = master
 
@@ -424,18 +433,11 @@ class ConnectFrame(tkb.Frame):
 
         # POPUP
         def callback(result: asyncio.Task) -> None:
-            try:
-                room_info = result.result()
-                self.master.get_room_list()
-                for room in self.master.room_list:
-                    if room["id"] == room_info[1]:
-                        self.add_room(room)
-                        break
+            room_info = result.result()
+            self.update_rooms()
 
-                print(f"New room code is: {room_info[0]}")
-                print(f"New room id is: {room_info[1]}")
-            except Exception as e:
-                print(e)
+            print(f"New room code is: {room_info[0]}")
+            print(f"New room id is: {room_info[1]}")
 
         task.add_done_callback(callback)
 
@@ -450,11 +452,7 @@ class ConnectFrame(tkb.Frame):
             id = result.result()
 
             # update the room list
-            self.master.get_room_list()
-            for room in self.master.room_list:
-                if room["id"] == id:
-                    self.add_room(room)
-                    break
+            self.update_rooms()
 
             self.master.current_frame = None
             self.master.switch_frame(ConnectFrame)
