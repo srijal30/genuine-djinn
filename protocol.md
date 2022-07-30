@@ -123,7 +123,7 @@ Join a room by sending the code under the `joinroom` type:
 }
 ```
 
-The server will respond with the rooms ID under the `id` key.
+The server will respond with the room under the `room` key.
 
 #### Difference between joining and connecting?
 
@@ -133,9 +133,9 @@ The server will respond with the rooms ID under the `id` key.
 
 ### Listing
 
-Listing is the simplest of the three. Just send `listrooms` as the type, and the server will respond with an array of `Server` objects under the `servers` key.
+Listing is the simplest of the three. Just send `listrooms` as the type, and the server will respond with an array of `Room` objects under the `servers` key.
 
-A server object looks like this:
+A room object looks like this:
 
 | Key     | Type          | Description                                                |
 | ------- | ------------- | ---------------------------------------------------------- |
@@ -311,16 +311,6 @@ Log out of an account.
 
 _No data_
 
-#### `changename`
-
-Change the display name of the current account.
-
-_Request_
-
-| Key    | Type     | Description      |
-| ------ | -------- | ---------------- |
-| `name` | `string` | New name to set. |
-
 #### `createroom`
 
 Create a new room.
@@ -350,9 +340,9 @@ _Request_
 
 _Response_
 
-| Key  | Type     | Description            |
-| ---- | -------- | ---------------------- |
-| `id` | `number` | ID of the joined room. |
+| Key    | Type   | Description                      |
+| ------ | ------ | -------------------------------- |
+| `room` | `Room` | Room object for the joined room. |
 
 #### `listrooms`
 
@@ -360,9 +350,9 @@ List all rooms the current user has joined.
 
 _Response_
 
-| Key       | Type            | Description                 |
-| --------- | --------------- | --------------------------- |
-| `servers` | `Array<Server>` | Array of the users servers. |
+| Key       | Type          | Description                 |
+| --------- | ------------- | --------------------------- |
+| `servers` | `Array<Room>` | Array of the users servers. |
 
 #### `leaveroom`
 
@@ -398,7 +388,7 @@ _Response_
 | `tag`  | `number` | Tag of the user.          |
 | `id`   | `number` | ID of the user.           |
 
-#### `Server`
+#### `Room`
 
 | Key     | Type          | Description                      |
 | ------- | ------------- | -------------------------------- |
