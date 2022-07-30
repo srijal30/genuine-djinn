@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, Dict, Union
+from typing import Any, Dict, List, Type, Union
 
 import ttkbootstrap as tkb  # type: ignore
 from connection import SocketClient
@@ -10,11 +10,19 @@ from menus import DebugMenu
 
 __all__ = ("ChatApp",)
 
+Frame = Union[
+    ChatFrame,
+    LoginFrame,
+    ConnectFrame,
+    RegisterFrame,
+    TestFrame,
+]
+
 
 class ChatApp(tkb.Window):
     """Main chat application window."""
 
-    def __init__(self, loop):
+    def __init__(self, loop: asyncio.AbstractEventLoop):
         tkb.Window.__init__(self)
 
         # setup the event loop
@@ -27,7 +35,7 @@ class ChatApp(tkb.Window):
         loop.run_until_complete(self.connection.connect())
 
         # room list
-        self.room_list = dict()
+        self.room_list: List[dict] = []
         self.current_room = None
 
         # user and tag
@@ -43,12 +51,12 @@ class ChatApp(tkb.Window):
 
         # frame switching and buffering
         self.current_frame = None
-        self.buffer = {}
+        self.buffer: Dict[str, Frame] = {}
         self.switch_frame(LoginFrame)  # starting frame
 
     def switch_frame(
         self,
-        frame: Union[ChatFrame, LoginFrame, ConnectFrame, RegisterFrame, TestFrame],
+        frame: Type[Frame],
         use_old: bool = False,
     ) -> None:
         """Switches to provided frame."""
@@ -84,7 +92,8 @@ class ChatApp(tkb.Window):
     def receive_message(self, message_data: Dict[str, Any]) -> None:
         """Called by client when a message is received."""
         # check if it is a system message
-        self.buffer[ChatFrame.__name__].display_message(message_data)
+        self.buffer[ChatFrame.__name__].display_message(message_data)  # type: ignore
+        # ???
 
     # calling this should return the list of rooms from the client
     async def get_room_list(self) -> None:

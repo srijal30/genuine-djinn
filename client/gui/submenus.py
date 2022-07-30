@@ -1,27 +1,28 @@
+from __future__ import annotations
+
 import asyncio
 import sys
-from tkinter import Menu
+from tkinter import Menu, Misc
+from typing import TYPE_CHECKING
 
 import ttkbootstrap as tkb  # type: ignore
 from frames import (
     ChatFrame, ConnectFrame, LoginFrame, RegisterFrame, TestFrame
 )
 
-__app__ = (
-    "FileMenu",
-    "ViewMenu",
-    "HelpMenu",
-    "TestMenu"
-)
+if TYPE_CHECKING:
+    from app import ChatApp
+
+__app__ = ("FileMenu", "ViewMenu", "HelpMenu", "TestMenu")
 
 
 class FileMenu(tkb.Menu):
     """File dropdown menu."""
 
-    def __init__(self, parent, master):
+    def __init__(self, parent: Misc, master: ChatApp):
         tkb.Menu.__init__(self, parent)
 
-        self.master = master
+        self.master: ChatApp = master
 
         self.add_command(label="Leave Room", command=self.on_leave)
         self.add_command(label="Log Out", command=self.on_logout)
@@ -40,7 +41,7 @@ class FileMenu(tkb.Menu):
 
         # rn displays an error, but we could automagically do it for the user
         if self.master.current_room:
-            print('make sure to leave room before logging out!')
+            print("make sure to leave room before logging out!")
             return
 
         loop = self.master.loop
@@ -62,10 +63,10 @@ class FileMenu(tkb.Menu):
 class ViewMenu(tkb.Menu):
     """View dropdown menu."""
 
-    def __init__(self, parent, master):
+    def __init__(self, parent: Misc, master: ChatApp) -> None:
         tkb.Menu.__init__(self, parent)
 
-        self.master = master
+        self.master: ChatApp = master
         self.parent = parent
 
         tkb.Style("superhero")  # default theme
@@ -101,7 +102,7 @@ class ViewMenu(tkb.Menu):
 class HelpMenu(tkb.Menu):
     """Help dropdown menu."""
 
-    def __init__(self, parent, master):
+    def __init__(self, parent: Misc, _):
         tkb.Menu.__init__(self, parent)
 
         self.add_command(label="About", command=self.on_about)
@@ -111,10 +112,7 @@ class HelpMenu(tkb.Menu):
         about = tkb.Window()
         about.title("Glitchat - About")
         about.minsize(400, 200)
-        about_text = tkb.Label(
-            about,
-            text="https://github.com/srijal30/genuine-djinn"
-        )
+        about_text = tkb.Label(about, text="https://github.com/srijal30/genuine-djinn")
         about_text.pack()
         about.mainloop()
 
@@ -122,10 +120,10 @@ class HelpMenu(tkb.Menu):
 class TestMenu(tkb.Menu):
     """Debug dropdown menu."""
 
-    def __init__(self, parent, master):
+    def __init__(self, parent: Misc, master: ChatApp):
         tkb.Menu.__init__(self, parent)
 
-        self.master = master
+        self.master: ChatApp = master
         self.parent = parent
 
         # Frames submenu
