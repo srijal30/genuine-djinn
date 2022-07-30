@@ -62,8 +62,8 @@ def main(
             print("failed to load client!")
             sys.exit(1)
         start_app()
-
-    uvicorn.run(app, host=host, port=port)
+    else:
+        uvicorn.run(app, host=host, port=port)
 
 
 if __name__ == "__main__":
