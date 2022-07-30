@@ -40,7 +40,12 @@ class SocketClient:
     async def _receive(self) -> Dict[str, Any]:
         """Receives a message from the server. Converts raw data to python dict."""
         res = await self.ws.recv()
-        return json.loads(res)
+        load = json.loads(res)
+
+        if not load["success"]:
+            raise Exception(f"server returned error: {load['message']}")
+
+        return load
 
     async def _send(
         self, type: str, payload: Dict[str, Any], reply: bool = True
@@ -104,7 +109,7 @@ class SocketClient:
         """
         payload = {"code": code}
         res = await self._send("joinroom", payload)
-        return res["id"]
+        return res["room"]["id"]
 
     # maybe add state management here? (i added temp one for now)
     async def connect_room(self, id: int) -> bool:
@@ -142,9 +147,9 @@ class SocketClient:
                 msg = res["new"]
                 callback(msg)  # make this the new_callback
             else:
-                msg = res['update']
+                msg = res["update"]
                 # update_callback(msg)
-        print('stopped receiving')  # DEBUG
+        print("stopped receiving")  # DEBUG
 
     # will the server send back a message after receiving a message send request?
     # are we expecting a reply from the server?
@@ -193,7 +198,7 @@ class SocketClient:
         """
         payload = {"name": new_name}
         res = await self._send("changename", payload)
-        return res['success']
+        return res["success"]
 
     async def leave_room(self, id: int) -> bool:
         """
@@ -202,6 +207,6 @@ class SocketClient:
         Returns whether successful or not.
         Authentication required. Must have already joined the room.
         """
-        payload = {'id': id}
-        res = await self._send('leaveroom', payload)
-        return res['success']
+        payload = {"id": id}
+        res = await self._send("leaveroom", payload)
+        return res["success"]

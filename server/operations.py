@@ -138,10 +138,8 @@ async def join(ws: SocketHandshake) -> None:
     user = await ws.get_user(include={"servers": True})
     uid: int = user.id
 
-    where: dict = {"code": code}
-
     room = await db.room.find_first(
-        where=where,
+        where={"code": code},
         include={
             "users": True,
         },
@@ -155,7 +153,7 @@ async def join(ws: SocketHandshake) -> None:
 
     await db.room.update(
         {"users": references(uid, array=True)},
-        where=where,
+        where={"code": code},
         include={
             "users": True,
         },
