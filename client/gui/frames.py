@@ -244,7 +244,8 @@ class ConnectFrame(tkb.Frame):
         self.header_subframe = self.HeaderSubframe(self, self.master)
         self.join_subframe = self.JoinSubframe(self, self.master)
         self.create_subframe = self.CreateSubframe(self, self.master)
-        self.room_subframe = self.RoomSubframe(self, self.master)
+        self.room_subframe = None
+        self.update_rooms()
 
         self.master.columnconfigure(0, weight=1)
         self.master.rowconfigure(0, weight=1)
@@ -257,7 +258,6 @@ class ConnectFrame(tkb.Frame):
         task = loop.create_task(self.master.get_room_list())
 
         def callback(result: asyncio.Task):
-            self.room_subframe.destroy()
             self.room_subframe = self.RoomSubframe(self, self.master)
 
         task.add_done_callback(callback)
