@@ -86,14 +86,10 @@ class ChatApp(tkb.Window):
         self.buffer[ChatFrame.__name__].display_message(message_data)
 
     # calling this should return the list of rooms from the client
-    def get_room_list(self) -> None:
+    async def get_room_list(self) -> None:
         """Updates room_list with latest data from the server."""
-        task = self.loop.create_task(self.connection.list_rooms())
-
-        def callback(result: asyncio.Task) -> None:
-            self.room_list = result.result()
-
-        task.add_done_callback(callback)
+        # task = self.loop.create_task(self.connection.list_rooms())
+        self.room_list = await self.connection.list_rooms()
 
     def update_loop(self) -> None:
         """Updates the GUI through the asyncio event loop."""

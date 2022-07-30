@@ -252,9 +252,15 @@ class ConnectFrame(tkb.Frame):
     def update_rooms(self) -> None:
         """Update room subframe."""
         print("update rooms")
-        self.master.get_room_list()
-        self.room_subframe.destroy()
-        self.room_subframe = self.RoomSubframe(self, self.master)
+
+        loop = self.master.loop
+        task = loop.create_task(self.master.get_room_list())
+
+        def callback(result: asyncio.Task):
+            self.room_subframe.destroy()
+            self.room_subframe = self.RoomSubframe(self, self.master)
+
+        task.add_done_callback(callback)
 
     class HeaderSubframe(tkb.Frame):
         """Subframe for header information (username, tag, etc.)."""
@@ -671,7 +677,6 @@ class LoginFrame(tkb.Frame):
             success = result.result()
             if success:
                 print("you are logged in!")
-                self.master.get_room_list()
                 self.master.switch_frame(ConnectFrame)
             else:
                 print("you are not logged in!")
