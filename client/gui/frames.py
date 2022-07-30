@@ -165,7 +165,7 @@ class ChatFrame(tkb.Frame):
 
             self.user_label.configure(state="normal")
 
-            for user in range(10):
+            for user in range(10):  # DEBUG
                 self.user_label.insert("end", "User\n")
 
             self.user_label.configure(state="disable")
@@ -186,16 +186,16 @@ class ChatFrame(tkb.Frame):
 
     def on_leave(self, event: Event) -> None:
         """On leave button being pressed. Leave chat room."""
-        # stop the connection
+        # disconnect from chatroom request
         loop = self.master.loop
         task = loop.create_task(self.master.connection.exit_room())
 
         def callback(result: asyncio.Task) -> None:
             success = result.result()
-            print(f"leaving room was success:{success}")
+            print(f"leaving room was success:{success}")  # DEBUG
 
         task.add_done_callback(callback)
-        # add code to stop receiving messages if requiered
+        # add code to stop receiving messages if required
 
     def on_char(self, event: Event) -> None:
         """Open char menu on button click."""
@@ -411,7 +411,6 @@ class ConnectFrame(tkb.Frame):
                     col = 0
                     row += 1
 
-    # you have to enter name here not code
     def on_create(self, event: Event) -> None:
         """On Create Room button press."""
         new_name = str(self.create_subframe.create_box.get().strip())
@@ -419,9 +418,10 @@ class ConnectFrame(tkb.Frame):
         loop = self.master.loop
         task = loop.create_task(self.master.connection.create_room(new_name))
 
+        # POPUP
         def callback(result: asyncio.Task) -> None:
             room_info = result.result()
-            self.master.receive_room_list()
+            self.master.receive_room_list()  # will this cause an issue?
             print(f"New room code is: {room_info[0]}")
             print(f"New room id is: {room_info[1]}")
 
@@ -435,6 +435,7 @@ class ConnectFrame(tkb.Frame):
         task = loop.create_task(self.master.connection.join_room(code))
 
         def callback(result: asyncio.Task) -> None:
+            id = result.result()
             print(f"ID of the newly joined room is: {id}")
 
         task.add_done_callback(callback)
@@ -637,12 +638,23 @@ class LoginFrame(tkb.Frame):
 
     def on_login(self, event: Event) -> None:
         """On login button press."""
-        self.master.user = self.login_subframe.login_username_box.get().strip()
-        self.master.tag = self.login_subframe.login_tag_box.get().strip()
-        print("Login")
-        print(f"Username: {self.login_subframe.login_username_box.get().strip()}")
-        print(f"Tag: {self.login_subframe.login_tag_box.get().strip()}")
-        print(f"Password: {self.login_subframe.login_password_box.get().strip()}")
+        self.master.user = username = self.login_subframe.login_username_box.get().strip()
+        self.master.tag = tag = int(self.login_subframe.login_tag_box.get().strip())
+        password = self.login_subframe.login_password_box.get().strip()
+
+        loop = self.master.loop
+        task = loop.create_task(self.master.connection.login(username, tag, password))
+
+        # POPUPS NEEDED
+        def callback(result: asyncio.Task) -> None:
+            success = result.result()
+            if success:
+                print("you are logged in!")
+                self.master.switch_frame(ConnectFrame)
+            else:
+                print("you are not logged in!")
+
+        task.add_done_callback(callback)
 
     def switch_register(self, event: Event) -> None:
         """Switch to register frame."""
@@ -804,15 +816,16 @@ class RegisterFrame(tkb.Frame):
 
     def on_register(self, event: Event) -> None:
         """On registration button press."""
-        username = self.register_subframe.register_username_box.get().strip()
+        self.master.user = username = self.register_subframe.register_username_box.get().strip()
         password = self.register_subframe.register_password_box.get().strip()
 
         loop = self.master.loop
         task = loop.create_task(self.master.connection.register(username, password))
 
         def callback(result: asyncio.Task) -> None:
-            tag = result.result()
+            self.master.tag = tag = result.result()
             print(f"your tag is {tag}")
+            self.master.switch_frame(ConnectFrame)
 
         task.add_done_callback(callback)
 

@@ -13,11 +13,15 @@ URL = DOMAIN + ROUTE
 # create room
 # logout
 # join room
-# connect to room
 # list rooms
 # exit a room
-# send messages ~ double check
-# receive messages ~ double check
+# change username
+# leave room
+
+# connect to room
+# send messages
+# receive message ~ test more
+# receive edited message
 # getting message history ~ not done
 
 
@@ -26,12 +30,12 @@ URL = DOMAIN + ROUTE
 class SocketClient:
     """API Wrapper that handles all client side communication with the server."""
 
-    connected_to_room = False
+    connected_to_room = False  # is this required?
 
     async def connect(self):
         """Connects to the server. Must be called in order for everything to work."""
         self.ws = await websockets.connect(URL)
-        print("connected!")
+        print("connected!")  # DEBUG
 
     async def _receive(self) -> Dict[str, Any]:
         """Receives a message from the server. Converts raw data to python dict."""
@@ -57,7 +61,6 @@ class SocketClient:
         """
         payload = {"username": username, "tag": tag, "password": password}
         res = await self._send("login", payload)
-        print(res)
         return res["success"]
 
     async def logout(self) -> bool:
@@ -101,13 +104,12 @@ class SocketClient:
         """
         payload = {"code": code}
         res = await self._send("joinroom", payload)
-        print(res)
         return res["id"]
 
     # maybe add state management here? (i added temp one for now)
     async def connect_room(self, id: int) -> bool:
         """
-        Connects to a chatroom.
+        Connects to a room.
 
         Returns whether connection was successful or not.
         Authentication required. Joining room required.
@@ -118,7 +120,7 @@ class SocketClient:
         return res["success"]
 
     # check what msg is, is it a json or string???
-    async def receive_messages(self, callback: Callable[[str], None]) -> None:
+    async def message_listener(self, callback: Callable[[str], None]) -> None:
         """
         Starts a message receiving listener.
 
@@ -134,8 +136,15 @@ class SocketClient:
             # make sure that handler not stealing non message requests
             if res["type"] != "roomconnect":
                 raise (BaseException("Message Handler Received an Incorrect Message"))
-            msg = res["new"]
-            callback(msg)
+
+            # edited message or new message
+            if "new" in res:
+                msg = res["new"]
+                callback(msg)  # make this the new_callback
+            else:
+                msg = res['update']
+                # update_callback(msg)
+        print('stopped receiving')  # DEBUG
 
     # will the server send back a message after receiving a message send request?
     # are we expecting a reply from the server?
@@ -174,3 +183,25 @@ class SocketClient:
         """
         res = await self._send("listrooms", {})
         return res["servers"]
+
+    async def change_name(self, new_name: str) -> bool:
+        """
+        Asks the server to change currently logged in users name.
+
+        Returns whether successful or not.
+        Authentication required.
+        """
+        payload = {"name": new_name}
+        res = await self._send("changename", payload)
+        return res['success']
+
+    async def leave_room(self, id: int) -> bool:
+        """
+        Unjoins the room with specified id.
+
+        Returns whether successful or not.
+        Authentication required. Must have already joined the room.
+        """
+        payload = {'id': id}
+        res = await self._send('leaveroom', payload)
+        return res['success']

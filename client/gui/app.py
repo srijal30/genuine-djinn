@@ -21,6 +21,7 @@ class ChatApp(tkb.Window):
         self.loop = loop
         self.protocol("WM_DELETE_WINDOW", self.close_loop)
 
+        # ADD CODE SO THAT BEFORE CONNECTING AN IP IS PROVIDED (maybe create new input box/ function for connectio)
         # setup the client
         self.connection = SocketClient()
         loop.run_until_complete(self.connection.connect())
@@ -71,10 +72,9 @@ class ChatApp(tkb.Window):
     def send_message(self, message: str) -> None:
         """Passes a message on to the client server."""
         # add error handling in the future
-        self.receive_message({"author": {"name": "me"}, "content": message})  # DEBUG
         task = self.loop.create_task(self.connection.send_message(message))
 
-        def callback(result: asyncio.Future) -> None:
+        def callback(result: asyncio.Task) -> None:
             success = result.result()
             print(success)
 
@@ -82,12 +82,18 @@ class ChatApp(tkb.Window):
 
     def receive_message(self, message_data: Dict[str, Any]) -> None:
         """Called by client when a message is received."""
+        # check if it is a system message
         self.buffer[ChatFrame.__name__].display_message(message_data)
 
-    def receive_room_list(self, room_list) -> None:
-        """Grabs roomlist from client socket."""
-        # calling this should return the list of rooms from the client
-        self.room_list = room_list
+    # calling this should return the list of rooms from the client
+    def receive_room_list(self) -> None:
+        """Updates room_list with latest data from the server."""
+        task = self.loop.create_task(self.connection.list_rooms())
+
+        def callback(result: asyncio.Task) -> None:
+            self.room_list = result.result()
+
+        task.add_done_callback(callback)
 
     def update_loop(self) -> None:
         """Updates the GUI through the asyncio event loop."""

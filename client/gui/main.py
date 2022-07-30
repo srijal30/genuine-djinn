@@ -12,6 +12,7 @@ def start_app() -> None:
     # create application
     application = ChatApp(loop)
 
+    # run application forever
     application.update_loop()
     loop.run_forever()
 

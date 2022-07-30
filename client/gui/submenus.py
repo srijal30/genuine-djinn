@@ -30,6 +30,7 @@ class FileMenu(tkb.Menu):
 
     def on_leave(self) -> None:
         """On Leave Room item press."""
+        # ADD FUNC
         pass
 
     def on_logout(self) -> None:
@@ -37,6 +38,7 @@ class FileMenu(tkb.Menu):
         loop = self.master.loop
         task = loop.create_task(self.master.connection.logout())
 
+        # POPUP
         def callback(result: asyncio.Task) -> None:
             print("logged out!")
             self.master.switch_frame(LoginFrame)
