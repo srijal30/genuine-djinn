@@ -449,6 +449,7 @@ class ConnectFrame(tkb.Frame):
         def callback(result: asyncio.Task) -> None:
             id = result.result()
 
+            # update the room list
             self.master.get_room_list()
             for room in self.master.room_list:
                 if room["id"] == id:
@@ -463,6 +464,7 @@ class ConnectFrame(tkb.Frame):
 
     def on_connect(self, id: int) -> None:
         """On Connect button being pressed."""
+        print(type(id))
         # connect to the room
         loop = self.master.loop
         task = loop.create_task(self.master.connection.connect_room(id))
@@ -472,7 +474,7 @@ class ConnectFrame(tkb.Frame):
             print(f"connecting to room was a success: {success}")
             if success:
                 # start receiving messages and open chatroom
-                receive_task = self.master.connection.receive_messages(
+                receive_task = self.master.connection.message_listener(
                     self.master.receive_message
                 )
                 loop.create_task(receive_task)
