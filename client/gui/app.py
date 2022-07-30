@@ -86,7 +86,7 @@ class ChatApp(tkb.Window):
         self.buffer[ChatFrame.__name__].display_message(message_data)
 
     # calling this should return the list of rooms from the client
-    def receive_room_list(self) -> None:
+    def get_room_list(self) -> None:
         """Updates room_list with latest data from the server."""
         task = self.loop.create_task(self.connection.list_rooms())
 

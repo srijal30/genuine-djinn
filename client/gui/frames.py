@@ -391,25 +391,29 @@ class ConnectFrame(tkb.Frame):
             )
 
             # local variables for generating room grid
-            row = 5
-            col = 0
+            self.row = 5
+            self.col = 0
 
             for rm in self.master.room_list:
-                self.room_box = tkb.Label(self, font=("Sans Serif", 10))
-                self.room_box.configure(text=rm.room[0], justify="center")
-                self.room_box.grid(
-                    row=row, rowspan=1,
-                    column=col, columnspan=1,
-                    padx=5, pady=20,
-                    sticky=tkb.W
-                )
-                self.room_box.bind("<Button-1>", lambda e: self.on_connect(1))
+                self.add_room(rm)
 
-                col += 1
+        def add_room(self, room: Dict[str, Any]) -> None:
+            """Add a room to the room grid."""
+            self.room_box = tkb.Label(self, font=("Sans Serif", 10))
+            self.room_box.configure(text=f"{room['name']}#{room['id']}", justify="center")
+            self.room_box.grid(
+                row=self.row, rowspan=1,
+                column=self.col, columnspan=1,
+                padx=5, pady=20,
+                sticky=tkb.W
+            )
+            self.room_box.bind("<Button-1>", lambda e: self.parent.on_connect(room["id"]))
 
-                if col == 3:
-                    col = 0
-                    row += 1
+            self.col += 1
+
+            if self.col == 5:
+                self.col = 0
+                self.row += 1
 
     def on_create(self, event: Event) -> None:
         """On Create Room button press."""
@@ -420,10 +424,18 @@ class ConnectFrame(tkb.Frame):
 
         # POPUP
         def callback(result: asyncio.Task) -> None:
-            room_info = result.result()
-            self.master.receive_room_list()  # will this cause an issue?
-            print(f"New room code is: {room_info[0]}")
-            print(f"New room id is: {room_info[1]}")
+            try:
+                room_info = result.result()
+                self.master.get_room_list()
+                for room in self.master.room_list:
+                    if room["id"] == room_info[1]:
+                        self.add_room(room)
+                        break
+
+                print(f"New room code is: {room_info[0]}")
+                print(f"New room id is: {room_info[1]}")
+            except Exception as e:
+                print(e)
 
         task.add_done_callback(callback)
 
@@ -436,11 +448,20 @@ class ConnectFrame(tkb.Frame):
 
         def callback(result: asyncio.Task) -> None:
             id = result.result()
+
+            self.master.get_room_list()
+            for room in self.master.room_list:
+                if room["id"] == id:
+                    self.add_room(room)
+                    break
+
+            self.master.current_frame = None
+            self.master.switch_frame(ConnectFrame)
             print(f"ID of the newly joined room is: {id}")
 
         task.add_done_callback(callback)
 
-    def on_connect(self, event: Event, id: int) -> None:
+    def on_connect(self, id: int) -> None:
         """On Connect button being pressed."""
         # connect to the room
         loop = self.master.loop
@@ -650,6 +671,7 @@ class LoginFrame(tkb.Frame):
             success = result.result()
             if success:
                 print("you are logged in!")
+                self.master.get_room_list()
                 self.master.switch_frame(ConnectFrame)
             else:
                 print("you are not logged in!")
