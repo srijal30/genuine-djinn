@@ -466,10 +466,14 @@ class ConnectFrame(tkb.Frame):
 
     def on_connect(self, id: int) -> None:
         """On Connect button being pressed."""
-        print(type(id))
         # connect to the room
         loop = self.master.loop
         task = loop.create_task(self.master.connection.connect_room(id))
+
+        for rm in self.master.room_list:
+            if rm["id"] == id:
+                self.master.current_room = rm
+            break
 
         def callback(result: asyncio.Task) -> None:
             success = result.result()

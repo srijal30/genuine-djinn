@@ -28,6 +28,7 @@ class ChatApp(tkb.Window):
 
         # room list
         self.room_list = dict()
+        self.current_room = None
 
         # user and tag
         self.user = None
