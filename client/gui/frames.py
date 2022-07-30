@@ -4,7 +4,7 @@ from tkinter import Event
 from typing import Any, Dict
 
 import ttkbootstrap as tkb  # type: ignore
-from components import Message, Room
+from components import Message
 from ttkbootstrap.scrolled import ScrolledText
 
 __app__ = (
@@ -382,7 +382,7 @@ class ConnectFrame(tkb.Frame):
             row = 5
             col = 0
 
-            for rm in self.master.room_list.values():
+            for rm in self.master.room_list:
                 self.room_box = tkb.Label(self, font=("Sans Serif", 10))
                 self.room_box.configure(text=rm.room[0], justify="center")
                 self.room_box.grid(
@@ -408,7 +408,7 @@ class ConnectFrame(tkb.Frame):
 
         def callback(result: asyncio.Task) -> None:
             room_info = result.result()
-            self.master.room_list[room_info[0]] = Room(room_info)
+            self.master.receive_room_list()
             print(f"New room code is: {room_info[0]}")
             print(f"New room id is: {room_info[1]}")
 
@@ -522,31 +522,55 @@ class LoginFrame(tkb.Frame):
                 sticky=tkb.NSEW
             )
 
+            self.login_username_label = tkb.Label(self, font=("Sans Serif", 14))
+            self.login_username_label.configure(text="Username", justify="right")
+            self.login_username_label.grid(
+                row=2, rowspan=1,
+                column=0, columnspan=1,
+                pady=20,
+                sticky=tkb.E
+            )
+
             self.login_username_box = tkb.Entry(self, font=("Sans Serif", 14))
-            self.login_username_box.insert("end", "username...")
             self.login_username_box.grid(
                 row=2, rowspan=1,
-                column=0, columnspan=2,
+                column=1, columnspan=1,
                 padx=5, pady=3,
                 ipadx=10, ipady=5
             )
             self.login_username_box.bind("<Return>", self.parent.on_login)
 
+            self.login_tag_label = tkb.Label(self, font=("Sans Serif", 14))
+            self.login_tag_label.configure(text="Tag", justify="right")
+            self.login_tag_label.grid(
+                row=3, rowspan=1,
+                column=0, columnspan=1,
+                pady=20,
+                sticky=tkb.E
+            )
+
             self.login_tag_box = tkb.Entry(self, font=("Sans Serif", 14))
-            self.login_tag_box.insert("end", "tag...")
             self.login_tag_box.grid(
                 row=3, rowspan=1,
-                column=0, columnspan=2,
+                column=1, columnspan=1,
                 padx=5, pady=3,
                 ipadx=10, ipady=5
             )
             self.login_tag_box.bind("<Return>", self.parent.on_login)
 
-            self.login_password_box = tkb.Entry(self, font=("Sans Serif", 14))  # show="*"
-            self.login_password_box.insert("end", "password...")
+            self.login_password_label = tkb.Label(self, font=("Sans Serif", 14))
+            self.login_password_label.configure(text="Password", justify="right")
+            self.login_password_label.grid(
+                row=4, rowspan=1,
+                column=0, columnspan=1,
+                pady=20,
+                sticky=tkb.E
+            )
+
+            self.login_password_box = tkb.Entry(self, font=("Sans Serif", 14), show="*")
             self.login_password_box.grid(
                 row=4, rowspan=1,
-                column=0, columnspan=2,
+                column=1, columnspan=1,
                 padx=5, pady=3,
                 ipadx=10, ipady=5
             )
@@ -681,21 +705,37 @@ class RegisterFrame(tkb.Frame):
             self.grid_anchor("center")
             self.grid(row=2, rowspan=2, column=0, columnspan=2, sticky=tkb.NSEW)
 
+            self.register_username_label = tkb.Label(self, font=("Sans Serif", 14))
+            self.register_username_label.configure(text="Username", justify="right")
+            self.register_username_label.grid(
+                row=2, rowspan=1,
+                column=0, columnspan=1,
+                pady=20,
+                sticky=tkb.E
+            )
+
             self.register_username_box = tkb.Entry(self, font=("Sans Serif", 14))
-            self.register_username_box.insert("end", "username...")
             self.register_username_box.grid(
                 row=2, rowspan=1,
-                column=0, columnspan=2,
+                column=1, columnspan=1,
                 padx=5, pady=3,
                 ipadx=10, ipady=5
             )
             self.register_username_box.bind("<Return>", self.parent.on_register)
 
-            self.register_password_box = tkb.Entry(self, font=("Sans Serif", 14))  # show="*"
-            self.register_password_box.insert("end", "password...")
+            self.register_password_label = tkb.Label(self, font=("Sans Serif", 14))
+            self.register_password_label.configure(text="Password", justify="right")
+            self.register_password_label.grid(
+                row=3, rowspan=1,
+                column=0, columnspan=1,
+                pady=20,
+                sticky=tkb.E
+            )
+
+            self.register_password_box = tkb.Entry(self, font=("Sans Serif", 14), show="*")
             self.register_password_box.grid(
                 row=3, rowspan=1,
-                column=0, columnspan=2,
+                column=1, columnspan=1,
                 padx=5, pady=3,
                 ipadx=10, ipady=5
             )

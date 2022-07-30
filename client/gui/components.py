@@ -34,11 +34,3 @@ class Message(tkb.Label):
         self.msg_data = msg
         self.msg = f"{self.msg_data['author']['name']}: {self.msg_data['content']}"
         self.setup()
-
-
-class Room:
-    """Room class."""
-
-    def __init__(self, room_class):
-        # self.chat_class = chat_class
-        self.room = room_class
