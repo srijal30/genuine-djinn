@@ -460,8 +460,6 @@ class ConnectFrame(tkb.Frame):
             # update the room list
             self.update_rooms()
 
-            self.master.current_frame = None
-            self.master.switch_frame(ConnectFrame)
             print(f"ID of the newly joined room is: {id}")
 
         task.add_done_callback(callback)
