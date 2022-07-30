@@ -66,10 +66,11 @@ class ChatFrame(tkb.Frame):
             self.columnconfigure(0, weight=1)
             self.rowconfigure(1, weight=1)
 
-            self.room_info = tkb.Label(self)  # what type is this
             self.cr: Dict[str, Any] = self.master.current_room
+
+            self.room_info = tkb.Label(self, font=("Sans Serif Bold", 12))
             self.room_info.configure(
-                text=f"{self.cr['name']}  Join Code: {self.cr['code']}  ID: {self.cr['id']}"
+                text=f"{self.cr['name']}   |   Invite Code: {self.cr['code']}   |   ID: {self.cr['id']}"
             )
             self.room_info.grid(
                 row=0,
@@ -119,7 +120,7 @@ class ChatFrame(tkb.Frame):
             )
             self.columnconfigure(0, weight=1)
 
-            self.message_box = tkb.Entry(self, bootstyle="secondary")
+            self.message_box = tkb.Entry(self, bootstyle="secondary", font=("Sans Serif", 12))
             self.message_box.configure(textvariable=tk.StringVar(value=""))
             self.message_box.grid(
                 row=2,
@@ -129,8 +130,10 @@ class ChatFrame(tkb.Frame):
             )
             self.message_box.bind("<Return>", self.parent.on_send)
 
+            self.login_btn_style = tkb.Style()
+            self.login_btn_style.configure("send.TButton", font=("Sans Serif Bold", 16))
             self.send_btn = tkb.Button(self)
-            self.send_btn.configure(text="Send")
+            self.send_btn.configure(text=">", style="send.TButton")
             self.send_btn.grid(
                 row=2,
                 column=1,
@@ -149,17 +152,17 @@ class ChatFrame(tkb.Frame):
             self.master: ChatApp = master
 
             self.grid(
-                row=0, rowspan=3,
+                row=0, rowspan=4,
                 column=2, columnspan=1,
                 sticky=tkb.NSEW
             )
             self.columnconfigure(0, weight=1)
 
-            self.room_info = tkb.Label(self)
+            self.room_info = tkb.Label(self, font=("Sans Serif Bold", 14))
             self.room_info.configure(text="Users:")
             self.room_info.grid(
                 row=0,
-                column=3,
+                column=2,
                 padx=2,
                 sticky=tkb.NS
             )
@@ -167,14 +170,14 @@ class ChatFrame(tkb.Frame):
             self.user_label = tkb.Text(self, width=25)
             self.user_label.grid(
                 row=1, rowspan=2,
-                column=3, columnspan=1,
+                column=2, columnspan=1,
                 padx=2,
                 sticky=tkb.NSEW
             )
 
             self.user_label.configure(state="normal")
 
-            for user in self.master.current_room["users"]:  # DEBUG
+            for user in self.master.current_room["users"]:
                 self.user_label.insert("end", f"{user['name']}#{user['tag']}\n")
 
             self.user_label.configure(state="disable")
@@ -188,11 +191,6 @@ class ChatFrame(tkb.Frame):
             self.master.send_message(msg)
             self.entry_subframe.message_box.delete(0, "end")
 
-    def on_menu(self, event: Event) -> None:
-        """Open chat option menu when button pressed."""
-        self.last_msg.set_msg("Potato")
-        print("chat menu")
-
     def on_leave(self, event: Event) -> None:
         """On leave button being pressed. Leave chat room."""
         # disconnect from chatroom request
@@ -205,14 +203,6 @@ class ChatFrame(tkb.Frame):
 
         task.add_done_callback(callback)
         # add code to stop receiving messages if required
-
-    def on_char(self, event: Event) -> None:
-        """Open char menu on button click."""
-        print("emote/character menu")
-
-    def set_info(self, message: str) -> None:
-        """Set message at top of chat room."""
-        self.menu_subframe.room_info.configure(text=message)
 
     def display_message(self, message: Dict[str, Any]) -> None:
         """Displays message in chat."""
@@ -261,8 +251,6 @@ class ConnectFrame(tkb.Frame):
 
     def update_rooms(self) -> None:
         """Update room subframe."""
-        print("update rooms")
-
         loop = self.master.loop
         task = loop.create_task(self.master.get_room_list())
 
@@ -285,7 +273,7 @@ class ConnectFrame(tkb.Frame):
                 column=0, columnspan=2
             )
 
-            self.login_as_label = tkb.Label(self, font=("Sans Serif Bold", 20))
+            self.login_as_label = tkb.Label(self, font=("Sans Serif Bold", 16))
             self.login_as_label.configure(text="Logged in as: ")
             self.login_as_label.grid(
                 row=0, rowspan=2,
@@ -294,19 +282,10 @@ class ConnectFrame(tkb.Frame):
                 sticky=tkb.NSEW
             )
 
-            self.username_label = tkb.Label(self, font=("Sans Serif", 12))
-            self.username_label.configure(text=f"Username: {self.master.user}")
+            self.username_label = tkb.Label(self, font=("Sans Serif", 13))
+            self.username_label.configure(text=f"{self.master.user}#{self.master.tag}")
             self.username_label.grid(
-                row=0, rowspan=1,
-                column=1, columnspan=1,
-                padx=5, pady=3,
-                sticky=tkb.NSEW
-            )
-
-            self.tag_label = tkb.Label(self, font=("Sans Serif", 12))
-            self.tag_label.configure(text=f"Tag: {self.master.tag}")
-            self.tag_label.grid(
-                row=1, rowspan=1,
+                row=0, rowspan=2,
                 column=1, columnspan=1,
                 padx=5, pady=3,
                 sticky=tkb.NSEW
@@ -394,8 +373,6 @@ class ConnectFrame(tkb.Frame):
         def __init__(self, parent, master):
             tkb.Frame.__init__(self, parent)
 
-            print("room subframe created")
-
             self.parent: ConnectFrame = parent
             self.master: ChatApp = master
 
@@ -406,7 +383,10 @@ class ConnectFrame(tkb.Frame):
             )
 
             self.room_label = tkb.Label(self, font=("Sans Serif Bold", 14))
-            self.room_label.configure(text="Your Rooms:")
+            self.room_label.configure(
+                text="Your Rooms:",
+                justify="center"
+            )
             self.room_label.grid(
                 row=4, rowspan=1,
                 column=0, columnspan=3,
@@ -424,18 +404,22 @@ class ConnectFrame(tkb.Frame):
         def add_room(self, room: Dict[str, Any]) -> None:
             """Add a room to the room grid."""
             self.room_box = tkb.Label(self, font=("Sans Serif", 10))
-            self.room_box.configure(text=f"{room['name']}#{room['id']}", justify="center")
+            self.room_box.configure(
+                text=f"  {room['name']}#{room['id']}",
+                justify="center"
+            )
             self.room_box.grid(
                 row=self.row, rowspan=1,
                 column=self.col, columnspan=1,
-                padx=5, pady=20,
-                sticky=tkb.W
+                padx=10, pady=10,
+                ipadx=1, ipady=5,
+                sticky=tkb.NSEW
             )
             self.room_box.bind("<Button-1>", lambda e: self.parent.on_connect(room["id"]))
 
             self.col += 1
 
-            if self.col == 5:
+            if self.col == 3:
                 self.col = 0
                 self.row += 1
 

@@ -20,7 +20,6 @@ class Message(tkb.Label):
         self.msg_data = msg
         self.container = container
         self.master = master
-
         self.msg = f"{self.msg_data['author']['name']}: {self.msg_data['content']}"
         self.setup()
 
@@ -30,6 +29,7 @@ class Message(tkb.Label):
             text=self.msg,
             justify="left",
             wraplength=self.master.winfo_width() * 0.75,
+            font=("Sans Serif", 11)
         )
 
     def set_msg(self, msg: Dict[str, Any]) -> None:
