@@ -135,12 +135,13 @@ async def join(ws: SocketHandshake) -> None:
         ensure_logged=True,
     )
 
-    user = await ws.get_user()
+    user = await ws.get_user(include={"servers": True})
     uid: int = user.id
 
-    room = await db.room.update(
-        {"users": references(uid, array=True)},
-        where={"code": code},
+    where: dict = {"code": code}
+
+    room = await db.room.find_first(
+        where=where,
         include={
             "users": True,
         },
@@ -148,6 +149,17 @@ async def join(ws: SocketHandshake) -> None:
 
     if not room:
         await ws.error("Invalid room code.")
+
+    if room.id in [r.id for r in (user.servers or [])]:
+        await ws.error("You have already joined this room.")
+
+    await db.room.update(
+        {"users": references(uid, array=True)},
+        where=where,
+        include={
+            "users": True,
+        },
+    )
 
     manager = await _get_manager(room.id)
     await manager.send_message(f'"{user.name}" has joined the room.', 0)
