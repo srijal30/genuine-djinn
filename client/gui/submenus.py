@@ -64,13 +64,6 @@ class ViewMenu(tkb.Menu):
         self.add_command(label="Clear Chat", command=self.on_clear)
         self.add_separator()
 
-        # Text Size submenu
-        size_menu = Menu(self, tearoff=False)
-        size_menu.add_radiobutton(label="Small")
-        size_menu.add_radiobutton(label="Medium")
-        size_menu.add_radiobutton(label="Large")
-        self.add_cascade(label="Text Size", menu=size_menu)
-
         # Theme submenu
         theme_menu = Menu(self, tearoff=False)
         theme_menu.add_radiobutton(label="Light", command=self.on_light_mode)

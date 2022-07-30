@@ -36,6 +36,7 @@ class ChatFrame(tkb.Frame):
         self.menu_subframe = self.MenuSubframe(self, self.master)
         self.chat_subframe = self.ChatSubframe(self, self.master)
         self.entry_subframe = self.EntrySubframe(self, self.master)
+        self.sidebar_subframe = self.SidebarSubframe(self, self.master)
 
         self.master.columnconfigure(0, weight=1)
         self.master.rowconfigure(0, weight=1)
@@ -53,7 +54,7 @@ class ChatFrame(tkb.Frame):
 
             self.grid(
                 row=0, rowspan=1,
-                column=0, columnspan=3,
+                column=0, columnspan=1,
                 sticky=tkb.NSEW
             )
             self.columnconfigure(0, weight=1)
@@ -68,26 +69,6 @@ class ChatFrame(tkb.Frame):
                 sticky=tkb.NSEW
             )
 
-            self.menu_btn = tkb.Button(self)
-            self.menu_btn.configure(text="Menu")
-            self.menu_btn.grid(
-                row=0,
-                column=1,
-                padx=2,
-                sticky=tkb.NSEW
-            )
-            self.menu_btn.bind("<ButtonPress>", self.parent.on_menu)
-
-            self.leave_btn = tkb.Button(self)
-            self.leave_btn.configure(text="Leave")
-            self.leave_btn.grid(
-                row=0,
-                column=2,
-                padx=2,
-                sticky=tkb.NSEW
-            )
-            self.leave_btn.bind("<ButtonPress>", self.parent.on_leave)
-
     class ChatSubframe(tkb.Frame):
         """Subframe for scrolling chat."""
 
@@ -99,7 +80,7 @@ class ChatFrame(tkb.Frame):
 
             self.grid(
                 row=1, rowspan=1,
-                column=0, columnspan=3,
+                column=0, columnspan=2,
                 sticky=tkb.NSEW
             )
             self.columnconfigure(0, weight=1)
@@ -109,7 +90,7 @@ class ChatFrame(tkb.Frame):
             self.chat_box.text.configure(state="disable")
             self.chat_box.grid(
                 row=1, rowspan=1,
-                column=0, columnspan=3,
+                column=0, columnspan=2,
                 sticky=tkb.NSEW
             )
 
@@ -124,7 +105,7 @@ class ChatFrame(tkb.Frame):
 
             self.grid(
                 row=2, rowspan=1,
-                column=0, columnspan=3,
+                column=0, columnspan=2,
                 sticky=tkb.NSEW
             )
             self.columnconfigure(0, weight=1)
@@ -139,25 +120,55 @@ class ChatFrame(tkb.Frame):
             )
             self.message_box.bind("<Return>", self.parent.on_send)
 
-            self.char_btn = tkb.Button(self)
-            self.char_btn.configure(text="Emotes")
-            self.char_btn.grid(
+            self.send_btn = tkb.Button(self)
+            self.send_btn.configure(text="Send")
+            self.send_btn.grid(
                 row=2,
                 column=1,
                 padx=2,
                 sticky=tkb.NSEW
             )
-            self.char_btn.bind("<ButtonPress>", self.parent.on_char)
+            self.send_btn.bind("<ButtonPress>", self.parent.on_send)
 
-            self.send_btn = tkb.Button(self)
-            self.send_btn.configure(text="Send")
-            self.send_btn.grid(
-                row=2,
-                column=2,
+    class SidebarSubframe(tkb.Frame):
+        """Subframe for sidebar containing chat room information."""
+
+        def __init__(self, parent, master):
+            tkb.Frame.__init__(self, parent)
+
+            self.parent = parent
+            self.master = master
+
+            self.grid(
+                row=0, rowspan=3,
+                column=2, columnspan=1,
+                sticky=tkb.NSEW
+            )
+            self.columnconfigure(0, weight=1)
+
+            self.room_info = tkb.Label(self)
+            self.room_info.configure(text="Users:")
+            self.room_info.grid(
+                row=0,
+                column=3,
+                padx=2,
+                sticky=tkb.NS
+            )
+
+            self.user_label = tkb.Text(self, width=25)
+            self.user_label.grid(
+                row=1, rowspan=2,
+                column=3, columnspan=1,
                 padx=2,
                 sticky=tkb.NSEW
             )
-            self.send_btn.bind("<ButtonPress>", self.parent.on_send)
+
+            self.user_label.configure(state="normal")
+
+            for user in range(10):
+                self.user_label.insert("end", "User\n")
+
+            self.user_label.configure(state="disable")
 
     def on_send(self, event: Event) -> None:
         """On send button or enter press. Send message."""
@@ -262,7 +273,7 @@ class ConnectFrame(tkb.Frame):
             )
 
             self.username_label = tkb.Label(self, font=("Sans Serif", 12))
-            self.username_label.configure(text="Username")
+            self.username_label.configure(text=f"Username: {self.master.user}")
             self.username_label.grid(
                 row=0, rowspan=1,
                 column=1, columnspan=1,
@@ -271,7 +282,7 @@ class ConnectFrame(tkb.Frame):
             )
 
             self.tag_label = tkb.Label(self, font=("Sans Serif", 12))
-            self.tag_label.configure(text="Tag")
+            self.tag_label.configure(text=f"Tag: {self.master.tag}")
             self.tag_label.grid(
                 row=1, rowspan=1,
                 column=1, columnspan=1,
@@ -379,6 +390,7 @@ class ConnectFrame(tkb.Frame):
                 sticky=tkb.NSEW
             )
 
+            # local variables for generating room grid
             row = 5
             col = 0
 
@@ -389,8 +401,9 @@ class ConnectFrame(tkb.Frame):
                     row=row, rowspan=1,
                     column=col, columnspan=1,
                     padx=5, pady=20,
-                    sticky=tkb.NSEW
+                    sticky=tkb.W
                 )
+                self.room_box.bind("<Button-1>", lambda e: self.on_connect(1))
 
                 col += 1
 
@@ -426,11 +439,9 @@ class ConnectFrame(tkb.Frame):
 
         task.add_done_callback(callback)
 
-    def on_connect(self, event: Event) -> None:
+    def on_connect(self, event: Event, id: int) -> None:
         """On Connect button being pressed."""
-        id = int(self.connect_subframe.connect_box.get())
         # connect to the room
-
         loop = self.master.loop
         task = loop.create_task(self.master.connection.connect_room(id))
 
@@ -626,6 +637,8 @@ class LoginFrame(tkb.Frame):
 
     def on_login(self, event: Event) -> None:
         """On login button press."""
+        self.master.user = self.login_subframe.login_username_box.get().strip()
+        self.master.tag = self.login_subframe.login_tag_box.get().strip()
         print("Login")
         print(f"Username: {self.login_subframe.login_username_box.get().strip()}")
         print(f"Tag: {self.login_subframe.login_tag_box.get().strip()}")

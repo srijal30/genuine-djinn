@@ -4,7 +4,6 @@ import ttkbootstrap as tkb  # type: ignore
 
 __app__ = (
     "Message",
-    "Room"
 )
 
 

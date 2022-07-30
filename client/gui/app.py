@@ -28,10 +28,14 @@ class ChatApp(tkb.Window):
         # room list
         self.room_list = dict()
 
+        # user and tag
+        self.user = None
+        self.tag = None
+
         # window config
         self.configure(height=200, width=200)
         self.geometry("800x600")
-        self.minsize(400, 300)
+        self.minsize(800, 600)
         self.resizable(True, True)
         self.config(menu=DebugMenu(self))  # assign menu for window (MainMenu/DebugMenu)
 
