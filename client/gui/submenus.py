@@ -106,7 +106,7 @@ class HelpMenu(tkb.Menu):
     def on_about(self) -> None:
         """Open About window."""
         about = tkb.Window()
-        about.title("About")
+        about.title("Glitchat - About")
         about.minsize(400, 200)
         about_text = tkb.Label(
             about,

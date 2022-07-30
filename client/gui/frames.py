@@ -4,6 +4,7 @@ from tkinter import Event
 from typing import Any, Dict
 
 import ttkbootstrap as tkb  # type: ignore
+from components import Message, Room
 from ttkbootstrap.scrolled import ScrolledText
 
 __app__ = (
@@ -23,7 +24,7 @@ class ChatFrame(tkb.Frame):
 
         self.master = master
 
-        self.master.title("Chat App - Chat")
+        self.master.title("Glitchat - Chat")
 
         self.grid(
             row=0, rowspan=3,
@@ -40,32 +41,6 @@ class ChatFrame(tkb.Frame):
         self.master.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
         self.rowconfigure(1, weight=1)
-
-    class Message(tkb.Label):
-        """Message class."""
-
-        def __init__(self, container, msg: Dict[str, Any]):
-            tkb.Label.__init__(self, container)
-
-            self.msg_data = msg
-
-            self.container = container
-            self.msg = f"{self.msg_data['author']['name']}: {self.msg_data['content']}"
-            self.setup()
-
-        def setup(self) -> None:
-            """Configure the Label object."""
-            self.config(
-                text=self.msg,
-                justify="left",
-                wraplength=self.master.winfo_width() * 0.75,
-            )
-
-        def set_msg(self, msg: Dict[str, Any]) -> None:
-            """Updates the message object."""
-            self.msg_data = msg
-            self.msg = f"{self.msg_data['author']['name']}: {self.msg_data['content']}"
-            self.setup()
 
     class MenuSubframe(tkb.Frame):
         """Subframe for chat menu."""
@@ -223,7 +198,7 @@ class ChatFrame(tkb.Frame):
         """Displays message in chat."""
         self.chat_subframe.chat_box.text.configure(state="normal")
 
-        self.msg = self.Message(self.chat_subframe.chat_box, message)
+        self.msg = Message(self.chat_subframe.chat_box, self.master, message)
 
         self.chat_subframe.chat_box.insert("end", "\n")
         self.chat_subframe.chat_box.window_create("end", window=self.msg, pady=2)
@@ -245,22 +220,64 @@ class ConnectFrame(tkb.Frame):
 
         self.master = master
 
-        self.master.title("Chat App - Connect")
+        self.master.title("Glitchat - Connect")
 
         self.grid_anchor("center")
         self.grid(
-            row=0, rowspan=3,
-            column=0, columnspan=3,
+            row=0, rowspan=1,
+            column=0, columnspan=2,
             padx=3, pady=3,
             sticky=tkb.NSEW
         )
 
+        self.header_subframe = self.HeaderSubframe(self, self.master)
         self.join_subframe = self.JoinSubframe(self, self.master)
         self.create_subframe = self.CreateSubframe(self, self.master)
-        self.connect_subframe = self.ConnectSubframe(self, self.master)
+        self.room_subframe = self.RoomSubframe(self, self.master)
 
         self.master.columnconfigure(0, weight=1)
         self.master.rowconfigure(0, weight=1)
+
+    class HeaderSubframe(tkb.Frame):
+        """Subframe for header information (username, tag, etc.)."""
+
+        def __init__(self, parent, master):
+            tkb.Frame.__init__(self, parent)
+
+            self.parent = parent
+            self.master = master
+
+            self.grid(
+                row=0, rowspan=2,
+                column=0, columnspan=2
+            )
+
+            self.login_as_label = tkb.Label(self, font=("Sans Serif Bold", 20))
+            self.login_as_label.configure(text="Logged in as: ")
+            self.login_as_label.grid(
+                row=0, rowspan=2,
+                column=0, columnspan=1,
+                padx=10, pady=20,
+                sticky=tkb.NSEW
+            )
+
+            self.username_label = tkb.Label(self, font=("Sans Serif", 12))
+            self.username_label.configure(text="Username")
+            self.username_label.grid(
+                row=0, rowspan=1,
+                column=1, columnspan=1,
+                padx=5, pady=3,
+                sticky=tkb.NSEW
+            )
+
+            self.tag_label = tkb.Label(self, font=("Sans Serif", 12))
+            self.tag_label.configure(text="Tag")
+            self.tag_label.grid(
+                row=1, rowspan=1,
+                column=1, columnspan=1,
+                padx=5, pady=3,
+                sticky=tkb.NSEW
+            )
 
     class JoinSubframe(tkb.Frame):
         """Subframe for joining a room."""
@@ -272,22 +289,22 @@ class ConnectFrame(tkb.Frame):
             self.master = master
 
             self.grid(
-                row=0, rowspan=3,
-                column=0, columnspan=1
+                row=2, rowspan=1,
+                column=0, columnspan=3
             )
 
             self.join_label = tkb.Label(self)
             self.join_label.configure(text="Join Room")
             self.join_label.grid(
-                row=0,
+                row=2,
                 column=0
             )
 
             self.join_box = tkb.Entry(self)
             self.join_box.grid(
-                row=1,
-                column=0,
-                padx=20, pady=5
+                row=2,
+                column=1,
+                padx=20, pady=10
             )
             self.join_box.bind("<Return>", self.parent.on_join)
 
@@ -295,7 +312,7 @@ class ConnectFrame(tkb.Frame):
             self.join_btn.configure(text="Join")
             self.join_btn.grid(
                 row=2,
-                column=0,
+                column=2,
                 pady=3
             )
             self.join_btn.bind("<ButtonPress>", self.parent.on_join)
@@ -310,36 +327,36 @@ class ConnectFrame(tkb.Frame):
             self.master = master
 
             self.grid(
-                row=0, rowspan=3,
-                column=1, columnspan=1
+                row=3, rowspan=1,
+                column=0, columnspan=3
             )
 
             self.create_label = tkb.Label(self)
             self.create_label.configure(text="Make Room")
             self.create_label.grid(
-                row=0,
-                column=1
+                row=3,
+                column=0
             )
 
             self.create_box = tkb.Entry(self)
             self.create_box.grid(
-                row=1,
+                row=3,
                 column=1,
-                padx=20, pady=5
+                padx=20, pady=10
             )
             self.create_box.bind("<Return>", self.parent.on_create)
 
             self.room_btn = tkb.Button(self)
             self.room_btn.configure(text="Create")
             self.room_btn.grid(
-                row=2,
-                column=1,
+                row=3,
+                column=2,
                 pady=3
             )
             self.room_btn.bind("<ButtonPress>", self.parent.on_create)
 
-    class ConnectSubframe(tkb.Frame):
-        """Subframe for connecting to a room."""
+    class RoomSubframe(tkb.Frame):
+        """Subframe for managing rooms."""
 
         def __init__(self, parent, master):
             tkb.Frame.__init__(self, parent)
@@ -347,34 +364,39 @@ class ConnectFrame(tkb.Frame):
             self.parent = parent
             self.master = master
 
+            self.grid_anchor("center")
             self.grid(
-                row=0, rowspan=3,
-                column=2, columnspan=1
+                row=4, rowspan=10,
+                column=0, columnspan=3
             )
 
-            self.connect_label = tkb.Label(self)
-            self.connect_label.configure(text="Connect to Room")
-            self.connect_label.grid(
-                row=0,
-                column=2
+            self.room_label = tkb.Label(self, font=("Sans Serif Bold", 14))
+            self.room_label.configure(text="Your Rooms:")
+            self.room_label.grid(
+                row=4, rowspan=1,
+                column=0, columnspan=3,
+                padx=5, pady=20,
+                sticky=tkb.NSEW
             )
 
-            self.connect_box = tkb.Entry(self)
-            self.connect_box.grid(
-                row=1,
-                column=2,
-                padx=20, pady=5
-            )
-            self.connect_box.bind("<Return>", self.parent.on_connect)
+            row = 5
+            col = 0
 
-            self.connect_btn = tkb.Button(self)
-            self.connect_btn.configure(text="Connect")
-            self.connect_btn.grid(
-                row=2,
-                column=2,
-                pady=3
-            )
-            self.connect_btn.bind("<ButtonPress>", self.parent.on_connect)
+            for rm in self.master.room_list.values():
+                self.room_box = tkb.Label(self, font=("Sans Serif", 10))
+                self.room_box.configure(text=rm.room[0], justify="center")
+                self.room_box.grid(
+                    row=row, rowspan=1,
+                    column=col, columnspan=1,
+                    padx=5, pady=20,
+                    sticky=tkb.NSEW
+                )
+
+                col += 1
+
+                if col == 3:
+                    col = 0
+                    row += 1
 
     # you have to enter name here not code
     def on_create(self, event: Event) -> None:
@@ -386,6 +408,7 @@ class ConnectFrame(tkb.Frame):
 
         def callback(result: asyncio.Task) -> None:
             room_info = result.result()
+            self.master.room_list[room_info[0]] = Room(room_info)
             print(f"New room code is: {room_info[0]}")
             print(f"New room id is: {room_info[1]}")
 
@@ -433,7 +456,7 @@ class LoginFrame(tkb.Frame):
 
         self.master = master
 
-        self.master.title("Chat App - Login")
+        self.master.title("Glitchat - Login")
 
         self.grid_anchor("center")
         self.grid(
@@ -597,7 +620,7 @@ class RegisterFrame(tkb.Frame):
 
         self.master = master
 
-        self.master.title("Chat App - Register")
+        self.master.title("Glitchat - Register")
 
         self.grid_anchor("center")
         self.grid(
@@ -753,4 +776,4 @@ class TestFrame(tkb.Frame):
 
         self.master = master
 
-        self.master.title("Chat App - Test")
+        self.master.title("Glitchat - Test")

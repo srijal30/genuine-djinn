@@ -25,6 +25,9 @@ class ChatApp(tkb.Window):
         self.connection = SocketClient()
         loop.run_until_complete(self.connection.connect())
 
+        # room list
+        self.room_list = dict()
+
         # window config
         self.configure(height=200, width=200)
         self.geometry("800x600")
@@ -76,6 +79,11 @@ class ChatApp(tkb.Window):
     def receive_message(self, message_data: Dict[str, Any]) -> None:
         """Called by client when a message is received."""
         self.buffer[ChatFrame.__name__].display_message(message_data)
+
+    def receive_room_list(self, room_list) -> None:
+        """Grabs roomlist from client socket."""
+        # calling this should return the list of rooms from the client
+        self.room_list = room_list
 
     def update_loop(self) -> None:
         """Updates the GUI through the asyncio event loop."""
