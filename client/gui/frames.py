@@ -1,11 +1,17 @@
+from __future__ import annotations
+
 import asyncio
 import tkinter as tk
 from tkinter import Event
-from typing import Any, Dict
+from typing import TYPE_CHECKING, Any, Dict
 
 import ttkbootstrap as tkb  # type: ignore
 from components import Message
 from ttkbootstrap.scrolled import ScrolledText
+
+if TYPE_CHECKING:
+    from app import ChatApp
+
 
 __app__ = (
     "ChatFrame",
@@ -22,7 +28,7 @@ class ChatFrame(tkb.Frame):
     def __init__(self, master):
         tkb.Frame.__init__(self, master)
 
-        self.master = master
+        self.master: ChatApp = master
 
         self.master.title("Glitchat - Chat")
 
@@ -49,8 +55,8 @@ class ChatFrame(tkb.Frame):
         def __init__(self, parent, master):
             tkb.Frame.__init__(self, parent)
 
-            self.parent = parent
-            self.master = master
+            self.parent: ChatFrame = parent
+            self.master: ChatApp = master
 
             self.grid(
                 row=0, rowspan=1,
@@ -60,8 +66,8 @@ class ChatFrame(tkb.Frame):
             self.columnconfigure(0, weight=1)
             self.rowconfigure(1, weight=1)
 
-            self.room_info = tkb.Label(self)
-            self.cr = self.master.current_room
+            self.room_info = tkb.Label(self)  # what type is this
+            self.cr: Dict[str, Any] = self.master.current_room
             self.room_info.configure(
                 text=f"{self.cr['name']}  Join Code: {self.cr['code']}  ID: {self.cr['id']}"
             )
@@ -78,8 +84,8 @@ class ChatFrame(tkb.Frame):
         def __init__(self, parent, master):
             tkb.Frame.__init__(self, parent)
 
-            self.parent = parent
-            self.master = master
+            self.parent: ChatFrame = parent
+            self.master: ChatApp = master
 
             self.grid(
                 row=1, rowspan=1,
@@ -103,8 +109,8 @@ class ChatFrame(tkb.Frame):
         def __init__(self, parent, master):
             tkb.Frame.__init__(self, parent)
 
-            self.parent = parent
-            self.master = master
+            self.parent: ChatFrame = parent
+            self.master: ChatApp = master
 
             self.grid(
                 row=2, rowspan=1,
@@ -139,8 +145,8 @@ class ChatFrame(tkb.Frame):
         def __init__(self, parent, master):
             tkb.Frame.__init__(self, parent)
 
-            self.parent = parent
-            self.master = master
+            self.parent: ChatFrame = parent
+            self.master: ChatApp = master
 
             self.grid(
                 row=0, rowspan=3,
@@ -271,8 +277,8 @@ class ConnectFrame(tkb.Frame):
         def __init__(self, parent, master):
             tkb.Frame.__init__(self, parent)
 
-            self.parent = parent
-            self.master = master
+            self.parent: ConnectFrame = parent
+            self.master: ChatApp = master
 
             self.grid(
                 row=0, rowspan=2,
@@ -312,8 +318,8 @@ class ConnectFrame(tkb.Frame):
         def __init__(self, parent, master):
             tkb.Frame.__init__(self, parent)
 
-            self.parent = parent
-            self.master = master
+            self.parent: ConnectFrame = parent
+            self.master: ChatApp = master
 
             self.grid(
                 row=2, rowspan=1,
@@ -350,8 +356,8 @@ class ConnectFrame(tkb.Frame):
         def __init__(self, parent, master):
             tkb.Frame.__init__(self, parent)
 
-            self.parent = parent
-            self.master = master
+            self.parent: ConnectFrame = parent
+            self.master: ChatApp = master
 
             self.grid(
                 row=3, rowspan=1,
@@ -390,8 +396,8 @@ class ConnectFrame(tkb.Frame):
 
             print("room subframe created")
 
-            self.parent = parent
-            self.master = master
+            self.parent: ConnectFrame = parent
+            self.master: ChatApp = master
 
             self.grid_anchor("center")
             self.grid(
@@ -498,7 +504,7 @@ class LoginFrame(tkb.Frame):
     def __init__(self, master):
         tkb.Frame.__init__(self, master)
 
-        self.master = master
+        self.master: ChatApp = master
 
         self.master.title("Glitchat - Login")
 
@@ -522,8 +528,8 @@ class LoginFrame(tkb.Frame):
         def __init__(self, parent, master):
             tkb.Frame.__init__(self, parent)
 
-            self.parent = parent
-            self.master = master
+            self.parent: LoginFrame = parent
+            self.master: ChatApp = master
 
             self.grid_anchor("center")
             self.grid(
@@ -556,8 +562,8 @@ class LoginFrame(tkb.Frame):
         def __init__(self, parent, master):
             tkb.Frame.__init__(self, parent)
 
-            self.parent = parent
-            self.master = master
+            self.parent: LoginFrame = parent
+            self.master: ChatApp = master
 
             self.grid_anchor("center")
             self.grid(
@@ -639,8 +645,8 @@ class LoginFrame(tkb.Frame):
         def __init__(self, parent, master):
             tkb.Frame.__init__(self, parent)
 
-            self.parent = parent
-            self.master = master
+            self.parent: LoginFrame = parent
+            self.master: ChatApp = master
 
             self.grid_anchor("center")
             self.grid(
@@ -699,7 +705,7 @@ class RegisterFrame(tkb.Frame):
     def __init__(self, master):
         tkb.Frame.__init__(self, master)
 
-        self.master = master
+        self.master: ChatApp = master
 
         self.master.title("Glitchat - Register")
 
@@ -723,8 +729,8 @@ class RegisterFrame(tkb.Frame):
         def __init__(self, parent, master):
             tkb.Frame.__init__(self, parent)
 
-            self.parent = parent
-            self.master = master
+            self.parent: RegisterFrame = parent
+            self.master: ChatApp = master
 
             self.grid_anchor("center")
             self.grid(
@@ -756,8 +762,8 @@ class RegisterFrame(tkb.Frame):
         def __init__(self, parent, master):
             tkb.Frame.__init__(self, parent)
 
-            self.parent = parent
-            self.master = master
+            self.parent: RegisterFrame = parent
+            self.master: ChatApp = master
 
             self.grid_anchor("center")
             self.grid(row=2, rowspan=2, column=0, columnspan=2, sticky=tkb.NSEW)
@@ -817,8 +823,8 @@ class RegisterFrame(tkb.Frame):
         def __init__(self, parent, master):
             tkb.Frame.__init__(self, parent)
 
-            self.parent = parent
-            self.master = master
+            self.parent: RegisterFrame = parent
+            self.master: ChatApp = master
 
             self.grid_anchor("center")
             self.grid(
@@ -872,6 +878,6 @@ class TestFrame(tkb.Frame):
     def __init__(self, master):
         tkb.Frame.__init__(self, master)
 
-        self.master = master
+        self.master: ChatApp = master
 
         self.master.title("Glitchat - Test")
