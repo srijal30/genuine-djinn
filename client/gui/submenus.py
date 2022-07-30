@@ -30,9 +30,15 @@ class FileMenu(tkb.Menu):
 
     def on_leave(self) -> None:
         """On Leave Room item press."""
-        # loop = self.master.loop
-        # task = loop.create_task(self.master.)
-        pass
+        loop = self.master.loop
+        task = loop.create_task(self.master.connection.exit_room())
+
+        # POPUP
+        def callback(result: asyncio.Task):
+            print('you have left the room')
+            self.master.switch_frame(ConnectFrame)
+
+        task.add_done_callback(callback)
 
     def on_logout(self) -> None:
         """On Log Out item press."""
