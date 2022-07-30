@@ -30,11 +30,19 @@ class FileMenu(tkb.Menu):
 
     def on_leave(self) -> None:
         """On Leave Room item press."""
-        # ADD FUNC
+        # loop = self.master.loop
+        # task = loop.create_task(self.master.)
         pass
 
     def on_logout(self) -> None:
         """On Log Out item press."""
+        # check if in a room currently
+
+        # rn displays an error, but we could automagically do it for the user
+        if self.master.current_room:
+            print('make sure to leave room before logging out!')
+            return
+
         loop = self.master.loop
         task = loop.create_task(self.master.connection.logout())
 
