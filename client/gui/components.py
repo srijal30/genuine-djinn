@@ -1,16 +1,20 @@
-from typing import Any, Dict
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Dict
+
+if TYPE_CHECKING:
+    from app import ChatApp
+    from tkinter import Misc
 
 import ttkbootstrap as tkb  # type: ignore
 
-__app__ = (
-    "Message",
-)
+__app__ = ("Message",)
 
 
 class Message(tkb.Label):
     """Message class."""
 
-    def __init__(self, container, master, msg: Dict[str, Any]):
+    def __init__(self, container: Misc, master: ChatApp, msg: Dict[str, Any]):
         tkb.Label.__init__(self, container)
 
         self.msg_data = msg
