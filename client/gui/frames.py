@@ -3,15 +3,13 @@ from __future__ import annotations
 import asyncio
 import tkinter as tk
 from tkinter import Event
-from typing import TYPE_CHECKING, Any, Callable, Dict
+from typing import TYPE_CHECKING, Any, Dict
 
 import ttkbootstrap as tkb  # type: ignore
 from components import Message
-from ttkbootstrap.scrolled import ScrolledFrame, ScrolledText
+from ttkbootstrap.scrolled import ScrolledText
 
 if TYPE_CHECKING:
-    from tkinter import Misc
-
     from app import ChatApp
 
 
@@ -410,21 +408,32 @@ class ConnectFrame(tkb.Frame):
                 sticky=tkb.NSEW
             )
 
-            self.room_box = ScrolledFrame(self, autohide=True)
-            self.room_box.grid(
-                row=5,
-                column=1, columnspan=5,
-                padx=5, pady=20,
-                sticky=tkb.NSEW
-            )
+            # local variables for generating room grid
+            self.row = 6
+            self.col = 0
 
             for rm in self.master.room_list:
                 self.add_room(rm)
 
         def add_room(self, room: Dict[str, Any]) -> None:
             """Add a room to the room grid."""
-            new_room = Room(self.room_box, self.master, room['name'], room['id'], self.parent.update_rooms)
-            new_room.grid()
+            self.room_box = tkb.Button(self)
+            self.room_box.configure(
+                text=f"  {room['name']}#{room['id']}",
+            )
+            self.room_box.grid(
+                row=self.row, rowspan=1,
+                column=self.col, columnspan=1,
+                padx=10, pady=10,
+                ipadx=1, ipady=5,
+                sticky=tkb.NSEW
+            )
+            self.room_box.bind("<Button-1>", lambda e: self.parent.on_connect(room["id"]))
+
+            self.col += 1
+            if self.col == 3:
+                self.col = 0
+                self.row += 1
 
     def on_create(self, event: Event) -> None:
         """On Create Room button press."""
@@ -900,81 +909,3 @@ class TestFrame(tkb.Frame):
         self.master: ChatApp = master
 
         self.master.title("Glitchat - Test")
-
-
-class Room(tkb.LabelFrame):
-    """This is a room object."""
-
-    def __init__(self, container: Misc, master: ChatApp, name: str, id: int, update_rooms: Callable):
-        tkb.Labelframe.__init__(self, container, bootstyle='info', borderwidth=10)
-        self.master = master
-        self.container = container
-        self.update_rooms = update_rooms
-        self.id = id
-        self.name = name
-        self.text = tkb.Label(
-            master=self,
-            font=("Sans Serif", 12),
-            text=name
-        )
-        self.connect = tkb.Button(
-            master=self,
-            text=">",
-            bootstyle='success',
-            command=self.on_connect
-        )
-        self.leave = tkb.Button(
-            master=self,
-            text="X",
-            bootstyle='danger',
-            command=self.on_unjoin
-        )
-        self.text.grid(
-            row=0,
-            column=0,
-        )
-        self.connect.grid(
-            row=0,
-            column=1,
-            padx=(12, 4)
-        )
-        self.leave.grid(
-            row=0,
-            column=2
-        )
-
-    def on_connect(self):
-        """On Connect button being pressed."""
-        # connect to the room
-        for rm in self.master.room_list:
-            if rm["id"] == self.id:
-                self.master.current_room = rm
-
-        loop = self.master.loop
-        task = loop.create_task(self.master.connection.connect_room(self.id))
-
-        def callback(result: asyncio.Task) -> None:
-            success = result.result()
-            if success:
-                # start receiving messages and open chatroom
-                receive_task = self.master.connection.message_listener(
-                    self.master.receive_message
-                )
-                self.master.receive_task = task = loop.create_task(receive_task)
-
-                def callback(result: asyncio.Task) -> None:
-                    self.master.switch_frame(ConnectFrame)
-                task.add_done_callback(callback)
-
-                self.master.switch_frame(ChatFrame)
-
-        task.add_done_callback(callback)
-
-    def on_unjoin(self):
-        """Leaves the room."""
-        loop = self.master.loop
-        task = loop.create_task(self.master.connection.leave_room(self.id))
-
-        def callback(result: asyncio.Task):
-            self.update_rooms()
-        task.add_done_callback(callback)
