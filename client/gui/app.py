@@ -6,7 +6,7 @@ from connection import SocketClient
 from frames import (
     ChatFrame, ConnectFrame, LoginFrame, RegisterFrame, TestFrame
 )
-from menus import DebugMenu
+from menus import MainMenu
 from ttkbootstrap.dialogs.dialogs import Messagebox as msgbox
 
 __all__ = ("ChatApp",)
@@ -48,7 +48,7 @@ class ChatApp(tkb.Window):
         self.geometry("800x600")
         self.minsize(800, 600)
         self.resizable(True, True)
-        self.config(menu=DebugMenu(self))  # assign menu for window (MainMenu/DebugMenu)
+        self.config(menu=MainMenu(self))  # assign menu for window (MainMenu/DebugMenu)
 
         # frame switching and buffering
         self.current_frame = None

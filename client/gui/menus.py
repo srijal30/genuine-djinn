@@ -20,6 +20,7 @@ class MainMenu(tk.Menu):
 
         self.add_cascade(label="File", menu=FileMenu(self, master))  # File menu
         self.add_cascade(label="View", menu=ViewMenu(self, master))  # View menu
+        self.add_cascade(label="Help", menu=HelpMenu(self, master))  # Help menu
 
 
 class DebugMenu(tk.Menu):
