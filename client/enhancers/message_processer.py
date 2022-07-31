@@ -41,9 +41,18 @@ class AutoTranslater:
     def random_autotranslate(self, message: str):
         """Choose a random auto-translate method using probability weights."""
         random_translator = random.choices(self.translations, self.weights.values())[0]
-        self.weights[random_translator.__name__] *= 0.9
+        new_message = random_translator(message)
+
+        # If the message is expected to be changed and it doesn't, don't reduce the weights for that method
+        if random_translator == self.no_translate:
+            self.weights[random_translator.__name__] *= 0.9
+        elif new_message != message:
+            self.weights[random_translator.__name__] *= 0.9
+
         print(random_translator.__name__, self.weights[random_translator.__name__])
-        return random_translator(message)
+        print(f"Message changed? {new_message != message}")
+
+        return new_message
 
     def no_translate(self, message: str):
         """Don't translate and just return the message as is."""
@@ -128,7 +137,7 @@ class AutoCorrecter:
             # self.reverse_smiley.__name__: 1,
             self.censor.__name__: 1,
             # self.random_letter.__name__: 1,
-            self.autocorrect_entities.__name__: 4,
+            self.autocorrect_entities.__name__: 10,
         }
 
     def no_autocorrect(self, message: str) -> str:
@@ -140,12 +149,22 @@ class AutoCorrecter:
         random_autocorrect_method = random.choices(
             self.autocorrect_methods, self.weights.values()
         )[0]
-        self.weights[random_autocorrect_method.__name__] *= 0.9
+        new_message = random_autocorrect_method(message)
+
+        # If the message is expected to be changed and it doesn't, don't reduce the weights for that method
+        if random_autocorrect_method == self.no_autocorrect:
+            self.weights[random_autocorrect_method.__name__] *= 0.9
+        elif new_message != message:
+            self.weights[random_autocorrect_method.__name__] *= 0.9
+
         print(
+            "\n",
             random_autocorrect_method.__name__,
-            self.weights[random_autocorrect_method.__name__],
+            self.weights[random_autocorrect_method.__name__]
         )
-        return random_autocorrect_method(message)
+        print(f"Message changed? {new_message != message}")
+
+        return new_message
 
     def autocorrect_entities(self, message: str) -> str:
         """Autocorrect message by replacing entities."""
