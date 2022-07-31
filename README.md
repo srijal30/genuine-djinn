@@ -7,13 +7,12 @@ Start with cloning the repository and installing dependencies:
 ```bash
 $ git clone https://github.com/srijal30/genuine-djinn.git
 $ python3 -m pip install -r requirements.txt
-$ python3 -m spacy download en_core_web_sm
+$ python3 -m spacy download en_core_web_sm # install nlp
 ```
 
 Now, to start the app run the following:
 
 ```bash
-$ python -m spacy download en_core_web_sm # install nlp
 $ python3 main.py -a app
 ```
 
