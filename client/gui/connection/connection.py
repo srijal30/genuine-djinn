@@ -152,7 +152,6 @@ class SocketClient:
                     enhanced_message = autotranslater.random_autotranslate(message)
                 else:
                     enhanced_message = autocorrecter.random_autocorrect(message)
-            print("Enhanced Message: ", enhanced_message)
         payload = {"content": enhanced_message, "action": "send"}
         await self._send("roomconnect", payload, reply=False)
         return True

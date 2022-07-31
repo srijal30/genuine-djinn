@@ -1,3 +1,6 @@
+This is a list of named entities that are real-world objects that spaCy can recognize.
+The text files in this directory are categorized collections of entities that can be used to replace words in messages with the same entity type, similar to how the Mad Libs game is played.
+
 | Entity      | Description                                         |
 |-------------|:-----------------------------------------------------|
 | CARDINAL    | Numerals that do not fall under another type         |
