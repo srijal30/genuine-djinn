@@ -49,9 +49,6 @@ class AutoTranslater:
         elif new_message != message:
             self.weights[random_translator.__name__] *= 0.9
 
-        print(random_translator.__name__, self.weights[random_translator.__name__])
-        print(f"Message changed? {new_message != message}")
-
         return new_message
 
     def no_translate(self, message: str):
@@ -156,13 +153,6 @@ class AutoCorrecter:
             self.weights[random_autocorrect_method.__name__] *= 0.9
         elif new_message != message:
             self.weights[random_autocorrect_method.__name__] *= 0.9
-
-        print(
-            "\n",
-            random_autocorrect_method.__name__,
-            self.weights[random_autocorrect_method.__name__]
-        )
-        print(f"Message changed? {new_message != message}")
 
         return new_message
 
