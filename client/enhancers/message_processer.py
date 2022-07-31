@@ -7,7 +7,8 @@ from typing import Dict
 
 import spacy
 from spacy.matcher import Matcher
-from translations import boomhauer, emojify, owoify, pig_latin
+
+from .translations import boomhauer, emojify, owoify, pig_latin
 
 
 class AutoTranslater:
@@ -32,7 +33,7 @@ class AutoTranslater:
         self.messages[message_hash] = doc
         self.auto_translate(doc, message, message_hash)
 
-    def auto_translate(self, doc, message: str, message_hash: int):
+    def auto_translate(self, doc: spacy.tokens.doc.Doc, message: str, message_hash: int):
         """Translate message."""
         self.translated_messages[message_hash][
             boomhauer.__name__
@@ -44,6 +45,26 @@ class AutoTranslater:
         self.translated_messages[message_hash][
             pig_latin.__name__
         ] = pig_latin.pig_latin(doc)
+
+    def auto_translate_to_boomhauer(self, message: str):
+        """Translate to Boomhauer."""
+        doc: spacy.tokens.doc.Doc = self.nlp(message)
+        return boomhauer.boomhauer(doc)
+
+    def auto_translate_to_emojify(self, message: str):
+        """Translate to Boomhauer."""
+        doc: spacy.tokens.doc.Doc = self.nlp(message)
+        return emojify.emojify(doc)
+
+    def auto_translate_to_owoify(self, message: str):
+        """Translate to Boomhauer."""
+        doc: spacy.tokens.doc.Doc = self.nlp(message)
+        return owoify.owoify(self.nlp, doc)
+
+    def auto_translate_to_pig_latin(self, message: str):
+        """Translate to Boomhauer."""
+        doc: spacy.tokens.doc.Doc = self.nlp(message)
+        return pig_latin.pig_latin(doc)
 
 
 class AutoCorrecter:
@@ -66,16 +87,20 @@ class AutoCorrecter:
             self.alternating_case,
             self.inverse_case,
             self.reverse,
-            self.bold,
-            self.italics,
-            self.bold_and_italics,
-            self.strikethrough,
-            self.spoiler,
+
+            # Need markdown support
+
+            # self.bold,
+            # self.italics,
+            # self.bold_and_italics,
+            # self.strikethrough,
+            # self.spoiler,
+
             self.stutter,
             self.confused_screaming,
-            self.reverse_smiley,
+            # self.reverse_smiley,
             self.censor,
-            self.random_letter,
+            # self.random_letter,
         ]
         random_obscuring_method = random.choice(obscuring_methods)
         return random_obscuring_method(message)

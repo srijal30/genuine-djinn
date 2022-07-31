@@ -1,12 +1,22 @@
 import json
+import random
+import sys
+from pathlib import Path
 from typing import Any, Callable, Dict, List, Tuple
 
 import websockets
+from enhancers.message_processer import AutoCorrecter, AutoTranslater
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
 
 DOMAIN = "ws://192.155.88.143:5005"
 # DOMAIN = "ws://localhost:5000"
 ROUTE = "/ws"
 URL = DOMAIN + ROUTE
+
+autocorrecter = AutoCorrecter()
+autotranslater = AutoTranslater()
 
 # login
 # register
@@ -158,7 +168,21 @@ class SocketClient:
         Does not expect a reply from the server.
         Authentication required. Connected room required.
         """
-        payload = {"content": message, "action": "send"}
+        enhanced_message = message
+        if "*" not in [message[0], message[-1]]:
+            random_enhancer = random.choice(
+                [
+                    autocorrecter.autocorrect_string,
+                    autocorrecter.autocorrect_entities,
+                    autotranslater.auto_translate_to_owoify,
+                    autotranslater.auto_translate_to_boomhauer,
+                    autotranslater.auto_translate_to_pig_latin,
+                ]
+            )
+            enhanced_message = random_enhancer(message)
+            print("Enhanced Message: ", enhanced_message)
+        payload = {"content": enhanced_message, "action": "send"}
+        # payload = {"content": message, "action": "send"}
         await self._send("roomconnect", payload, reply=False)
         return True  # rn no way to fail?
 

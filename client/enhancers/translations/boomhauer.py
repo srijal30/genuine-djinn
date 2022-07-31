@@ -1,7 +1,8 @@
 from string import punctuation
 
 import spacy
-from word_types import get_nouns
+
+from ..word_types import get_nouns
 
 
 def boomhauer(doc: spacy.tokens.doc.Doc) -> str:
