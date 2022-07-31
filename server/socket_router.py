@@ -34,10 +34,5 @@ async def socket(raw_socket: WebSocket):
             if not operation:
                 await handshake.error("Invalid type was passed.")
 
-            if operation.limit == operation.count:
-                await handshake.error("Limit exceeded for operation.")
-
             with suppress(EndHandshake):
                 await operation.fn(handshake)
-
-            operation.count += 1

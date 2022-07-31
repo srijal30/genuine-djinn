@@ -23,7 +23,6 @@ class Operation:
 
     fn: OperationFunc
     limit: int = -1
-    count: int = 0
 
 
 async def _get_manager(rid: int) -> RoomManager:
