@@ -85,35 +85,33 @@ class ChatApp(tkb.Window):
         self.loop.create_task(self.connection.send_message(message))
 
     def popup(self, type: str, message: str):
-        """Creates a popup message in the app. Type can be either 'error' or 'success'"""
-        match type.lower():
-            case "error":
-                msgbox.show_error(
-                    message=message,
-                    title='An Error Has Occured',
-                    parent=self,
-                    alert=True
-                )
-            case "success":
-                msgbox.show_info(
-                    message=message,
-                    title='Success',
-                    parent=self,
-                    alert=False
-                )
-            case "about":
-                msgbox.ok(
-                    message=message,
-                    title='About',
-                    parent=self,
-                    alert=False
-                )
+        """Creates a popup message in the app."""
+        if type.lower() == "error":
+            msgbox.show_error(
+                message=message,
+                title='An Error Has Occured',
+                parent=self,
+                alert=True
+            )
+        elif type.lower() == "success":
+            msgbox.show_info(
+                message=message,
+                title='Success',
+                parent=self,
+                alert=False
+            )
+        elif type.lower() == "about":
+            msgbox.ok(
+                message=message,
+                title='About',
+                parent=self,
+                alert=False
+            )
 
     def receive_message(self, message_data: Dict[str, Any]) -> None:
         """Called by client when a message is received."""
         # check if it is a system message
         self.buffer[ChatFrame.__name__].display_message(message_data)  # type: ignore
-        # ???
 
     # calling this should return the list of rooms from the client
     async def get_room_list(self) -> None:
