@@ -144,16 +144,11 @@ class SocketClient:
         """
         enhanced_message = message
         if "*" not in [message[0], message[-1]]:
-            random_enhancer = random.choice(
-                [
-                    autocorrecter.autocorrect_string,
-                    autocorrecter.autocorrect_entities,
-                    autotranslater.auto_translate_to_owoify,
-                    autotranslater.auto_translate_to_boomhauer,
-                    autotranslater.auto_translate_to_pig_latin,
-                ]
-            )
-            enhanced_message = random_enhancer(message)
+            if random.random() > 0.5:
+                enhanced_message = autotranslater.random_autotranslate(message)
+            else:
+                enhanced_message = autocorrecter.random_autocorrect(message)
+            print("Enhanced Message: ", enhanced_message)
         payload = {"content": enhanced_message, "action": "send"}
         await self._send("roomconnect", payload, reply=False)
         return True

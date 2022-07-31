@@ -26,6 +26,22 @@ class AutoTranslater:
         self.messages: Dict[int, spacy.tokens.doc.Doc] = {}
         self.translated_messages: Dict[int, Dict[str, str]] = defaultdict(dict)
 
+        # List of translations
+        self.translations = [
+            self.no_translate,
+            self.auto_translate_to_owoify,
+            self.auto_translate_to_boomhauer,
+            self.auto_translate_to_pig_latin,
+        ]
+
+        # Random probability of using a translation based on weights
+        self.weights = {
+            self.no_translate.__name__: 10,
+            self.auto_translate_to_owoify.__name__: 1,
+            self.auto_translate_to_boomhauer.__name__: 1,
+            self.auto_translate_to_pig_latin.__name__: 1,
+        }
+
     def add_new_message(self, message: str):
         """Add a new message to the NLP processer."""
         doc: spacy.tokens.doc.Doc = self.nlp(message)
@@ -33,7 +49,9 @@ class AutoTranslater:
         self.messages[message_hash] = doc
         self.auto_translate(doc, message, message_hash)
 
-    def auto_translate(self, doc: spacy.tokens.doc.Doc, message: str, message_hash: int):
+    def auto_translate(
+        self, doc: spacy.tokens.doc.Doc, message: str, message_hash: int
+    ):
         """Translate message."""
         self.translated_messages[message_hash][
             boomhauer.__name__
@@ -45,6 +63,17 @@ class AutoTranslater:
         self.translated_messages[message_hash][
             pig_latin.__name__
         ] = pig_latin.pig_latin(doc)
+
+    def random_autotranslate(self, message: str):
+        """Choose a random auto-translate method using probability weights."""
+        random_translator = random.choices(self.translations, self.weights.values())[0]
+        self.weights[random_translator.__name__] *= 0.9
+        print(random_translator.__name__, self.weights[random_translator.__name__])
+        return random_translator(message)
+
+    def no_translate(self, message: str):
+        """Don't translate and just return the message as is."""
+        return message
 
     def auto_translate_to_boomhauer(self, message: str):
         """Translate to Boomhauer."""
@@ -78,31 +107,75 @@ class AutoCorrecter:
         # Merge named entities into a single token.
         self.nlp.add_pipe("merge_entities")
 
-    def autocorrect_string(self, message: str) -> str:
-        """Autocorrect message by manipulating the string."""
-        obscuring_methods = [
+        # List of autocorrecting moethods
+        self.autocorrect_methods = [
+            self.no_autocorrect,
             self.lowercase,
             self.uppercase,
             self.capital_case,
             self.alternating_case,
             self.inverse_case,
             self.reverse,
-
             # Need markdown support
-
+            # # # # # # # # # # # # #
             # self.bold,
             # self.italics,
             # self.bold_and_italics,
             # self.strikethrough,
             # self.spoiler,
-
+            # # # # # # # # # # # # #
             self.stutter,
             self.confused_screaming,
             # self.reverse_smiley,
             self.censor,
             # self.random_letter,
+            self.autocorrect_entities,
         ]
-        random_obscuring_method = random.choice(obscuring_methods)
+
+        # Random probability of using an autocorrect based on weights
+        self.weights = {
+            self.no_autocorrect.__name__: 20,
+            self.lowercase.__name__: 4,
+            self.uppercase.__name__: 4,
+            self.capital_case.__name__: 4,
+            self.alternating_case.__name__: 4,
+            self.inverse_case.__name__: 4,
+            self.reverse.__name__: 1,
+            # Need markdown support
+            # # # # # # # # # # # # #
+            # self.bold.__name__: 1,
+            # self.italics.__name__,
+            # self.bold_and_italics.__name__: 1,
+            # self.strikethrough.__name__: 1,
+            # self.spoiler.__name__: 1,
+            # # # # # # # # # # # # #
+            self.stutter.__name__: 4,
+            self.confused_screaming.__name__: 4,
+            # self.reverse_smiley.__name__: 1,
+            self.censor.__name__: 1,
+            # self.random_letter.__name__: 1,
+            self.autocorrect_entities.__name__: 4,
+        }
+
+    def no_autocorrect(self, message: str) -> str:
+        """Don't autocorrect and just return the message as is."""
+        return message
+
+    def random_autocorrect(self, message: str) -> str:
+        """Randomly autocorrect a message."""
+        random_autocorrect_method = random.choices(
+            self.autocorrect_methods, self.weights.values()
+        )[0]
+        self.weights[random_autocorrect_method.__name__] *= 0.9
+        print(
+            random_autocorrect_method.__name__,
+            self.weights[random_autocorrect_method.__name__],
+        )
+        return random_autocorrect_method(message)
+
+    def autocorrect_string(self, message: str) -> str:
+        """Autocorrect message by manipulating the string."""
+        random_obscuring_method = random.choice(self.autocorrect_methods)
         return random_obscuring_method(message)
 
     def autocorrect_entities(self, message: str) -> str:
