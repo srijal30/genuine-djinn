@@ -7,6 +7,7 @@ Start with cloning the repository and installing dependencies:
 ```bash
 $ git clone https://github.com/srijal30/genuine-djinn.git
 $ python3 -m pip install -r requirements.txt
+$ python3 -m spacy download en_core_web_sm
 ```
 
 Now, to start the app run the following:
