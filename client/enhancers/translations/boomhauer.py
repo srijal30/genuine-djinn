@@ -18,7 +18,7 @@ def boomhauer(doc: spacy.tokens.doc.Doc) -> str:
         # Add "dang ol" before every noun.
         if token.text in nouns:
             boomhauer_message += (
-                f"{'D' if boomhauer_message[-2]== '.' else 'd'}ang ol {token.text}"
+                f"{'D' if len(boomhauer_message) < 2 or boomhauer_message[-2]== '.' else 'd'}ang ol {token.text}"
             )
         # Add ", man" after every sentence.
         elif token.text in punctuation:
