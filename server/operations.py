@@ -241,7 +241,7 @@ async def logout(ws: SocketHandshake) -> None:
 
 # the key here is the type sent by the client
 operations: Dict[str, Operation] = {
-    "register": Operation(register, 1),
+    "register": Operation(register),
     "login": Operation(login),
     "createroom": Operation(create_room),
     "joinroom": Operation(join),
