@@ -92,20 +92,28 @@ class ChatApp(tkb.Window):
 
     def popup(self, type: str, message: str):
         """Creates a popup message in the app. Type can be either 'error' or 'success'"""
-        if type == 'error':
-            msgbox.show_error(
-                message=message,
-                title='An Error Has Occured',
-                parent=self,
-                alert=True
-            )
-        else:
-            msgbox.show_info(
-                message=message,
-                title='Success',
-                parent=self,
-                alert=False
-            )
+        match type.lower():
+            case "error":
+                msgbox.show_error(
+                    message=message,
+                    title='An Error Has Occured',
+                    parent=self,
+                    alert=True
+                )
+            case "success":
+                msgbox.show_info(
+                    message=message,
+                    title='Success',
+                    parent=self,
+                    alert=False
+                )
+            case "about":
+                msgbox.ok(
+                    message=message,
+                    title='About',
+                    parent=self,
+                    alert=False
+                )
 
     def receive_message(self, message_data: Dict[str, Any]) -> None:
         """Called by client when a message is received."""
