@@ -9,7 +9,12 @@ from enhancers.message_processer import AutoCorrecter, AutoTranslater
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
+# TO DO LIST:
+# - allow user to choose domain in GUI
+# - add message history endpoint
+# - make sure message listener shows 'stopped receiving'
 
+# ADD
 DOMAIN = "ws://192.155.88.143:5005"
 # DOMAIN = "ws://localhost:5000"
 ROUTE = "/ws"
@@ -17,22 +22,6 @@ URL = DOMAIN + ROUTE
 
 autocorrecter = AutoCorrecter()
 autotranslater = AutoTranslater()
-
-# login
-# register
-# create room
-# logout
-# join room
-# list rooms
-# exit a room
-# change username
-# leave room
-
-# connect to room
-# send messages
-# receive message ~ test more
-# receive edited message
-# getting message history ~ not done
 
 
 # add what ip to connect to in the constructor?
@@ -105,8 +94,6 @@ class SocketClient:
         res = await self._send("createroom", payload)
         return (res["code"], res["id"])
 
-    # MAKE SURE THAT THE TYPE 'CREATEROOM' is not a typo (it was a typo)
-    # There might be an issue with the return in the case that not successful.
     async def join_room(self, code: str) -> Dict[str, Any]:
         """
         Joins the room with given code.
@@ -118,7 +105,6 @@ class SocketClient:
         res = await self._send("joinroom", payload)
         return res
 
-    # maybe add state management here? (i added temp one for now)
     async def connect_room(self, id: int) -> bool:
         """
         Connects to a room.
@@ -158,9 +144,6 @@ class SocketClient:
 
         print("stopped receiving")  # DEBUG
 
-    # will the server send back a message after receiving a message send request?
-    # are we expecting a reply from the server?
-    # rn assuming no
     async def send_message(self, message: str) -> bool:
         """
         Sends a message to the server.
@@ -186,7 +169,6 @@ class SocketClient:
         await self._send("roomconnect", payload, reply=False)
         return True  # rn no way to fail?
 
-    # add code to check if there is a current room
     async def exit_room(self) -> bool:
         """
         Exits the currently connected room.
@@ -196,6 +178,7 @@ class SocketClient:
         """
         payload = {"end": True}
         await self._send("roomconnect", payload, reply=False)
+        self.connected_to_room = False
         return True
 
     async def list_rooms(self) -> List[Dict[str, Any]]:
