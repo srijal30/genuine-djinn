@@ -42,10 +42,9 @@ class FileMenu(tkb.Menu):
     def on_logout(self) -> None:
         """On Log Out item press."""
         # check if in a room currently
-
         # rn displays an error, but we could automagically do it for the user
         if self.master.current_room:
-            print("make sure to leave room before logging out!")
+            self.master.popup('error', 'You must not be connected to any rooms in order to logout!')
             return
 
         loop = self.master.loop
@@ -53,8 +52,8 @@ class FileMenu(tkb.Menu):
 
         # POPUP
         def callback(result: asyncio.Task) -> None:
-            print("logged out!")
             self.master.switch_frame(LoginFrame)
+            self.master.popup('success', 'You have successfully logged out!')
 
         task.add_done_callback(callback)
 

@@ -66,6 +66,7 @@ class ChatFrame(tkb.Frame):
             self.columnconfigure(0, weight=1)
             self.rowconfigure(1, weight=1)
 
+            print(self.master.current_room)
             self.cr: Dict[str, Any] = self.master.current_room
 
             self.room_info = tkb.Label(self, font=("Sans Serif Bold", 12))
@@ -193,15 +194,19 @@ class ChatFrame(tkb.Frame):
 
     def on_leave(self, event: Event) -> None:
         """On leave button being pressed. Leave chat room."""
-        # disconnect from chatroom request
         loop = self.master.loop
         task = loop.create_task(self.master.connection.exit_room())
 
+        # POPUP
         def callback(result: asyncio.Task) -> None:
             success = result.result()
-            print(f"leaving room was success:{success}")  # DEBUG
+            if success:
+                self.master.popup('success', 'You have successfully left the chatroom!')
+            else:
+                self.master.popup('error', "An error occured when leaving the room.")
 
         task.add_done_callback(callback)
+        self.master.receive_task.close()
         # add code to stop receiving messages if required
 
     def display_message(self, message: Dict[str, Any]) -> None:
@@ -429,7 +434,6 @@ class ConnectFrame(tkb.Frame):
             self.room_box.bind("<Button-1>", lambda e: self.parent.on_connect(room["id"]))
 
             self.col += 1
-
             if self.col == 3:
                 self.col = 0
                 self.row += 1
@@ -450,14 +454,11 @@ class ConnectFrame(tkb.Frame):
         def callback(result: asyncio.Task) -> None:
             room_info = result.result()
             self.update_rooms()
-
             self.master.popup(
                 type='success',
-                message=f'Creation of the room was a success\n \
-                Your room code: {room_info[0]}\nYour room id: {room_info[1]}'
+                message='Creation of the room was a success!\n'
+                + f'Your room code: {room_info[0]}\nYour room id: {room_info[1]}'
             )
-            print(f"New room code is: {room_info[0]}")
-            print(f"New room id is: {room_info[1]}")
 
         task.add_done_callback(callback)
 
@@ -474,29 +475,29 @@ class ConnectFrame(tkb.Frame):
                 name = result.result()['name']
                 self.update_rooms()
                 self.master.popup('success', f'You have successfully joined with name "{name}"')
-            except Exception:
-                self.master.popup('error', "An error occured when trying to join the room\n \
-                Make sure that you haven't already joined the room")
+            except Exception as e:
+                print(e)
+                self.master.popup('error', "An error occured when trying to join the room\n"
+                                           + "Make sure that you haven't already joined the room")
 
         task.add_done_callback(callback)
 
     def on_connect(self, id: int) -> None:
         """On Connect button being pressed."""
         # connect to the room
-        loop = self.master.loop
-        task = loop.create_task(self.master.connection.connect_room(id))
 
         for rm in self.master.room_list:
             if rm["id"] == id:
                 self.master.current_room = rm
-            break
+
+        loop = self.master.loop
+        task = loop.create_task(self.master.connection.connect_room(id))
 
         def callback(result: asyncio.Task) -> None:
             success = result.result()
-            print(f"connecting to room was a success: {success}")
             if success:
                 # start receiving messages and open chatroom
-                receive_task = self.master.connection.message_listener(
+                self.master.receive_task = receive_task = self.master.connection.message_listener(
                     self.master.receive_message
                 )
                 loop.create_task(receive_task)

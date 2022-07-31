@@ -94,6 +94,7 @@ class SocketClient:
         """
         payload = {"name": name}
         res = await self._send("createroom", payload)
+        print(res)
         return (res["code"], res["id"])
 
     async def join_room(self, code: str) -> Dict[str, Any]:
@@ -105,6 +106,7 @@ class SocketClient:
         """
         payload = {"code": code}
         res = await self._send("joinroom", payload)
+        print(res)  # DEBUG
         return res
 
     async def connect_room(self, id: int) -> bool:
