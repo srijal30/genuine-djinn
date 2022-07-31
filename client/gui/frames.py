@@ -234,8 +234,8 @@ class ConnectFrame(tkb.Frame):
 
         self.grid_anchor("center")
         self.grid(
-            row=0, rowspan=1,
-            column=0, columnspan=2,
+            row=0, rowspan=20,
+            column=0, columnspan=3,
             padx=3, pady=3,
             sticky=tkb.NSEW
         )
@@ -268,9 +268,11 @@ class ConnectFrame(tkb.Frame):
             self.parent: ConnectFrame = parent
             self.master: ChatApp = master
 
+            self.grid_anchor("center")
             self.grid(
                 row=0, rowspan=2,
-                column=0, columnspan=2
+                column=0, columnspan=3,
+                pady=30
             )
 
             self.login_as_label = tkb.Label(self, font=("Sans Serif Bold", 16))
@@ -278,7 +280,7 @@ class ConnectFrame(tkb.Frame):
             self.login_as_label.grid(
                 row=0, rowspan=2,
                 column=0, columnspan=1,
-                padx=10, pady=20,
+                padx=10, pady=0,
                 sticky=tkb.NSEW
             )
 
@@ -286,8 +288,8 @@ class ConnectFrame(tkb.Frame):
             self.username_label.configure(text=f"{self.master.user}#{self.master.tag}")
             self.username_label.grid(
                 row=0, rowspan=2,
-                column=1, columnspan=1,
-                padx=5, pady=3,
+                column=1, columnspan=2,
+                padx=5, pady=0,
                 sticky=tkb.NSEW
             )
 
@@ -300,32 +302,37 @@ class ConnectFrame(tkb.Frame):
             self.parent: ConnectFrame = parent
             self.master: ChatApp = master
 
+            self.grid_anchor("center")
             self.grid(
-                row=2, rowspan=1,
-                column=0, columnspan=3
+                row=2, rowspan=3,
+                column=0, columnspan=1,
+                pady=5
             )
 
-            self.join_label = tkb.Label(self)
+            self.join_label = tkb.Label(self, font=("Sans Serif", 12))
             self.join_label.configure(text="Join Room")
             self.join_label.grid(
                 row=2,
-                column=0
+                column=0,
+                pady=2
             )
 
-            self.join_box = tkb.Entry(self)
+            self.join_box = tkb.Entry(self, font=("Sans Serif", 14), justify="center")
             self.join_box.grid(
-                row=2,
-                column=1,
-                padx=20, pady=10
+                row=3,
+                column=0,
+                padx=10, pady=2
             )
             self.join_box.bind("<Return>", self.parent.on_join)
 
+            self.register_btn_style = tkb.Style()
+            self.register_btn_style.configure("join.TButton", font=("Sans Serif", 14))
             self.join_btn = tkb.Button(self)
-            self.join_btn.configure(text="Join")
+            self.join_btn.configure(text="Submit", style="join.TButton")
             self.join_btn.grid(
-                row=2,
-                column=2,
-                pady=3
+                row=4,
+                column=0,
+                pady=2
             )
             self.join_btn.bind("<ButtonPress>", self.parent.on_join)
 
@@ -338,32 +345,37 @@ class ConnectFrame(tkb.Frame):
             self.parent: ConnectFrame = parent
             self.master: ChatApp = master
 
+            self.grid_anchor("center")
             self.grid(
-                row=3, rowspan=1,
-                column=0, columnspan=3
+                row=2, rowspan=3,
+                column=2, columnspan=1,
+                pady=5
             )
 
-            self.create_label = tkb.Label(self)
-            self.create_label.configure(text="Make Room")
+            self.create_label = tkb.Label(self, font=("Sans Serif", 12))
+            self.create_label.configure(text="Create Room")
             self.create_label.grid(
-                row=3,
-                column=0
+                row=2,
+                column=2,
+                pady=2
             )
 
-            self.create_box = tkb.Entry(self)
+            self.create_box = tkb.Entry(self, font=("Sans Serif", 14), justify="center")
             self.create_box.grid(
                 row=3,
-                column=1,
-                padx=20, pady=10
+                column=2,
+                padx=10, pady=2
             )
             self.create_box.bind("<Return>", self.parent.on_create)
 
+            self.register_btn_style = tkb.Style()
+            self.register_btn_style.configure("create.TButton", font=("Sans Serif", 14))
             self.room_btn = tkb.Button(self)
-            self.room_btn.configure(text="Create")
+            self.room_btn.configure(text="Submit", style="create.TButton")
             self.room_btn.grid(
-                row=3,
+                row=4,
                 column=2,
-                pady=3
+                pady=2
             )
             self.room_btn.bind("<ButtonPress>", self.parent.on_create)
 
@@ -378,24 +390,23 @@ class ConnectFrame(tkb.Frame):
 
             self.grid_anchor("center")
             self.grid(
-                row=4, rowspan=10,
+                row=5, rowspan=10,
                 column=0, columnspan=3
             )
 
             self.room_label = tkb.Label(self, font=("Sans Serif Bold", 14))
             self.room_label.configure(
-                text="Your Rooms:",
-                justify="center"
+                text="Your Rooms:"
             )
             self.room_label.grid(
                 row=4, rowspan=1,
-                column=0, columnspan=3,
+                column=1, columnspan=1,
                 padx=5, pady=20,
                 sticky=tkb.NSEW
             )
 
             # local variables for generating room grid
-            self.row = 5
+            self.row = 6
             self.col = 0
 
             for rm in self.master.room_list:
@@ -403,7 +414,7 @@ class ConnectFrame(tkb.Frame):
 
         def add_room(self, room: Dict[str, Any]) -> None:
             """Add a room to the room grid."""
-            self.room_box = tkb.Label(self, font=("Sans Serif", 10))
+            self.room_box = tkb.Label(self, font=("Sans Serif", 12))
             self.room_box.configure(
                 text=f"  {room['name']}#{room['id']}",
                 justify="center"
@@ -750,7 +761,11 @@ class RegisterFrame(tkb.Frame):
             self.master: ChatApp = master
 
             self.grid_anchor("center")
-            self.grid(row=2, rowspan=2, column=0, columnspan=2, sticky=tkb.NSEW)
+            self.grid(
+                row=2, rowspan=2,
+                column=0, columnspan=2,
+                sticky=tkb.NSEW
+            )
 
             self.register_username_label = tkb.Label(self, font=("Sans Serif", 14))
             self.register_username_label.configure(text="Username", justify="right")
