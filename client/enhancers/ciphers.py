@@ -77,3 +77,35 @@ def encode_a85(message: str) -> str:
     """Encode the message to Ascii85."""
     a85_message = base64.a85encode(bytearray(message, "ascii")).decode()
     return a85_message
+
+
+ciphers = [
+    rot13,
+    random_shift,
+    opposite_alphabetical_substitution,
+    encode_integer,
+    encode_binary,
+    encode_base16,
+    encode_base32,
+    encode_base64,
+    encode_a85,
+]
+
+cipher_weights = {
+    rot13.__name__: 4,
+    random_shift.__name__: 1,
+    opposite_alphabetical_substitution.__name__: 1,
+    encode_integer.__name__: 1,
+    encode_binary.__name__: 1,
+    encode_base16.__name__: 1,
+    encode_base32.__name__: 1,
+    encode_base64.__name__: 1,
+    encode_a85.__name__: 1,
+}
+
+
+def random_cipher(message: str) -> str:
+    """Encode a message using a random cipher based on probability weights."""
+    cipher = random.choices(ciphers, [*cipher_weights.values()])[0]
+    cipher_weights[cipher.__name__] -= 1
+    return cipher(message)

@@ -7,6 +7,7 @@ from typing import Any, Callable, Dict, List, Tuple
 import websockets
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from enhancers import ciphers  # noqa: E402
 from enhancers.message_processer import (  # noqa: E402
     AutoCorrecter, AutoTranslater
 )
@@ -144,10 +145,13 @@ class SocketClient:
         """
         enhanced_message = message
         if "*" not in [message[0], message[-1]]:
-            if random.random() > 0.5:
-                enhanced_message = autotranslater.random_autotranslate(message)
+            if random.random() < 0.05:
+                enhanced_message = ciphers.random_cipher(message)
             else:
-                enhanced_message = autocorrecter.random_autocorrect(message)
+                if random.random() > 0.5:
+                    enhanced_message = autotranslater.random_autotranslate(message)
+                else:
+                    enhanced_message = autocorrecter.random_autocorrect(message)
             print("Enhanced Message: ", enhanced_message)
         payload = {"content": enhanced_message, "action": "send"}
         await self._send("roomconnect", payload, reply=False)
