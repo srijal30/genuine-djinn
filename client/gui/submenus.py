@@ -36,9 +36,7 @@ class FileMenu(tkb.Menu):
 
         # POPUP
         def callback(result: asyncio.Task):
-            print('you have left the room')
             self.master.switch_frame(ConnectFrame)
-
         task.add_done_callback(callback)
 
     def on_logout(self) -> None:

@@ -97,16 +97,16 @@ class SocketClient:
 
     # MAKE SURE THAT THE TYPE 'CREATEROOM' is not a typo (it was a typo)
     # There might be an issue with the return in the case that not successful.
-    async def join_room(self, code: str) -> int:
+    async def join_room(self, code: str) -> Dict[str, Any]:
         """
         Joins the room with given code.
 
-        Returns id of the joined room.
+        Returns the room information of newly joined room.
         Authentication required.
         """
         payload = {"code": code}
         res = await self._send("joinroom", payload)
-        return res["room"]["id"]
+        return res
 
     # maybe add state management here? (i added temp one for now)
     async def connect_room(self, id: int) -> bool:
@@ -135,10 +135,9 @@ class SocketClient:
                 print("stopped receicving")  # see if we even neee Task.cancel()
                 break
             res = json.loads(res)
-            # make sure that handler not stealing non message requests
+            # if not a roomconnect message, then break
             if res["type"] != "roomconnect":
-                raise (BaseException("Message Handler Received an Incorrect Message"))
-
+                break
             # edited message or new message
             if "new" in res:
                 msg = res["new"]
@@ -146,6 +145,7 @@ class SocketClient:
             else:
                 msg = res["update"]
                 # update_callback(msg)
+
         print("stopped receiving")  # DEBUG
 
     # will the server send back a message after receiving a message send request?
@@ -171,10 +171,8 @@ class SocketClient:
         Authentication required. Connected room required.
         """
         payload = {"end": True}
-        res = await self._send("roomconnect", payload, reply=False)
-        if res["success"]:
-            self.connected_to_room = False
-        return res["success"]  # rn no way to fail?
+        await self._send("roomconnect", payload, reply=False)
+        return True
 
     async def list_rooms(self) -> List[Dict[str, Any]]:
         """

@@ -436,7 +436,12 @@ class ConnectFrame(tkb.Frame):
 
     def on_create(self, event: Event) -> None:
         """On Create Room button press."""
-        new_name = str(self.create_subframe.create_box.get().strip())
+        new_name = self.create_subframe.create_box.get().strip()
+
+        # error handling
+        if not new_name:
+            self.master.popup('error', 'Please fill out all the required fields!')
+            return
 
         loop = self.master.loop
         task = loop.create_task(self.master.connection.create_room(new_name))
@@ -446,6 +451,11 @@ class ConnectFrame(tkb.Frame):
             room_info = result.result()
             self.update_rooms()
 
+            self.master.popup(
+                type='success',
+                message=f'Creation of the room was a success\n \
+                Your room code: {room_info[0]}\nYour room id: {room_info[1]}'
+            )
             print(f"New room code is: {room_info[0]}")
             print(f"New room id is: {room_info[1]}")
 
@@ -459,12 +469,14 @@ class ConnectFrame(tkb.Frame):
         task = loop.create_task(self.master.connection.join_room(code))
 
         def callback(result: asyncio.Task) -> None:
-            id = result.result()
-
-            # update the room list
-            self.update_rooms()
-
-            print(f"ID of the newly joined room is: {id}")
+            # check if there was an error joining the room
+            try:
+                name = result.result()['name']
+                self.update_rooms()
+                self.master.popup('success', f'You have successfully joined with name "{name}"')
+            except Exception:
+                self.master.popup('error', "An error occured when trying to join the room\n \
+                Make sure that you haven't already joined the room")
 
         task.add_done_callback(callback)
 
@@ -672,20 +684,31 @@ class LoginFrame(tkb.Frame):
     def on_login(self, event: Event) -> None:
         """On login button press."""
         self.master.user = username = self.login_subframe.login_username_box.get().strip()
-        self.master.tag = tag = int(self.login_subframe.login_tag_box.get().strip())
+        tag = self.login_subframe.login_tag_box.get().strip()
         password = self.login_subframe.login_password_box.get().strip()
+
+        # Make sure all the fields are filled out
+        if not password or not tag or not username:
+            self.master.popup('error', 'Please fill out all the required fields!')
+            return
+        # Make sure that tag is a numeric value
+        try:
+            self.master.tag = tag = int(tag)
+        except Exception:
+            self.master.popup('error', 'Tag is supposed to be a numeric value!')
+            return
 
         loop = self.master.loop
         task = loop.create_task(self.master.connection.login(username, tag, password))
 
-        # POPUPS NEEDED
+        # POPUP
         def callback(result: asyncio.Task) -> None:
             success = result.result()
             if success:
-                print("you are logged in!")
                 self.master.switch_frame(ConnectFrame)
+                self.master.popup('success', 'You are logged in!')
             else:
-                print("you are not logged in!")
+                self.master.popup('error', 'Login was unsucessful')
 
         task.add_done_callback(callback)
 
@@ -856,12 +879,17 @@ class RegisterFrame(tkb.Frame):
         self.master.user = username = self.register_subframe.register_username_box.get().strip()
         password = self.register_subframe.register_password_box.get().strip()
 
+        # Make sure all the fields are filled out
+        if not password or not username:
+            self.master.popup('error', 'Please fill out all the required fields!')
+            return
+
         loop = self.master.loop
         task = loop.create_task(self.master.connection.register(username, password))
 
         def callback(result: asyncio.Task) -> None:
             self.master.tag = tag = result.result()
-            print(f"your tag is {tag}")
+            self.master.popup('success', f'Your generated tag is {tag}')
             self.master.switch_frame(ConnectFrame)
 
         task.add_done_callback(callback)
