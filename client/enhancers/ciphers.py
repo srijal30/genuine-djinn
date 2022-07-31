@@ -107,5 +107,8 @@ cipher_weights = {
 def random_cipher(message: str) -> str:
     """Encode a message using a random cipher based on probability weights."""
     cipher = random.choices(ciphers, [*cipher_weights.values()])[0]
+
+    # Reduce weight of chosen cipher method.
     cipher_weights[cipher.__name__] -= 1
+
     return cipher(message)

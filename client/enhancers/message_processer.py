@@ -40,6 +40,7 @@ class AutoTranslater:
 
     def random_autotranslate(self, message: str):
         """Choose a random auto-translate method using probability weights."""
+        # Choose a random translator based on their weight values
         random_translator = random.choices(self.translations, self.weights.values())[0]
         new_message = random_translator(message)
 
@@ -87,7 +88,7 @@ class AutoCorrecter:
         # Merge named entities into a single token.
         self.nlp.add_pipe("merge_entities")
 
-        # List of autocorrecting moethods
+        # List of all autocorrecting methods.
         self.autocorrect_methods = [
             self.no_autocorrect,
             self.lowercase,
@@ -112,7 +113,7 @@ class AutoCorrecter:
             self.autocorrect_entities,
         ]
 
-        # Random probability of using an autocorrect based on weights
+        # Set the weight values for autocorrect methods to change the probability of them being called.
         self.weights = {
             self.no_autocorrect.__name__: 20,
             self.lowercase.__name__: 4,
@@ -143,6 +144,7 @@ class AutoCorrecter:
 
     def random_autocorrect(self, message: str) -> str:
         """Randomly autocorrect a message."""
+        # Choose a random autocorrecter based on their weight values
         random_autocorrect_method = random.choices(
             self.autocorrect_methods, self.weights.values()
         )[0]
@@ -161,11 +163,12 @@ class AutoCorrecter:
         doc: spacy.tokens.doc.Doc = self.nlp(message)
         token_list = [token.text for token in doc]
 
-        # Replace with entities labels for now.
+        # Replace predicted entities in messages with another random entity in the same category.
         for ent in doc.ents:
             random_entity = self._get_random_entity(ent.label_, ent.text)
             token_list[ent.start: ent.end] = [random_entity]
 
+        # Keep whitespaces from the original message.
         autocorrected_message = ""
         for i in range(len(token_list)):
             autocorrected_message += token_list[i] + doc[i].whitespace_
