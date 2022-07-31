@@ -35,5 +35,8 @@ class Message(tkb.Label):
     def set_msg(self, msg: Dict[str, Any]) -> None:
         """Updates the message object."""
         self.msg_data = msg
-        self.msg = f"{self.msg_data['author']['name']}: {self.msg_data['content']}"
+        if self.msg_data['author']['id'] == 0 or self.msg_data['author']['tag'] == 0:
+            self.msg = self.msg_data['content']
+        else:
+            self.msg = f"{self.msg_data['author']['name']}: {self.msg_data['content']}"
         self.setup()

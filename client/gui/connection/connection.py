@@ -11,11 +11,6 @@ from enhancers.message_processer import (  # noqa: E402
     AutoCorrecter, AutoTranslater
 )
 
-# TO DO LIST:
-# - allow user to choose domain in GUI
-# - add message history endpoint
-# - make sure message listener shows 'stopped receiving'
-
 # ADD
 DOMAIN = "ws://192.155.88.143:5005"
 # DOMAIN = "ws://localhost:5000"
@@ -27,22 +22,19 @@ autotranslater = AutoTranslater()
 
 
 # add what ip to connect to in the constructor?
-# add a __new__ method so that we can call connect on construction
 class SocketClient:
     """API Wrapper that handles all client side communication with the server."""
 
-    connected_to_room = False  # is this required?
+    connected_to_room = False
 
     async def connect(self):
         """Connects to the server. Must be called in order for everything to work."""
         self.ws = await websockets.connect(URL)
-        print("connected!")  # DEBUG
 
     async def _receive(self) -> Dict[str, Any]:
         """Receives a message from the server. Converts raw data to python dict."""
         res = await self.ws.recv()
         load = json.loads(res)
-
         return load
 
     async def _send(
@@ -94,7 +86,6 @@ class SocketClient:
         """
         payload = {"name": name}
         res = await self._send("createroom", payload)
-        print(res)
         return (res["code"], res["id"])
 
     async def join_room(self, code: str) -> Dict[str, Any]:
@@ -106,7 +97,6 @@ class SocketClient:
         """
         payload = {"code": code}
         res = await self._send("joinroom", payload)
-        print(res)  # DEBUG
         return res
 
     async def connect_room(self, id: int) -> bool:
@@ -121,7 +111,6 @@ class SocketClient:
         self.connected_to_room = res["success"]
         return res["success"]
 
-    # check what msg is, is it a json or string???
     async def message_listener(self, callback: Callable[[str], None]) -> None:
         """
         Starts a message receiving listener.
@@ -130,9 +119,7 @@ class SocketClient:
         Authentication required. Connected room required.
         """
         async for res in self.ws:
-            # makes sure that there is a way for loop to end
             if not self.connected_to_room:
-                print("stopped receicving")  # see if we even neee Task.cancel()
                 break
             res = json.loads(res)
             # if not a roomconnect message, then break
@@ -142,11 +129,11 @@ class SocketClient:
             if "new" in res:
                 msg = res["new"]
                 callback(msg)  # make this the new_callback
-            else:
+            elif "update" in res:
                 msg = res["update"]
-                # update_callback(msg)
-
-        print("stopped receiving")  # DEBUG
+                # update_callback(msg) not implemented
+            else:
+                break
 
     async def send_message(self, message: str) -> bool:
         """
@@ -167,11 +154,9 @@ class SocketClient:
                 ]
             )
             enhanced_message = random_enhancer(message)
-            print("Enhanced Message: ", enhanced_message)
         payload = {"content": enhanced_message, "action": "send"}
-        # payload = {"content": message, "action": "send"}
         await self._send("roomconnect", payload, reply=False)
-        return True  # rn no way to fail?
+        return True
 
     async def exit_room(self) -> bool:
         """

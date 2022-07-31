@@ -66,7 +66,6 @@ class ChatFrame(tkb.Frame):
             self.columnconfigure(0, weight=1)
             self.rowconfigure(1, weight=1)
 
-            print(self.master.current_room)
             self.cr: Dict[str, Any] = self.master.current_room
 
             self.room_info = tkb.Label(self, font=("Sans Serif Bold", 12))
@@ -188,7 +187,6 @@ class ChatFrame(tkb.Frame):
         msg = self.entry_subframe.message_box.get().strip()
 
         if len(msg) > 0:
-            print(f"Message: {msg}")
             self.master.send_message(msg)
             self.entry_subframe.message_box.delete(0, "end")
 
@@ -472,13 +470,11 @@ class ConnectFrame(tkb.Frame):
         def callback(result: asyncio.Task) -> None:
             # check if there was an error joining the room
             try:
-                name = result.result()['name']
+                name = result.result()['room']['name']
                 self.update_rooms()
                 self.master.popup('success', f'You have successfully joined with name "{name}"')
-            except Exception as e:
-                print(e)
-                self.master.popup('error', "An error occured when trying to join the room\n"
-                                           + "Make sure that you haven't already joined the room")
+            except Exception:
+                self.master.popup('error', "Room code incorrect or room already joined!")
 
         task.add_done_callback(callback)
 
@@ -497,10 +493,15 @@ class ConnectFrame(tkb.Frame):
             success = result.result()
             if success:
                 # start receiving messages and open chatroom
-                self.master.receive_task = receive_task = self.master.connection.message_listener(
+                receive_task = self.master.connection.message_listener(
                     self.master.receive_message
                 )
-                loop.create_task(receive_task)
+                self.master.receive_task = task = loop.create_task(receive_task)
+
+                def callback(result: asyncio.Task) -> None:
+                    self.master.switch_frame(ConnectFrame)
+                task.add_done_callback(callback)
+
                 self.master.switch_frame(ChatFrame)
 
         task.add_done_callback(callback)

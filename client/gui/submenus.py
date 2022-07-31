@@ -31,21 +31,32 @@ class FileMenu(tkb.Menu):
 
     def on_leave(self) -> None:
         """On Leave Room item press."""
+        if self.master.current_room is None:
+            self.master.popup('error', 'You must be in a room in order to leave it!')
+            return
+
         loop = self.master.loop
         task = loop.create_task(self.master.connection.exit_room())
 
-        # POPUP
         def callback(result: asyncio.Task):
-            self.master.switch_frame(ConnectFrame)
+            self.master.current_room = None
+
         task.add_done_callback(callback)
 
     def on_logout(self) -> None:
         """On Log Out item press."""
         # check if in a room currently
-        # rn displays an error, but we could automagically do it for the user
         if self.master.current_room:
             self.master.popup('error', 'You must not be connected to any rooms in order to logout!')
             return
+
+        # check if we are even logged in
+        if not self.master.user and not self.master.tag:
+            self.master.popup('error', 'You must be logged in to logout!')
+            return
+
+        self.master.user = None
+        self.master.tag = None
 
         loop = self.master.loop
         task = loop.create_task(self.master.connection.logout())
@@ -72,7 +83,7 @@ class ViewMenu(tkb.Menu):
         self.master: ChatApp = master
         self.parent = parent
 
-        tkb.Style("superhero")  # default theme
+        tkb.Style("darkly")  # default theme
 
         # Clear Chat
         self.add_command(label="Clear Chat", command=self.on_clear)
@@ -99,6 +110,9 @@ class ViewMenu(tkb.Menu):
 
     def on_clear(self) -> None:
         """On Clear Chat item press."""
+        if type(self.master.current_frame) != ChatFrame:
+            self.master.popup('error', 'You can only clear chat when connected to a chatroom!')
+            return
         self.master.current_frame.clear_chat()
 
 

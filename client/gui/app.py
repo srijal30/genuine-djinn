@@ -38,6 +38,7 @@ class ChatApp(tkb.Window):
         # room list
         self.room_list: List[dict] = []
         self.current_room = None
+        self.receive_task = None
 
         # user and tag
         self.user = None
@@ -81,14 +82,7 @@ class ChatApp(tkb.Window):
 
     def send_message(self, message: str) -> None:
         """Passes a message on to the client server."""
-        # add error handling in the future
-        task = self.loop.create_task(self.connection.send_message(message))
-
-        def callback(result: asyncio.Task) -> None:
-            success = result.result()
-            print(success)
-
-        task.add_done_callback(callback)
+        self.loop.create_task(self.connection.send_message(message))
 
     def popup(self, type: str, message: str):
         """Creates a popup message in the app. Type can be either 'error' or 'success'"""
