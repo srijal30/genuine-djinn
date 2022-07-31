@@ -684,7 +684,7 @@ class LoginFrame(tkb.Frame):
 
     def on_login(self, event: Event) -> None:
         """On login button press."""
-        self.master.user = username = self.login_subframe.login_username_box.get().strip()
+        self.master.user = username = self.login_subframe.login_username_box.get().strip().lower()
         tag = self.login_subframe.login_tag_box.get().strip()
         password = self.login_subframe.login_password_box.get().strip()
 
@@ -877,7 +877,7 @@ class RegisterFrame(tkb.Frame):
 
     def on_register(self, event: Event) -> None:
         """On registration button press."""
-        self.master.user = username = self.register_subframe.register_username_box.get().strip()
+        self.master.user = username = self.register_subframe.register_username_box.get().strip().lower()
         password = self.register_subframe.register_password_box.get().strip()
 
         # Make sure all the fields are filled out
