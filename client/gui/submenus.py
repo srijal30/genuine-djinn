@@ -106,19 +106,20 @@ class ViewMenu(tkb.Menu):
 class HelpMenu(tkb.Menu):
     """Help dropdown menu."""
 
-    def __init__(self, parent: Misc, _):
+    def __init__(self, parent: Misc, master: ChatApp):
         tkb.Menu.__init__(self, parent)
+
+        self.master: ChatApp = master
+        self.parent = parent
 
         self.add_command(label="About", command=self.on_about)
 
     def on_about(self) -> None:
         """Open About window."""
-        about = tkb.Window()
-        about.title("Glitchat - About")
-        about.minsize(400, 200)
-        about_text = tkb.Label(about, text="https://github.com/srijal30/genuine-djinn")
-        about_text.pack()
-        about.mainloop()
+        self.master.popup(
+            type="about",
+            message="Glitchat - A Python Summer Code Jam 2022 Project\nhttps://github.com/srijal30/genuine-djinn"
+        )
 
 
 class TestMenu(tkb.Menu):
