@@ -42,9 +42,6 @@ class SocketClient:
         res = await self.ws.recv()
         load = json.loads(res)
 
-        if not load["success"]:
-            raise Exception(f"server returned error: {load['message']}")
-
         return load
 
     async def _send(
