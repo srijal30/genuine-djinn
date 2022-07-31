@@ -5,10 +5,11 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Tuple
 
 import websockets
-from enhancers.message_processer import AutoCorrecter, AutoTranslater
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
+from enhancers.message_processer import (  # noqa: E402
+    AutoCorrecter, AutoTranslater
+)
 
 DOMAIN = "ws://192.155.88.143:5005"
 # DOMAIN = "ws://localhost:5000"
