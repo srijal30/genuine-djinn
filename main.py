@@ -4,8 +4,6 @@ import click
 import uvicorn
 from dotenv import load_dotenv
 
-from server.app import app
-
 loaded_client: bool
 
 try:
@@ -63,6 +61,7 @@ def main(
             sys.exit(1)
         start_app()
     else:
+        from server.app import app
         uvicorn.run(app, host=host, port=port)
 
 
