@@ -13,6 +13,7 @@ $ python3 -m spacy download en_core_web_sm
 Now, to start the app run the following:
 
 ```bash
+$ python -m spacy download en_core_web_sm # install nlp
 $ python3 main.py -a app
 ```
 
